@@ -1,0 +1,436 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Drishthi Printing{% endblock %}
+
+{% block meta_description %}{{ product.description|truncatechars:155 }}{% endblock %}
+
+{% block content %}
+<!-- Product Detail Section -->
+<section class="pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500">
+                <li><a href="{% url 'home:home' %}" class="hover:text-purple-600">Home</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li><a href="{% url 'products:category' product.category.slug %}" class="hover:text-purple-600">{{ product.category.name }}</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-gray-900">{{ product.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            <!-- Product Images -->
+            <div>
+                <div class="aspect-w-4 aspect-h-3 mb-4">
+                    {% if product.images.all %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" 
+                             class="w-full h-96 object-cover rounded-lg shadow-lg" id="mainImage">
+                    {% else %}
+                        {% if 'business' in product.name|lower %}
+                            <img src="{% static 'images/business-cards.svg' %}" alt="{{ product.name }}" 
+                                 class="w-full h-96 object-cover rounded-lg shadow-lg" id="mainImage">
+                        {% elif 'brochure' in product.name|lower %}
+                            <img src="{% static 'images/brochure-design.svg' %}" alt="{{ product.name }}" 
+                                 class="w-full h-96 object-cover rounded-lg shadow-lg" id="mainImage">
+                        {% elif 'folder' in product.name|lower %}
+                            <img src="{% static 'images/product-folders.svg' %}" alt="{{ product.name }}" 
+                                 class="w-full h-96 object-cover rounded-lg shadow-lg" id="mainImage">
+                        {% elif 'sticker' in product.name|lower %}
+                            <img src="{% static 'images/service-labels-stickers.svg' %}" alt="{{ product.name }}" 
+                                 class="w-full h-96 object-cover rounded-lg shadow-lg" id="mainImage">
+                        {% else %}
+                            <img src="{% static 'images/hero-book.png' %}" alt="{{ product.name }}" 
+                                 class="w-full h-96 object-cover rounded-lg shadow-lg" id="mainImage">
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <!-- Image Thumbnails -->
+                {% if product.images.count > 1 %}
+                <div class="grid grid-cols-4 gap-2">
+                    {% for image in product.images.all %}
+                    <button class="aspect-w-1 aspect-h-1 border-2 border-gray-200 rounded-lg overflow-hidden hover:border-purple-500 transition-colors"
+                            onclick="changeImage('{{ image.image.url }}')">
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-full h-20 object-cover">
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
+                
+                <div class="flex items-center mb-4">
+                    <span class="text-2xl font-bold text-purple-600">₹{{ product.base_price }}</span>
+                    {% if product.original_price and product.original_price > product.base_price %}
+                        <span class="text-lg text-gray-500 line-through ml-2">₹{{ product.original_price }}</span>
+                        <span class="text-sm bg-red-100 text-red-800 px-2 py-1 rounded-full ml-2">
+                            Save {{ product.discount_percentage }}%
+                        </span>
+                    {% endif %}
+                    <span class="text-sm text-gray-500 ml-2">+ taxes</span>
+                </div>
+
+                <div class="mb-6">
+                    <p class="text-gray-600">{{ product.description }}</p>
+                </div>
+
+                <!-- Product Features -->
+                {% if product.features %}
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Key Features</h3>
+                    <ul class="space-y-2">
+                        {% for feature in product.features %}
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span class="text-gray-600">{{ feature }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Customization Options -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Customization Options</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                            <select id="quantity" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                                <option value="50">50 pieces - ₹{{ product.base_price }}</option>
+                                <option value="100">100 pieces - ₹{{ product.base_price|floatformat:0 }}</option>
+                                <option value="250">250 pieces - ₹{{ product.base_price|floatformat:0 }}</option>
+                                <option value="500">500 pieces - ₹{{ product.base_price|floatformat:0 }}</option>
+                                <option value="1000">1000 pieces - ₹{{ product.base_price|floatformat:0 }}</option>
+                                <option value="custom">Custom Quantity</option>
+                            </select>
+                        </div>
+
+                        {% if product.paper_options %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Paper Type</label>
+                            <select id="paperType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                                {% for option in product.paper_options %}
+                                <option value="{{ option.value }}">{{ option.name }} - +₹{{ option.price_modifier }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+
+                        {% if product.size_options %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Size</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                {% for option in product.size_options %}
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="radio" name="size" value="{{ option.value }}" class="mr-2">
+                                    <span class="text-sm">{{ option.name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Design Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Your Design</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
+                                <input type="file" id="designUpload" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.ai,.psd">
+                                <label for="designUpload" class="cursor-pointer">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                    <p class="text-sm text-gray-600">Click to upload or drag and drop</p>
+                                    <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG, AI, PSD up to 50MB</p>
+                                </label>
+                            </div>
+                            <p class="text-xs text-purple-600 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Don't have a design? Our team can help you create one for free!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Calculator -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Price Breakdown</h3>
+                    <div id="priceBreakdown">
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-600">Base Price (50 pieces)</span>
+                            <span class="font-semibold">₹{{ product.base_price }}</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-semibold text-gray-900">Total</span>
+                                <span class="text-xl font-bold text-purple-600" id="totalPrice">₹{{ product.base_price }}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Per piece: ₹<span id="perPiecePrice">{{ product.base_price|floatformat:2 }}</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button class="btn-primary flex-1 flex items-center justify-center" id="addToCartBtn">
+                        <i class="fas fa-shopping-cart mr-2"></i>
+                        Add to Cart
+                    </button>
+                    <button class="border-2 border-purple-600 text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-purple-600 hover:text-white transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-calculator mr-2"></i>
+                        Get Quote
+                    </button>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="mt-8 space-y-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-truck text-green-500 mr-2"></i>
+                        <span>Free delivery on orders above ₹2000</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-clock text-blue-500 mr-2"></i>
+                        <span>Standard delivery: 3-5 business days</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-shield-alt text-purple-500 mr-2"></i>
+                        <span>100% quality guarantee or money back</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Tabs -->
+        <div class="mb-16">
+            <div class="border-b border-gray-200 mb-8">
+                <nav class="-mb-px flex space-x-8">
+                    <button class="tab-button py-2 px-1 border-b-2 font-medium text-sm active" data-tab="specifications">
+                        Specifications
+                    </button>
+                    <button class="tab-button py-2 px-1 border-b-2 font-medium text-sm" data-tab="shipping">
+                        Shipping Info
+                    </button>
+                    <button class="tab-button py-2 px-1 border-b-2 font-medium text-sm" data-tab="reviews">
+                        Reviews ({{ product.review_count }})
+                    </button>
+                </nav>
+            </div>
+
+            <div class="tab-content">
+                <div id="specifications" class="tab-panel active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-4">Product Details</h4>
+                            <dl class="space-y-3">
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">Category:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.category.name }}</dd>
+                                </div>
+                                {% if product.dimensions %}
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">Dimensions:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.dimensions }}</dd>
+                                </div>
+                                {% endif %}
+                                {% if product.weight %}
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">Weight:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.weight }}</dd>
+                                </div>
+                                {% endif %}
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">SKU:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.sku }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-4">Printing Specifications</h4>
+                            <dl class="space-y-3">
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">Print Type:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.print_type|default:"Digital/Offset" }}</dd>
+                                </div>
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">Color Options:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.color_options|default:"Full Color (CMYK)" }}</dd>
+                                </div>
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">Finish:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.finish_options|default:"Matte/Gloss" }}</dd>
+                                </div>
+                                <div class="flex">
+                                    <dt class="text-sm text-gray-600 w-32">Min. Order:</dt>
+                                    <dd class="text-sm text-gray-900">{{ product.minimum_order|default:"50 pieces" }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="shipping" class="tab-panel">
+                    <div class="prose max-w-none">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Shipping Information</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h5 class="font-semibold text-gray-900 mb-3">Delivery Options</h5>
+                                <ul class="space-y-2">
+                                    <li class="flex items-center">
+                                        <i class="fas fa-truck text-green-500 mr-2"></i>
+                                        <span class="text-sm">Standard Delivery: 3-5 business days - ₹50</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-shipping-fast text-blue-500 mr-2"></i>
+                                        <span class="text-sm">Express Delivery: 1-2 business days - ₹150</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-motorcycle text-orange-500 mr-2"></i>
+                                        <span class="text-sm">Same Day Delivery (Mumbai): ₹250</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-gray-900 mb-3">Shipping Policy</h5>
+                                <ul class="text-sm text-gray-600 space-y-2">
+                                    <li>• Free shipping on orders above ₹2000</li>
+                                    <li>• All orders are insured and tracked</li>
+                                    <li>• Packaging designed to protect your prints</li>
+                                    <li>• Delivery confirmation via SMS/Email</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reviews" class="tab-panel">
+                    <div class="text-center py-8">
+                        <i class="fas fa-star text-4xl text-gray-300 mb-4"></i>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h4>
+                        <p class="text-gray-600 mb-4">Be the first to review this product!</p>
+                        <button class="btn-primary">Write a Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        {% if related_products %}
+        <div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">Related Products</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for related in related_products %}
+                <div class="card group">
+                    <div class="aspect-w-4 aspect-h-3 mb-4">
+                        {% if related.images.first %}
+                            <img src="{{ related.images.first.image.url }}" alt="{{ related.name }}" 
+                                 class="w-full h-48 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
+                        {% else %}
+                            <img src="{% static 'images/product-placeholder.png' %}" alt="{{ related.name }}" 
+                                 class="w-full h-48 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
+                        {% endif %}
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">{{ related.name }}</h3>
+                    <p class="text-gray-600 text-sm mb-4">{{ related.description|truncatechars:100 }}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-purple-600 font-bold">₹{{ related.base_price }}</span>
+                        <a href="{% url 'products:detail' related.category.slug related.slug %}" 
+                           class="btn-primary text-sm px-4 py-2">View Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+// Image gallery functionality
+function changeImage(imageSrc) {
+    document.getElementById('mainImage').src = imageSrc;
+}
+
+// Tab functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+
+            // Update button styles
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'border-purple-500', 'text-purple-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            this.classList.add('active', 'border-purple-500', 'text-purple-600');
+
+            // Show/hide panels
+            tabPanels.forEach(panel => {
+                panel.classList.remove('active');
+                panel.style.display = 'none';
+            });
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById(tabId).style.display = 'block';
+        });
+    });
+
+    // Add to cart functionality
+    document.getElementById('addToCartBtn').addEventListener('click', function() {
+        // Add AJAX call to add product to cart
+        const quantity = document.getElementById('quantity').value;
+        const productId = {{ product.id }};
+        
+        // Show success message
+        this.innerHTML = '<i class="fas fa-check mr-2"></i>Added to Cart!';
+        this.classList.add('bg-green-500');
+        this.disabled = true;
+        
+        setTimeout(() => {
+            this.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i>Add to Cart';
+            this.classList.remove('bg-green-500');
+            this.disabled = false;
+        }, 2000);
+    });
+
+    // Price calculation
+    document.getElementById('quantity').addEventListener('change', function() {
+        const quantity = parseInt(this.value);
+        const basePrice = {{ product.base_price }};
+        const total = basePrice * (quantity / 50); // Assuming base price is for 50 pieces
+        const perPiece = total / quantity;
+
+        document.getElementById('totalPrice').textContent = '₹' + total.toFixed(0);
+        document.getElementById('perPiecePrice').textContent = perPiece.toFixed(2);
+    });
+});
+</script>
+
+<style>
+.tab-button.active {
+    border-color: #7c3aed;
+    color: #7c3aed;
+}
+
+.tab-button:not(.active) {
+    border-color: transparent;
+    color: #6b7280;
+}
+
+.tab-button:not(.active):hover {
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+</style>
+{% endblock %}

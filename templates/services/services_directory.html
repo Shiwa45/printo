@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Services - Drishthi Printing{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="pt-32 pb-16 bg-gradient-to-br from-blue-600 to-purple-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+        <h1 class="text-4xl md:text-5xl font-bold mb-6">Our Printing Services</h1>
+        <p class="text-xl text-white text-opacity-90 max-w-3xl mx-auto">
+            Professional printing solutions for all your business and personal needs
+        </p>
+    </div>
+</section>
+
+<!-- Services Grid -->
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Book Printing Services -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Book Printing Services</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <a href="{% url 'services:childrens_book_printing' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-child text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Children's Books</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹299</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:comic_book_printing' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-mask text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Comic Books</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹449</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:coffee_table_book_printing' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-images text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Coffee Table Books</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹1,299</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:coloring_book_printing' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-palette text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Coloring Books</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹249</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Stationery Services -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Stationery & Business Materials</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <a href="{% url 'services:business_cards' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-id-card text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Business Cards</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹299</p>
+                        <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">Design Tool</span>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:letter_head' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-file-alt text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Letter Head</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹199</p>
+                        <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">Design Tool</span>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:envelopes' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-envelope text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Envelopes</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹149</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:id_cards' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-id-badge text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">ID Cards</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹99</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Marketing Materials -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Marketing Materials</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <a href="{% url 'services:brochures' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-book-open text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Brochures</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹599</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:flyers' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-lime-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-paper-plane text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Flyers</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹199</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:catalogue' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-th-list text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Catalogues</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹899</p>
+                    </div>
+                </a>
+                
+                <a href="{% url 'services:poster' %}" class="service-card">
+                    <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                        <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-image text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center">Posters</h3>
+                        <p class="text-gray-600 text-sm text-center">Starting from ₹299</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-center text-white">
+            <h3 class="text-2xl font-bold mb-4">Need Custom Printing Solutions?</h3>
+            <p class="mb-6">Contact our experts for personalized quotes and bulk pricing</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'home:contact' %}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Get Free Quote
+                </a>
+                <a href="tel:+919876543210" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                    Call Now
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.service-card {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

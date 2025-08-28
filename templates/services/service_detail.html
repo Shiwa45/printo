@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Drishthi Printing{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero Section */
+.service-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.service-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Price Card */
+.price-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-50px);
+    z-index: 10;
+    position: relative;
+}
+
+/* Features Grid */
+.feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f1f5f9;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Specifications Table */
+.spec-table {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.spec-row {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.spec-row:last-child {
+    border-bottom: none;
+}
+
+.spec-label {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Process Steps */
+.process-step {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.process-step:hover {
+    transform: scale(1.02);
+}
+
+.step-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0 auto 16px;
+}
+
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Buttons */
+.btn-primary-lg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary-lg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+.btn-outline-lg {
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.btn-outline-lg:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="service-hero pt-32 pb-20">
+    <div class="hero-content">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="text-white">
+                    <div class="inline-block bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                        {{ category }}
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                        {{ hero_title }}
+                    </h1>
+                    <p class="text-xl text-white text-opacity-90 mb-8 leading-relaxed">
+                        {{ hero_description }}
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#get-quote" class="btn-primary-lg text-center">
+                            Get Instant Quote
+                        </a>
+                        <a href="#specifications" class="btn-outline-lg text-center">
+                            View Specifications
+                        </a>
+                    </div>
+                </div>
+                <div class="relative">
+                    {% if 'business' in title|lower %}
+                        <img src="{% static 'images/business-cards.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% elif 'brochure' in title|lower %}
+                        <img src="{% static 'images/brochure-design.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% elif 'folder' in title|lower %}
+                        <img src="{% static 'images/product-folders.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% elif 'sticker' in title|lower %}
+                        <img src="{% static 'images/service-labels-stickers.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% elif 'book' in title|lower %}
+                        <img src="{% static 'images/hero-book.png' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% elif 't-shirt' in title|lower or 'shirt' in title|lower %}
+                        <img src="{% static 'images/service-t-shirt.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% elif 'wearable' in title|lower or 'clothing' in title|lower %}
+                        <img src="{% static 'images/service-wearables-clothing.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% else %}
+                        <img src="{% static 'images/service-design-services.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Price Card Overlay -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+    <div class="price-card p-8 text-center max-w-md mx-auto">
+        <div class="mb-4">
+            <div class="text-4xl font-bold text-gray-900">₹{{ starting_price }}</div>
+            <div class="text-gray-600">Starting from</div>
+        </div>
+        <div class="space-y-2 text-sm text-gray-600">
+            <p>✓ Free design consultation</p>
+            <p>✓ Fast turnaround time</p>
+            <p>✓ Premium quality guaranteed</p>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Why Choose Our {{ title }}?
+            </h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                Professional quality printing services with attention to every detail
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for feature in features %}
+            <div class="feature-card text-center">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-check text-white text-xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ feature }}</h3>
+                <p class="text-gray-600">Premium quality feature included in every order</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Specifications Section -->
+<section id="specifications" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Technical Specifications
+            </h2>
+            <p class="text-lg text-gray-600">
+                Detailed specifications for {{ title }}
+            </p>
+        </div>
+
+        <div class="spec-table max-w-4xl mx-auto">
+            {% for spec_key, spec_value in specifications.items %}
+            <div class="spec-row flex">
+                <div class="spec-label w-1/3 p-6">
+                    {{ spec_key }}
+                </div>
+                <div class="w-2/3 p-6 text-gray-700">
+                    {% if spec_value|length > 1 %}
+                        {% for item in spec_value %}
+                            {{ item }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {{ spec_value.0 }}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Process Steps Section -->
+{% if process_steps %}
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Our Simple Process
+            </h2>
+            <p class="text-lg text-gray-600">
+                From order to delivery in just a few easy steps
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for step in process_steps %}
+            <div class="process-step text-center">
+                <div class="step-number">
+                    {{ forloop.counter }}
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ step }}</h3>
+                <p class="text-gray-600">Professional handling at every stage</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section id="get-quote" class="cta-section py-20">
+    <div class="cta-content">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-bold text-white mb-6">
+                Ready to Get Started?
+            </h2>
+            <p class="text-xl text-white text-opacity-90 mb-8 max-w-3xl mx-auto">
+                Get an instant quote for {{ title }} or speak with our printing experts
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <a href="{% url 'home:contact' %}" class="btn-primary-lg">
+                    <i class="fas fa-calculator mr-2"></i>
+                    Get Free Quote
+                </a>
+                <a href="tel:+919876543210" class="btn-outline-lg">
+                    <i class="fas fa-phone mr-2"></i>
+                    Call Now: +91 98765 43210
+                </a>
+                {% if 'design-tool' in features|join:',' %}
+                <a href="#" class="btn-primary-lg">
+                    <i class="fas fa-palette mr-2"></i>
+                    Design Online
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-white">
+                <div class="text-center">
+                    <div class="text-3xl font-bold mb-2">24-48hrs</div>
+                    <div class="text-white text-opacity-80">Turnaround Time</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold mb-2">100%</div>
+                    <div class="text-white text-opacity-80">Quality Guarantee</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold mb-2">Free</div>
+                    <div class="text-white text-opacity-80">Design Consultation</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Services -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                Related Services
+            </h2>
+            <p class="text-lg text-gray-600">
+                Explore our other printing services
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <a href="{% url 'services:business_cards' %}" class="group block">
+                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-id-card text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Business Cards</h3>
+                    <p class="text-gray-600 text-sm">Premium business cards starting from ₹299</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'services:brochures' %}" class="group block">
+                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-alt text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Brochures</h3>
+                    <p class="text-gray-600 text-sm">Professional brochures starting from ₹599</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'services:childrens_book_printing' %}" class="group block">
+                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-book text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Book Printing</h3>
+                    <p class="text-gray-600 text-sm">Custom book printing starting from ₹299</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'services:flyers' %}" class="group block">
+                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-paper-plane text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Flyers</h3>
+                    <p class="text-gray-600 text-sm">Eye-catching flyers starting from ₹249</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

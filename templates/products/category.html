@@ -1,0 +1,508 @@
+<!-- templates/products/category.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Drishthi Printing{% endblock %}
+
+{% block meta_description %}{{ category.description }}{% endblock %}
+
+{% block content %}
+<div class="pt-32">
+    <!-- Category Header -->
+    <section class="bg-gradient-to-br from-gray-50 to-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{{ category.name }}</h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">{{ category.description }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subcategories (if any) -->
+    {% if subcategories %}
+    <section class="py-8 bg-white border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap gap-4 justify-center">
+                {% for subcategory in subcategories %}
+                <a href="{% url 'products:category' subcategory.slug %}" 
+                   class="bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 px-6 py-3 rounded-full font-medium transition-all duration-300">
+                    {{ subcategory.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Products Grid -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% if products %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {% for product in products %}
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <div class="relative h-48 overflow-hidden">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" 
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        {% else %}
+                            {% if 'business' in product.name|lower %}
+                                <img src="{% static 'images/business-cards.svg' %}" alt="{{ product.name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            {% elif 'brochure' in product.name|lower %}
+                                <img src="{% static 'images/brochure-design.svg' %}" alt="{{ product.name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            {% elif 'folder' in product.name|lower %}
+                                <img src="{% static 'images/product-folders.svg' %}" alt="{{ product.name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            {% elif 'sticker' in product.name|lower %}
+                                <img src="{% static 'images/service-labels-stickers.svg' %}" alt="{{ product.name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            {% elif 'book' in product.name|lower %}
+                                <img src="{% static 'images/hero-book.png' %}" alt="{{ product.name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            {% else %}
+                                <img src="{% static 'images/service-design-services.svg' %}" alt="{{ product.name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if product.design_tool_enabled %}
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                Design Tool
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product.featured %}
+                        <div class="absolute top-3 right-3">
+                            <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                                Featured
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ product.name }}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.short_description }}</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="text-2xl font-bold text-blue-600">
+                                ₹{{ product.base_price|floatformat:0 }}
+                                <span class="text-sm text-gray-500 font-normal">starting</span>
+                            </div>
+                            <a href="{% url 'products:detail' product.category.slug product.slug %}" 
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="mt-12 flex justify-center">
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" 
+                           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                            Previous
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" 
+                           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                            Next
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-16">
+                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-2xl font-semibold text-gray-600 mb-2">No products found</h3>
+                <p class="text-gray-500">We're working on adding products to this category. Please check back soon!</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+<!-- templates/products/detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Drishthi Printing{% endblock %}
+
+{% block meta_description %}{{ product.description }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-image-gallery {
+        max-height: 500px;
+    }
+    
+    .pricing-calculator {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .price-display {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pt-32">
+    <!-- Breadcrumb -->
+    <div class="bg-gray-50 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="text-sm">
+                <ol class="flex items-center space-x-2">
+                    <li><a href="{% url 'home:home' %}" class="text-blue-600 hover:text-blue-800">Home</a></li>
+                    <li class="text-gray-400">/</li>
+                    <li><a href="{% url 'products:category' product.category.slug %}" class="text-blue-600 hover:text-blue-800">{{ product.category.name }}</a></li>
+                    <li class="text-gray-400">/</li>
+                    <li class="text-gray-600">{{ product.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Product Details -->
+    <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Product Images -->
+                <div class="product-image-gallery">
+                    {% if product.images.all %}
+                        <div class="main-image mb-4">
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" 
+                                 class="w-full h-96 object-cover rounded-lg shadow-lg" id="mainProductImage">
+                        </div>
+                        {% if product.images.all.count > 1 %}
+                        <div class="thumbnails flex space-x-2 overflow-x-auto">
+                            {% for image in product.images.all %}
+                            <img src="{{ image.image.url }}" alt="{{ product.name }}" 
+                                 class="w-20 h-20 object-cover rounded-lg cursor-pointer opacity-60 hover:opacity-100 transition-opacity thumbnail-image"
+                                 onclick="changeMainImage('{{ image.image.url }}')">
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-image text-6xl text-gray-400"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Product Info -->
+                <div class="product-info">
+                    <div class="flex items-center gap-4 mb-4">
+                        {% if product.featured %}
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                            Featured
+                        </span>
+                        {% endif %}
+                        {% if product.bestseller %}
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                            Best Seller
+                        </span>
+                        {% endif %}
+                        {% if product.design_tool_enabled %}
+                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">
+                            Design Tool Available
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
+                    
+                    <div class="flex items-center mb-6">
+                        <div class="flex text-yellow-400 mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <span class="text-gray-600">4.9 (127 reviews)</span>
+                    </div>
+
+                    <div class="price-display mb-8">
+                        <div class="text-3xl font-bold mb-2">₹{{ product.base_price|floatformat:0 }}</div>
+                        <div class="text-sm opacity-90">Starting price - Final price depends on specifications</div>
+                    </div>
+
+                    <div class="prose max-w-none mb-8">
+                        <p class="text-gray-600 text-lg">{{ product.description }}</p>
+                    </div>
+
+                    <!-- Specifications -->
+                    <div class="specifications mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Specifications</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% if product.size_options %}
+                            <div class="spec-item">
+                                <strong class="text-gray-800">Available Sizes:</strong>
+                                <div class="text-gray-600">
+                                    {% for size in product.size_options %}
+                                        {{ size }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if product.paper_options %}
+                            <div class="spec-item">
+                                <strong class="text-gray-800">Paper Options:</strong>
+                                <div class="text-gray-600">
+                                    {% for paper in product.paper_options %}
+                                        {{ paper }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons flex flex-col sm:flex-row gap-4">
+                        {% if product.design_tool_enabled %}
+                        <a href="{% url 'design_tool:editor' product.slug %}" 
+                           class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 text-center">
+                            <i class="fas fa-palette mr-2"></i>
+                            Start Designing
+                        </a>
+                        {% endif %}
+                        
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-300">
+                            <i class="fas fa-calculator mr-2"></i>
+                            Get Price Quote
+                        </button>
+                        
+                        <button class="border-2 border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300">
+                            <i class="fas fa-heart mr-2"></i>
+                            Add to Wishlist
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Calculator (if applicable) -->
+    {% if product.product_type == 'book' %}
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="pricing-calculator">
+                <h3 class="text-2xl font-bold text-center mb-8">Calculate Your Price</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Book Size</label>
+                            <select id="bookSize" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="A4">A4 (8.27 x 11.69 in)</option>
+                                <option value="Letter">Letter (8.5 x 11 in)</option>
+                                <option value="Executive">Executive (7 x 10 in)</option>
+                                <option value="A5">A5 (5.83 x 8.27 in)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Paper Type</label>
+                            <select id="paperType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="75gsm">75 GSM</option>
+                                <option value="100gsm">100 GSM</option>
+                                <option value="100gsm_art">100 GSM Art Paper</option>
+                                <option value="130gsm_art">130 GSM Art Paper</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Print Type</label>
+                            <select id="printType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="bw_standard">B&W Standard</option>
+                                <option value="bw_premium">B&W Premium</option>
+                                <option value="color_standard">Color Standard</option>
+                                <option value="color_premium">Color Premium</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Number of Pages</label>
+                            <input type="number" id="pages" value="100" min="8" max="1000" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                            <input type="number" id="quantity" value="50" min="1" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Binding Type</label>
+                            <select id="bindingType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="paperback_perfect">Paperback (Perfect) - ₹40</option>
+                                <option value="spiral_binding">Spiral Binding - ₹40</option>
+                                <option value="hardcover">Hardcover - ₹150</option>
+                                <option value="saddle_stitch">Saddle Stitch - ₹25</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="calculatePrice()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-300">
+                        Calculate Price
+                    </button>
+                </div>
+                
+                <div id="priceResult" class="mt-6 hidden">
+                    <div class="bg-white rounded-lg p-6 border-l-4 border-blue-500">
+                        <h4 class="text-lg font-semibold mb-4">Price Breakdown</h4>
+                        <div id="priceBreakdown" class="space-y-2"></div>
+                        <div class="mt-4 pt-4 border-t">
+                            <div class="flex justify-between items-center text-xl font-bold">
+                                <span>Total:</span>
+                                <span id="totalPrice" class="text-blue-600"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-2xl font-bold text-center mb-12">Related Products</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {% for related_product in related_products %}
+                <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                    <div class="h-48 overflow-hidden">
+                        {% if related_product.images.first %}
+                            <img src="{{ related_product.images.first.image.url }}" alt="{{ related_product.name }}" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                        {% else %}
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-image text-4xl text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-gray-900 mb-2">{{ related_product.name }}</h4>
+                        <p class="text-gray-600 text-sm mb-3">{{ related_product.short_description|truncatewords:10 }}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="text-lg font-bold text-blue-600">₹{{ related_product.base_price|floatformat:0 }}</div>
+                            <a href="{% url 'products:detail' related_product.category.slug related_product.slug %}" 
+                               class="text-blue-600 hover:text-blue-800 font-medium">View</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<script>
+function changeMainImage(imageSrc) {
+    document.getElementById('mainProductImage').src = imageSrc;
+    
+    // Update thumbnail opacity
+    document.querySelectorAll('.thumbnail-image').forEach(thumb => {
+        thumb.classList.remove('opacity-100');
+        thumb.classList.add('opacity-60');
+        if (thumb.src === imageSrc) {
+            thumb.classList.remove('opacity-60');
+            thumb.classList.add('opacity-100');
+        }
+    });
+}
+
+function calculatePrice() {
+    const formData = {
+        product_type: 'book',
+        size: document.getElementById('bookSize').value,
+        paper_type: document.getElementById('paperType').value,
+        print_type: document.getElementById('printType').value,
+        pages: parseInt(document.getElementById('pages').value),
+        quantity: parseInt(document.getElementById('quantity').value),
+        binding_type: document.getElementById('bindingType').value
+    };
+    
+    fetch('{% url "products:calculate_price" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.errors && data.errors.length > 0) {
+            alert('Error: ' + data.errors.join(', '));
+            return;
+        }
+        
+        const resultDiv = document.getElementById('priceResult');
+        const breakdownDiv = document.getElementById('priceBreakdown');
+        const totalPriceSpan = document.getElementById('totalPrice');
+        
+        // Clear previous results
+        breakdownDiv.innerHTML = '';
+        
+        // Show breakdown
+        data.breakdown.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'flex justify-between';
+            div.innerHTML = `
+                <span>${item.item}</span>
+                <span>₹${parseFloat(item.cost).toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            `;
+            breakdownDiv.appendChild(div);
+        });
+        
+        // Show total
+        totalPriceSpan.textContent = `₹${parseFloat(data.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        
+        // Show result
+        resultDiv.classList.remove('hidden');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error calculating price. Please try again.');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - Drishthi Printing{% endblock %}
+
+{% block content %}
+<div class="pt-32 min-h-screen bg-gray-50">
+    <div class="max-w-md mx-auto px-4 py-12">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
+                <p class="text-gray-600 mt-2">Join Drishthi Printing today</p>
+            </div>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                        <input type="text" id="first_name" name="first_name" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" id="email" name="email" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="+91 98765 43210">
+                </div>
+                
+                <div>
+                    <label for="password1" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="password1" name="password1" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label for="password2" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                    <input type="password" id="password2" name="password2" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="terms" name="terms" required class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="terms" class="ml-2 block text-sm text-gray-700">
+                        I agree to the <a href="#" class="text-blue-600 hover:text-blue-800">Terms of Service</a> and 
+                        <a href="#" class="text-blue-600 hover:text-blue-800">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-300">
+                    Create Account
+                </button>
+            </form>
+            
+            <div class="mt-8 text-center">
+                <p class="text-gray-600">Already have an account? 
+                    <a href="{% url 'users:login' %}" class="text-blue-600 hover:text-blue-800 font-medium">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

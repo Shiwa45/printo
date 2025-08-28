@@ -1,0 +1,1121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Drishthi Printing - Professional Quality Custom Printing
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero Slider Styles */
+.hero-slider {
+    position: relative;
+}
+
+.slider-container {
+    position: relative;
+}
+
+.hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.hero-slide.active {
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.slider-btn:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.prev-btn {
+    left: 30px;
+}
+
+.next-btn {
+    right: 30px;
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+/* Best Selling Products Styles */
+.bestselling-card {
+    position: relative;
+    height: 100%;
+    perspective: 1000px;
+}
+
+.card-inner {
+    position: relative;
+    height: 100%;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bestselling-card:hover .card-inner {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.image-container {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.6s ease;
+    filter: brightness(1.1) contrast(1.05);
+}
+
+.bestselling-card:hover .card-image {
+    transform: scale(1.1) rotate(2deg);
+    filter: brightness(1.2) contrast(1.1);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    opacity: 0;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.overlay-content {
+    text-align: center;
+    transform: translateY(20px);
+    transition: transform 0.4s ease;
+    opacity: 0;
+}
+
+.bestselling-card:hover .image-overlay {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.bestselling-card:hover .overlay-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.card-content {
+    padding: 24px;
+    position: relative;
+}
+
+.card-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    z-index: 10;
+}
+
+.badge-text {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 12px;
+    transition: color 0.3s ease;
+}
+
+.bestselling-card:hover .card-title {
+    color: #3b82f6;
+}
+
+.card-description {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.card-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.feature-item {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.bestselling-card:hover .feature-item {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.card-button {
+    width: 100%;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.card-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+
+.bestselling-card:hover .card-button {
+    color: white;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.bestselling-card:hover .card-button::before {
+    left: 0;
+}
+
+/* Design Tool Section Styles */
+.design-tool-card {
+    position: relative;
+    height: 100%;
+    perspective: 1000px;
+}
+
+.card-wrapper {
+    position: relative;
+    height: 100%;
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.design-tool-card:hover .card-wrapper {
+    transform: translateY(-16px) rotateX(5deg) rotateY(5deg);
+    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.15);
+}
+
+.image-section {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.design-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.6s ease;
+    filter: brightness(1.1) contrast(1.05);
+}
+
+.design-tool-card:hover .design-image {
+    transform: scale(1.15) rotate(3deg);
+    filter: brightness(1.3) contrast(1.15);
+}
+
+.price-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+    transform: scale(0.9);
+    transition: all 0.4s ease;
+}
+
+.design-tool-card:hover .price-badge {
+    transform: scale(1) rotate(-5deg);
+    box-shadow: 0 12px 30px rgba(255, 107, 107, 0.6);
+}
+
+.price-text {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.price-label {
+    display: block;
+    font-size: 0.7rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.design-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    opacity: 0;
+    transition: all 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.design-tool-card:hover .design-overlay {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.overlay-icons {
+    display: flex;
+    gap: 2rem;
+    transform: translateY(30px);
+    transition: transform 0.5s ease;
+}
+
+.design-tool-card:hover .overlay-icons {
+    transform: translateY(0);
+}
+
+.icon-item {
+    text-align: center;
+    color: white;
+}
+
+.icon-item i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.icon-item:hover i {
+    transform: scale(1.2) rotate(10deg);
+}
+
+.icon-item span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.content-section {
+    padding: 24px;
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.product-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1f2937;
+    transition: all 0.3s ease;
+}
+
+.design-tool-card:hover .product-title {
+    color: #667eea;
+    transform: translateX(4px);
+}
+
+.rating-stars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.rating-stars i {
+    color: #fbbf24;
+    font-size: 0.8rem;
+}
+
+.rating-text {
+    margin-left: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.product-description {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.features-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.feature {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #475569;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.design-tool-card:hover .feature {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #3b82f6;
+    border-color: #93c5fd;
+    transform: translateY(-2px);
+}
+
+.design-button {
+    width: 100%;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    padding: 16px 24px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.design-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: left 0.5s ease;
+    z-index: -1;
+}
+
+.design-tool-card:hover .design-button {
+    color: white;
+    border-color: transparent;
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(102, 126, 234, 0.4);
+}
+
+.design-tool-card:hover .design-button::before {
+    left: 0;
+}
+
+.button-icon {
+    transition: transform 0.3s ease;
+}
+
+.design-tool-card:hover .button-icon {
+    transform: translateX(4px);
+}
+
+@media (max-width: 768px) {
+    .slider-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .prev-btn {
+        left: 15px;
+    }
+
+    .next-btn {
+        right: 15px;
+    }
+
+    .image-container {
+        height: 180px;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+
+    .image-section {
+        height: 200px;
+    }
+
+    .content-section {
+        padding: 20px;
+    }
+
+    .product-title {
+        font-size: 1.2rem;
+    }
+
+    .design-tool-card:hover .card-wrapper {
+        transform: translateY(-8px);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Slider Section -->
+<section id="home" class="hero-slider pt-32">
+    <div class="slider-container relative overflow-hidden" style="min-height: 70vh;">
+        <!-- Slide 1 -->
+        <div class="hero-slide active" data-slide="1">
+            <div class="hero bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 flex items-center" style="min-height: 70vh;">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <span class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Professional Printing Services</span>
+                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
+                                Quality Custom
+                                <span class="text-gray-700">Printing Solutions</span>
+                            </h1>
+                            <p class="text-lg text-gray-600 mt-6 max-w-lg">
+                                Transform your ideas into premium printed materials that leave a lasting impression on your customers.
+                            </p>
+                            <div class="mt-8">
+                                <a href="{% url 'products:list' %}" class="btn-primary mr-4">Get Started</a>
+                                <a href="{% url 'home:about' %}" class="text-gray-700 font-semibold">View Portfolio</a>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <img src="{% static 'images/hero-book.png' %}" alt="Printing Services" class="w-full max-w-lg mx-auto" width="500" height="500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="hero-slide" data-slide="2">
+            <div class="hero bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 flex items-center" style="min-height: 70vh;">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <span class="text-blue-600 font-semibold text-sm tracking-wide uppercase">Business Cards & More</span>
+                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
+                                Professional
+                                <span class="text-blue-700">Business Cards</span>
+                            </h1>
+                            <p class="text-lg text-gray-600 mt-6 max-w-lg">
+                                Make a lasting first impression with our premium business cards. Multiple finishes and paper options available.
+                            </p>
+                            <div class="mt-8">
+                                <a href="{% url 'products:business_cards' %}" class="btn-primary mr-4">Order Cards</a>
+                                <a href="{% url 'products:business_cards' %}" class="text-gray-700 font-semibold">See Samples</a>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <img src="{% static 'images/business-cards.svg' %}" alt="Business Cards" class="w-full max-w-lg mx-auto" width="500" height="500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="hero-slide" data-slide="3">
+            <div class="hero bg-gradient-to-br from-green-100 via-green-200 to-green-300 flex items-center" style="min-height: 70vh;">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <span class="text-green-600 font-semibold text-sm tracking-wide uppercase">Free Design Service</span>
+                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
+                                No Design?
+                                <span class="text-green-700">No Problem!</span>
+                            </h1>
+                            <p class="text-lg text-gray-600 mt-6 max-w-lg">
+                                Our expert design team creates stunning, professional designs tailored to your brand at no extra cost.
+                            </p>
+                            <div class="mt-8">
+                                <a href="{% url 'home:contact' %}" class="btn-primary mr-4">Get Free Design</a>
+                                <a href="{% url 'home:about' %}" class="text-gray-700 font-semibold">Learn More</a>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <img src="{% static 'images/feature-color-customize.svg' %}" alt="Design Team" class="w-full max-w-lg mx-auto" width="500" height="500">
+                            <div class="absolute -bottom-4 -right-4 bg-green-600 text-white p-3 rounded-lg shadow-lg">
+                                <div class="text-xl font-bold">FREE</div>
+                                <div class="text-xs">Design</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Arrows -->
+        <button class="slider-btn prev-btn" id="prevBtn">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+        <button class="slider-btn next-btn" id="nextBtn">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+
+        <!-- Dots Indicator -->
+        <div class="slider-dots">
+            <span class="dot active" data-slide="1"></span>
+            <span class="dot" data-slide="2"></span>
+            <span class="dot" data-slide="3"></span>
+        </div>
+    </div>
+</section>
+
+<!-- Best Selling Products Section -->
+<section id="bestselling" class="section-padding bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-5">
+        <div class="absolute top-20 left-10 w-32 h-32 bg-blue-500 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-40 h-40 bg-purple-500 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <div class="inline-block">
+                <span class="text-blue-600 font-semibold text-sm tracking-wider uppercase mb-2 block">Premium Quality</span>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+                    Best Selling Products
+                </h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6 rounded-full"></div>
+            </div>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+                Our most popular printing solutions that businesses love and trust.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for product in bestselling_products %}
+            <div class="bestselling-card group">
+                <div class="card-inner">
+                    <div class="image-container">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="card-image">
+                        {% else %}
+                            {% if 'business' in product.name|lower %}
+                                <img src="{% static 'images/bestselling-business-cards.svg' %}" alt="{{ product.name }}" class="card-image">
+                            {% elif 'brochure' in product.name|lower %}
+                                <img src="{% static 'images/bestselling-brochures.svg' %}" alt="{{ product.name }}" class="card-image">
+                            {% elif 'banner' in product.name|lower %}
+                                <img src="{% static 'images/bestselling-banners.svg' %}" alt="{{ product.name }}" class="card-image">
+                            {% elif 't-shirt' in product.name|lower or 'shirt' in product.name|lower %}
+                                <img src="{% static 'images/bestselling-t-shirts.svg' %}" alt="{{ product.name }}" class="card-image">
+                            {% else %}
+                                <img src="{% static 'images/hero-book.png' %}" alt="{{ product.name }}" class="card-image">
+                            {% endif %}
+                        {% endif %}
+                        <div class="image-overlay">
+                            <div class="overlay-content">
+                                <i class="fas fa-{% if 'book' in product.name|lower %}book{% elif 'box' in product.name|lower %}box{% elif 'marketing' in product.name|lower %}bullhorn{% else %}id-card{% endif %} text-2xl text-white mb-2"></i>
+                                <span class="text-white text-sm font-medium">Premium Quality</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-badge">
+                            <span class="badge-text">Most Popular</span>
+                        </div>
+                        <h3 class="card-title">{{ product.name }}</h3>
+                        <p class="card-description">{{ product.short_description }}</p>
+                        <div class="card-features">
+                            {% if product.pricing_structure.features %}
+                                {% for feature in product.pricing_structure.features %}
+                                <span class="feature-item">✓ {{ feature }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="feature-item">✓ Premium Quality</span>
+                                <span class="feature-item">✓ Fast Turnaround</span>
+                                <span class="feature-item">✓ Professional Finish</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'products:detail' product.category.slug product.slug %}" class="card-button">
+                            <span>Explore {{ product.name }}</span>
+                            <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-16">
+            <div class="inline-flex items-center gap-4 bg-white rounded-full px-8 py-4 shadow-lg border border-gray-100">
+                <span class="text-gray-600 font-medium">Need something custom?</span>
+                <a href="{% url 'home:contact' %}" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105">
+                    Get Quote
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Design Services Section -->
+<section id="design" class="section-padding bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                    No Design? <span class="text-blue-600">No Problem!</span>
+                </h2>
+                <p class="text-gray-600 mb-6 text-lg">
+                    Don't have a design? Our expert design team will create stunning, professional designs tailored to your brand and requirements at no extra cost.
+                </p>
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-gray-700 font-medium">Free Design Consultation</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-gray-700 font-medium">Professional Design Team</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-gray-700 font-medium">Unlimited Revisions</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-gray-700 font-medium">24-Hour Design Turnaround</span>
+                    </div>
+                </div>
+                <a href="{% url 'home:contact' %}" class="btn-primary">Get Free Design</a>
+            </div>
+            <div class="relative">
+                <img src="{% static 'images/service-design-services.svg' %}" alt="Professional Design Team" width="600">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Online Design Tool Section -->
+<section id="design-tool" class="section-padding bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-10 left-20 w-64 h-64 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-20 w-80 h-80 bg-gradient-to-r from-pink-400 to-orange-400 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-20">
+            <div class="inline-block">
+                <span class="text-indigo-600 font-semibold text-sm tracking-wider uppercase mb-3 block">Design & Print Online</span>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+                    Online Design With <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Pricing Option</span>
+                </h2>
+                <div class="w-32 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 mx-auto mb-6 rounded-full"></div>
+            </div>
+            <p class="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed">
+                Our Online Design Tool Is For Any Skill Level - Create professional designs instantly with our easy-to-use platform.
+            </p>
+        </div>
+
+        <!-- First Row - 3 Products -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {% for product in design_tool_products|slice:":3" %}
+            <div class="design-tool-card group">
+                <div class="card-wrapper">
+                    <div class="image-section">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="design-image">
+                        {% else %}
+                            {% if 'business' in product.name|lower %}
+                                <img src="{% static 'images/business-cards.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% elif 'letter' in product.name|lower %}
+                                <img src="{% static 'images/service-office-stationery.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% elif 'brochure' in product.name|lower %}
+                                <img src="{% static 'images/brochure-design.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% elif 'folder' in product.name|lower %}
+                                <img src="{% static 'images/product-folders.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% elif 'sticker' in product.name|lower %}
+                                <img src="{% static 'images/service-labels-stickers.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% else %}
+                                <img src="{% static 'images/service-design-services.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% endif %}
+                        {% endif %}
+                        <div class="price-badge">
+                            <span class="price-text">₹{{ product.base_price|floatformat:0 }}</span>
+                            <span class="price-label">Starting</span>
+                        </div>
+                        <div class="design-overlay">
+                            <div class="overlay-icons">
+                                <div class="icon-item">
+                                    <i class="fas fa-palette"></i>
+                                    <span>Design</span>
+                                </div>
+                                <div class="icon-item">
+                                    <i class="fas fa-print"></i>
+                                    <span>Print</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-section">
+                        <div class="product-header">
+                            <h3 class="product-title">{{ product.name }}</h3>
+                            <div class="rating-stars">
+                                {% with product.rating|default:4.9 as rating %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= rating|floatformat:0 %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="rating-text">{{ rating }}</span>
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <p class="product-description">{{ product.short_description }}</p>
+                        <div class="features-list">
+                            {% if product.pricing_structure.features %}
+                                {% for feature in product.pricing_structure.features %}
+                                <span class="feature">✓ {{ feature }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="feature">✓ Premium Quality</span>
+                                <span class="feature">✓ Fast Turnaround</span>
+                                <span class="feature">✓ Professional Finish</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
+                            <span class="button-text">Design Now</span>
+                            <i class="fas fa-arrow-right button-icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Second Row - 3 Products -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for product in design_tool_products|slice:"3:" %}
+            <div class="design-tool-card group">
+                <div class="card-wrapper">
+                    <div class="image-section">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="design-image">
+                        {% else %}
+                            {% if 'sticker' in product.name|lower %}
+                                <img src="{% static 'images/service-labels-stickers.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% elif 'brochure' in product.name|lower %}
+                                <img src="{% static 'images/brochure-design.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% elif 'poster' in product.name|lower %}
+                                <img src="{% static 'images/portfolio-poster.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% elif 'report' in product.name|lower %}
+                                <img src="{% static 'images/product-reports.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% else %}
+                                <img src="{% static 'images/service-design-services.svg' %}" alt="{{ product.name }}" class="design-image">
+                            {% endif %}
+                        {% endif %}
+                        <div class="price-badge">
+                            <span class="price-text">₹{{ product.base_price|floatformat:0 }}</span>
+                            <span class="price-label">Starting</span>
+                        </div>
+                        <div class="design-overlay">
+                            <div class="overlay-icons">
+                                <div class="icon-item">
+                                    <i class="fas fa-palette"></i>
+                                    <span>Design</span>
+                                </div>
+                                <div class="icon-item">
+                                    <i class="fas fa-print"></i>
+                                    <span>Print</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-section">
+                        <div class="product-header">
+                            <h3 class="product-title">{{ product.name }}</h3>
+                            <div class="rating-stars">
+                                {% with product.rating|default:4.9 as rating %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= rating|floatformat:0 %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="rating-text">{{ rating }}</span>
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <p class="product-description">{{ product.short_description }}</p>
+                        <div class="features-list">
+                            {% if product.pricing_structure.features %}
+                                {% for feature in product.pricing_structure.features %}
+                                <span class="feature">✓ {{ feature }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="feature">✓ Premium Quality</span>
+                                <span class="feature">✓ Fast Turnaround</span>
+                                <span class="feature">✓ Professional Finish</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
+                            <span class="button-text">Design Now</span>
+                            <i class="fas fa-arrow-right button-icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-16">
+            <div class="inline-flex items-center gap-6 bg-white/80 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-xl border border-white/20">
+                <div class="text-left">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-1">Need Help Getting Started?</h4>
+                    <p class="text-gray-600 text-sm">Our design experts are here to help you create the perfect design</p>
+                </div>
+                <a href="{% url 'home:contact' %}" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 whitespace-nowrap">
+                    Get Free Consultation
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section id="testimonials" class="section-padding bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900">What Our Clients Say</h2>
+            <p class="text-gray-600 mt-4 max-w-2xl mx-auto">
+                Don't just take our word for it - hear from our satisfied customers who trust us with their printing needs.
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="card text-center">
+                <div class="mb-6">
+                    <img src="{% static 'images/avatar-david.svg' %}" alt="Client 1" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                    <div class="flex justify-center mb-4">
+                        {% for i in "12345" %}
+                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        {% endfor %}
+                    </div>
+                </div>
+                <blockquote class="text-gray-600 italic mb-4">
+                    "Drishthi Printing delivered exceptional quality business cards for our startup. The design team understood our vision perfectly and the turnaround time was incredibly fast!"
+                </blockquote>
+                <div>
+                    <div class="font-semibold text-gray-900">Rajesh Kumar</div>
+                    <div class="text-sm text-gray-500">CEO, TechStart Solutions</div>
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="mb-6">
+                    <img src="{% static 'images/avatar-sarah.svg' %}" alt="Client 2" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                    <div class="flex justify-center mb-4">
+                        {% for i in "12345" %}
+                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        {% endfor %}
+                    </div>
+                </div>
+                <blockquote class="text-gray-600 italic mb-4">
+                    "We needed 1000 brochures for our product launch in just 2 days. Drishthi Printing not only met our deadline but exceeded our quality expectations. Highly recommended!"
+                </blockquote>
+                <div>
+                    <div class="font-semibold text-gray-900">Priya Sharma</div>
+                    <div class="text-sm text-gray-500">Marketing Director, InnovateNow</div>
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="mb-6">
+                    <img src="{% static 'images/avatar-michael.svg' %}" alt="Client 3" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                    <div class="flex justify-center mb-4">
+                        {% for i in "12345" %}
+                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        {% endfor %}
+                    </div>
+                </div>
+                <blockquote class="text-gray-600 italic mb-4">
+                    "The free design service was a game-changer for us. We had no idea what we wanted, but their design team created something amazing that perfectly represented our brand."
+                </blockquote>
+                <div>
+                    <div class="font-semibold text-gray-900">Amit Patel</div>
+                    <div class="text-sm text-gray-500">Owner, Local Restaurant Chain</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Hero Slider Functionality
+    let currentSlide = 1;
+    const totalSlides = 3;
+
+    function showSlide(n) {
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.dot');
+
+        if (n > totalSlides) currentSlide = 1;
+        if (n < 1) currentSlide = totalSlides;
+
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+
+        document.querySelector(`[data-slide="${currentSlide}"]`).classList.add('active');
+        document.querySelector(`.dot[data-slide="${currentSlide}"]`).classList.add('active');
+    }
+
+    function nextSlide() {
+        currentSlide++;
+        showSlide(currentSlide);
+    }
+
+    function prevSlide() {
+        currentSlide--;
+        showSlide(currentSlide);
+    }
+
+    // Event listeners
+    document.getElementById('nextBtn').addEventListener('click', nextSlide);
+    document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+    // Dot navigation
+    document.querySelectorAll('.dot').forEach(dot => {
+        dot.addEventListener('click', function () {
+            currentSlide = parseInt(this.getAttribute('data-slide'));
+            showSlide(currentSlide);
+        });
+    });
+
+    // Auto-play slider
+    setInterval(nextSlide, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - Drishthi Printing{% endblock %}
+
+{% block content %}
+<div class="pt-32 min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+        
+        {% if cart_items %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    {% for item in cart_items %}
+                    <div class="p-6 border-b border-gray-200 last:border-b-0">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                {% if item.product.images.first %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" 
+                                         class="w-20 h-20 object-cover rounded-lg">
+                                {% else %}
+                                    {% if 'business' in item.product.name|lower %}
+                                        <img src="{% static 'images/business-cards.svg' %}" alt="{{ item.product.name }}" 
+                                             class="w-20 h-20 object-cover rounded-lg">
+                                    {% elif 'brochure' in item.product.name|lower %}
+                                        <img src="{% static 'images/brochure-design.svg' %}" alt="{{ item.product.name }}" 
+                                             class="w-20 h-20 object-cover rounded-lg">
+                                    {% elif 'folder' in item.product.name|lower %}
+                                        <img src="{% static 'images/product-folders.svg' %}" alt="{{ item.product.name }}" 
+                                             class="w-20 h-20 object-cover rounded-lg">
+                                    {% elif 'sticker' in item.product.name|lower %}
+                                        <img src="{% static 'images/service-labels-stickers.svg' %}" alt="{{ item.product.name }}" 
+                                             class="w-20 h-20 object-cover rounded-lg">
+                                    {% elif 'book' in item.product.name|lower %}
+                                        <img src="{% static 'images/hero-book.png' %}" alt="{{ item.product.name }}" 
+                                             class="w-20 h-20 object-cover rounded-lg">
+                                    {% else %}
+                                        <img src="{% static 'images/service-design-services.svg' %}" alt="{{ item.product.name }}" 
+                                             class="w-20 h-20 object-cover rounded-lg">
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">{{ item.product.name }}</h3>
+                                <p class="text-gray-600 text-sm">{{ item.product.short_description|truncatewords:15 }}</p>
+                                {% if item.product_options %}
+                                <div class="mt-2 text-sm text-gray-500">
+                                    {% for key, value in item.product_options.items %}
+                                        {{ key|title }}: {{ value }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="flex items-center border border-gray-300 rounded-lg">
+                                    <button class="px-3 py-2 text-gray-600 hover:text-blue-600">-</button>
+                                    <span class="px-4 py-2 border-x border-gray-300">{{ item.quantity }}</span>
+                                    <button class="px-3 py-2 text-gray-600 hover:text-blue-600">+</button>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-semibold text-gray-900">₹{{ item.total_price }}</div>
+                                    <div class="text-sm text-gray-500">₹{{ item.unit_price }} each</div>
+                                </div>
+                                <button class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-lg p-6 sticky top-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Order Summary</h3>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>₹{{ subtotal }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Shipping</span>
+                            <span>₹{{ shipping_cost }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>GST (18%)</span>
+                            <span>₹{{ gst_amount }}</span>
+                        </div>
+                        <div class="border-t pt-3">
+                            <div class="flex justify-between text-lg font-semibold">
+                                <span>Total</span>
+                                <span>₹{{ total }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-300">
+                            Proceed to Checkout
+                        </button>
+                        <a href="{% url 'home:home' %}" class="block w-full text-center text-gray-600 hover:text-blue-600 py-2">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <div class="text-center py-16">
+            <div class="bg-white rounded-xl shadow-lg p-12">
+                <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-2xl font-semibold text-gray-600 mb-2">Your cart is empty</h3>
+                <p class="text-gray-500 mb-6">Add some products to your cart to get started</p>
+                <a href="{% url 'home:home' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300">
+                    Start Shopping
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
