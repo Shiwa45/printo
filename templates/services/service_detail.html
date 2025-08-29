@@ -5,64 +5,656 @@
 
 {% block extra_css %}
 <style>
-/* Hero Section */
-.service-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-    overflow: hidden;
+/* Clean Professional Styling */
+:root {
+    --primary-blue: #0ea5e9;
+    --primary-dark: #0284c7;
+    --text-dark: #1f2937;
+    --text-medium: #4b5563;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+    --bg-section: #ffffff;
 }
 
-.service-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 1;
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 8rem 0 4rem;
+    position: relative;
 }
 
 .hero-content {
-    position: relative;
-    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
-/* Price Card */
-.price-card {
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.hero-text h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.hero-text p {
+    font-size: 1.2rem;
+    color: var(--text-medium);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    background: var(--primary-blue);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-secondary {
     background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    transform: translateY(-50px);
-    z-index: 10;
-    position: relative;
+    color: var(--primary-blue);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid var(--primary-blue);
+    transition: all 0.2s;
 }
 
-/* Features Grid */
+.btn-secondary:hover {
+    background: var(--primary-blue);
+    color: white;
+    text-decoration: none;
+}
+
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Quote Calculator Section */
+.calculator-section {
+    background: #f8f9fa;
+    padding: 4rem 0;
+}
+
+.calculator-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.calculator-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.calculator-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.calculator-header p {
+    font-size: 1.1rem;
+    color: var(--text-medium);
+}
+
+.quote-calculator-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.quote-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quote-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e1e5e9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.quote-field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.quote-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.quote-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quote-info-icon {
+    color: var(--primary-blue);
+    font-size: 0.8rem;
+    cursor: help;
+}
+
+.quote-input-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.quote-select {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: white;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quote-select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.quote-dropdown-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    font-size: 0.8rem;
+}
+
+.quote-field-note {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.size-options {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+}
+
+.custom-size-link {
+    font-size: 0.8rem;
+    color: #dc3545;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.paper-note {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.checkbox-field {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e1e5e9;
+}
+
+.quote-checkbox {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.75rem;
+    accent-color: var(--primary-blue);
+}
+
+.checkbox-label {
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    cursor: pointer;
+}
+
+.binding-options,
+.corner-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.binding-option,
+.corner-option {
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.binding-option:hover,
+.corner-option:hover {
+    border-color: var(--primary-blue);
+}
+
+.binding-option.active,
+.corner-option.active {
+    border-color: var(--primary-blue);
+    background: rgba(14, 165, 233, 0.05);
+}
+
+.binding-image,
+.corner-preview {
+    font-size: 1.5rem;
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
+}
+
+.binding-name,
+.corner-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.corner-card {
+    width: 40px;
+    height: 25px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: #6c757d;
+}
+
+.rounded-corner {
+    border-radius: 4px;
+}
+
+.square-corner {
+    border-radius: 0;
+}
+
+/* Quote Price Section */
+.quote-price-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+.price-card {
+    background: #1a4c68;
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.price-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transform: translate(30px, -30px);
+}
+
+.price-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.price-location {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+}
+
+.price-discount {
+    background: #ff6b35;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.price-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.price-currency {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-right: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.price-amount {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.price-details {
+    margin-bottom: 1.5rem;
+}
+
+.unit-price {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 0.5rem;
+}
+
+.price-note {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 0.75rem;
+}
+
+.estimated-weight {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+}
+
+.save-quote-btn {
+    width: 100%;
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-quote-btn:hover {
+    background: #138496;
+    transform: translateY(-1px);
+}
+
+.shipping-btn {
+    width: 100%;
+    background: #ff6b35;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+}
+
+.shipping-btn:hover {
+    background: #e55a2b;
+    transform: translateY(-1px);
+}
+
+.template-card {
+    background: #1a4c68;
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-card:hover {
+    background: #2a5c78;
+    transform: translateY(-1px);
+}
+
+.template-icon {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.template-text {
+    flex: 1;
+}
+
+.template-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.template-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+}
+
+/* Smooth Scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .quote-calculator-wrapper {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .quote-price-section {
+        position: static;
+        order: -1;
+    }
+    
+    .quote-field-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .binding-options,
+    .corner-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .calculator-container {
+        padding: 0 0.5rem;
+    }
+    
+    .quote-card {
+        padding: 1rem;
+    }
+    
+    .calculator-header h2 {
+        font-size: 2rem;
+    }
+    
+    .price-amount {
+        font-size: 3rem;
+    }
+}
+
+/* Features Section */
+.features-section {
+    background: var(--bg-light);
+    padding: 4rem 0;
+}
+
+.section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    font-size: 1.1rem;
+    color: var(--text-medium);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
 .feature-card {
     background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    border: 1px solid #f1f5f9;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    transition: all 0.3s;
 }
 
 .feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
-/* Specifications Table */
-.spec-table {
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--primary-blue);
+    font-size: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.feature-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+}
+
+.feature-description {
+    color: var(--text-medium);
+    font-size: 0.95rem;
+}
+
+/* Specifications Section */
+.specs-section {
     background: white;
-    border-radius: 16px;
+    padding: 4rem 0;
+}
+
+.specs-table {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 .spec-row {
-    border-bottom: 1px solid #f1f5f9;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .spec-row:last-child {
@@ -70,182 +662,568 @@
 }
 
 .spec-label {
-    background: #f8fafc;
+    background: var(--bg-light);
+    padding: 1.25rem 1.5rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--text-dark);
+    border-right: 1px solid var(--border-color);
 }
 
-/* Process Steps */
+.spec-value {
+    padding: 1.25rem 1.5rem;
+    color: var(--text-medium);
+}
+
+/* Process Section */
+.process-section {
+    background: var(--bg-light);
+    padding: 4rem 0;
+}
+
+.process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
 .process-step {
     background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    position: relative;
-    transition: all 0.3s ease;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    transition: all 0.3s;
 }
 
 .process-step:hover {
-    transform: scale(1.02);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 
 .step-number {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
     width: 50px;
     height: 50px;
+    background: var(--primary-blue);
+    color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1.2rem;
-    margin: 0 auto 16px;
+    margin: 0 auto 1rem;
+}
+
+.step-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+}
+
+.step-description {
+    color: var(--text-medium);
+    font-size: 0.9rem;
 }
 
 /* CTA Section */
 .cta-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-    overflow: hidden;
+    background: var(--primary-blue);
+    padding: 4rem 0;
+    text-align: center;
 }
 
-.cta-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.2);
-    z-index: 1;
-}
-
-.cta-content {
-    position: relative;
-    z-index: 2;
-}
-
-/* Buttons */
-.btn-primary-lg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.cta-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
     color: white;
-    padding: 16px 32px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    margin-bottom: 1rem;
 }
 
-.btn-primary-lg:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+.cta-section p {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 2rem;
 }
 
-.btn-outline-lg {
-    border: 2px solid #667eea;
-    color: #667eea;
-    padding: 16px 32px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-white {
     background: white;
+    color: var(--primary-blue);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
-.btn-outline-lg:hover {
-    background: #667eea;
+.btn-white:hover {
+    background: #f8fafc;
+    transform: translateY(-1px);
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+.btn-outline-white {
+    background: transparent;
     color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid white;
+    transition: all 0.2s;
+}
+
+.btn-outline-white:hover {
+    background: white;
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+/* Related Services */
+.related-section {
+    background: white;
+    padding: 4rem 0;
+}
+
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.related-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.related-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: inherit;
+}
+
+.related-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--bg-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--primary-blue);
+    font-size: 1.25rem;
+}
+
+.related-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.related-price {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-grid,
+    .calculator-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .hero-text h1 {
+        font-size: 2rem;
+    }
+    
+    .hero-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .price-display {
+        position: static;
+        margin-top: 2rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .spec-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .spec-label {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="service-hero pt-32 pb-20">
+<section class="hero-section">
     <div class="hero-content">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div class="text-white">
-                    <div class="inline-block bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                        {{ category }}
+        <div class="hero-grid">
+            <div class="hero-text">
+                <h1>{{ hero_title }}</h1>
+                <p>{{ hero_description }}</p>
+                
+                <div class="hero-buttons">
+                    <a href="#calculator" class="btn-primary">
+                        <i class="fas fa-calculator"></i> Get Instant Quote
+                    </a>
+                    <a href="#specifications" class="btn-secondary">
+                        <i class="fas fa-info-circle"></i> View Details
+                    </a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">24-48hrs</div>
+                        <div class="stat-label">Turnaround</div>
                     </div>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                        {{ hero_title }}
-                    </h1>
-                    <p class="text-xl text-white text-opacity-90 mb-8 leading-relaxed">
-                        {{ hero_description }}
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="#get-quote" class="btn-primary-lg text-center">
-                            Get Instant Quote
-                        </a>
-                        <a href="#specifications" class="btn-outline-lg text-center">
-                            View Specifications
-                        </a>
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Quality</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">Free</div>
+                        <div class="stat-label">Design Help</div>
                     </div>
                 </div>
-                <div class="relative">
-                    {% if 'business' in title|lower %}
-                        <img src="{% static 'images/business-cards.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% elif 'brochure' in title|lower %}
-                        <img src="{% static 'images/brochure-design.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% elif 'folder' in title|lower %}
-                        <img src="{% static 'images/product-folders.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% elif 'sticker' in title|lower %}
-                        <img src="{% static 'images/service-labels-stickers.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% elif 'book' in title|lower %}
-                        <img src="{% static 'images/hero-book.png' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% elif 't-shirt' in title|lower or 'shirt' in title|lower %}
-                        <img src="{% static 'images/service-t-shirt.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% elif 'wearable' in title|lower or 'clothing' in title|lower %}
-                        <img src="{% static 'images/service-wearables-clothing.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% else %}
-                        <img src="{% static 'images/service-design-services.svg' %}" alt="{{ title }}" class="w-full max-w-lg mx-auto">
-                    {% endif %}
+            </div>
+            
+            <div class="hero-image">
+                {% if 'business' in title|lower %}
+                    <img src="{% static 'images/business-cards.svg' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                {% elif 'brochure' in title|lower %}
+                    <img src="{% static 'images/brochure-design.svg' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                {% elif 'book' in title|lower %}
+                    <img src="{% static 'images/hero-book.png' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                {% else %}
+                    <img src="{% static 'images/service-design-services.svg' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Price Calculator Section -->
+<section id="calculator" class="calculator-section">
+    <div class="calculator-container">
+        <div class="calculator-header">
+            <h2>{{ title }} Instant Quote</h2>
+            <p>Get an instant quote by customizing your specifications</p>
+        </div>
+        
+        <div class="quote-calculator-wrapper">
+            <div class="quote-form-section">
+                {% if 'book' in title|lower %}
+                <!-- Book Printing Calculator -->
+                <div class="quote-card">
+                    <div class="quote-field-group">
+                        <div class="quote-field">
+                            <label class="quote-label">Quantity</label>
+                            <div class="quote-input-wrapper">
+                                <select id="quantity" class="quote-select">
+                                    <option value="25">25</option>
+                                    <option value="50" selected>50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-field-note">MOQ: 25 books</div>
+                        </div>
+                        
+                        <div class="quote-field">
+                            <label class="quote-label">Number of Pages</label>
+                            <div class="quote-input-wrapper">
+                                <select id="pages" class="quote-select">
+                                    <option value="50">50</option>
+                                    <option value="100" selected>100</option>
+                                    <option value="150">150</option>
+                                    <option value="200">200</option>
+                                    <option value="300">300</option>
+                                    <option value="500">500</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-field-note">Min: 8 pages per book</div>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-field">
+                        <input type="checkbox" id="sameDesign" class="quote-checkbox" checked>
+                        <label for="sameDesign" class="checkbox-label">Every book has the same content and design</label>
+                    </div>
+                </div>
+
+                <div class="quote-card">
+                    <div class="quote-field-group">
+                        <div class="quote-field">
+                            <label class="quote-label">Size (width x height) <i class="fas fa-info-circle quote-info-icon"></i></label>
+                            <div class="size-options">
+                                <span class="custom-size-link">CUSTOM SIZE</span>
+                            </div>
+                            <div class="quote-input-wrapper">
+                                <select id="bookSize" class="quote-select">
+                                    <option value="A5">A5 (5.8" x 8.3")</option>
+                                    <option value="A4" selected>A4 (8.3" x 11.7")</option>
+                                    <option value="Letter">Letter (8.5" x 11")</option>
+                                    <option value="Executive">Executive (7" x 10")</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quote-card">
+                    <div class="quote-field-group">
+                        <div class="quote-field">
+                            <label class="quote-label">Paper <span class="paper-note">(Full color printing)</span></label>
+                            <div class="quote-input-wrapper">
+                                <select id="paperType" class="quote-select">
+                                    <option value="75gsm">Standard paper</option>
+                                    <option value="100gsm" selected>Premium paper</option>
+                                    <option value="100gsm_art">Art paper 100gsm</option>
+                                    <option value="130gsm_art">Art paper 130gsm</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-input-wrapper">
+                                <select id="printType" class="quote-select">
+                                    <option value="bw_standard">Black & White</option>
+                                    <option value="color_standard" selected>Full Color</option>
+                                    <option value="color_premium">Premium Color</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-field-note">If you need other paper, please contact us.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quote-card">
+                    <label class="quote-label">Binding Type</label>
+                    <div class="binding-options">
+                        <div class="binding-option" data-binding="paperback_perfect">
+                            <div class="binding-image">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="binding-name">Perfect Binding</div>
+                        </div>
+                        <div class="binding-option active" data-binding="spiral_binding">
+                            <div class="binding-image">
+                                <i class="fas fa-circle-notch"></i>
+                            </div>
+                            <div class="binding-name">Spiral Binding</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- Standard Product Calculator -->
+                <div class="quote-card">
+                    <div class="quote-field-group">
+                        <div class="quote-field">
+                            <label class="quote-label">Quantity</label>
+                            <div class="quote-input-wrapper">
+                                <select id="standardQuantity" class="quote-select">
+                                    <option value="50">50</option>
+                                    <option value="100" selected>100</option>
+                                    <option value="250">250</option>
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                    <option value="2500">2500</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-field-note">MOQ: 50 pieces</div>
+                        </div>
+                        
+                        <div class="quote-field">
+                            <label class="quote-label">Card Count per Pack</label>
+                            <div class="quote-input-wrapper">
+                                <select id="cardCount" class="quote-select">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50" selected>50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-field-note">Min: 1 card per pack</div>
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-field">
+                        <input type="checkbox" id="sameDesign" class="quote-checkbox" checked>
+                        <label for="sameDesign" class="checkbox-label">Every card has the same design on the back</label>
+                    </div>
+                </div>
+
+                <div class="quote-card">
+                    <div class="quote-field-group">
+                        <div class="quote-field">
+                            <label class="quote-label">Size (width x height) <i class="fas fa-info-circle quote-info-icon"></i></label>
+                            <div class="size-options">
+                                <span class="custom-size-link">CUSTOM SIZE</span>
+                            </div>
+                            <div class="quote-input-wrapper">
+                                <select id="productSize" class="quote-select">
+                                    <option value="standard" selected>3" x 4"</option>
+                                    <option value="large">4" x 6"</option>
+                                    <option value="custom">Custom Size</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quote-card">
+                    <div class="quote-field-group">
+                        <div class="quote-field">
+                            <label class="quote-label">Paper <span class="paper-note">(Full color printing)</span></label>
+                            <div class="quote-input-wrapper">
+                                <select id="standardPaper" class="quote-select">
+                                    <option value="standard">Premium cardstock</option>
+                                    <option value="premium" selected>Premium cardstock</option>
+                                    <option value="luxury">Luxury cardstock</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-input-wrapper">
+                                <select id="finish" class="quote-select">
+                                    <option value="matte">300 gsm</option>
+                                    <option value="gloss" selected>350 gsm</option>
+                                    <option value="spot_uv">400 gsm</option>
+                                </select>
+                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            </div>
+                            <div class="quote-field-note">If you need other paper, please contact us.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quote-card">
+                    <label class="quote-label">Corners</label>
+                    <div class="corner-options">
+                        <div class="corner-option active" data-corner="rounded">
+                            <div class="corner-preview">
+                                <div class="corner-card rounded-corner">
+                                    <i class="fas fa-grip-lines"></i>
+                                </div>
+                            </div>
+                            <div class="corner-name">Rounded Corners</div>
+                        </div>
+                        <div class="corner-option" data-corner="square">
+                            <div class="corner-preview">
+                                <div class="corner-card square-corner">
+                                    <i class="fas fa-grip-lines"></i>
+                                </div>
+                            </div>
+                            <div class="corner-name">Square Corners</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Price Display Section -->
+            <div class="quote-price-section">
+                <div class="price-card">
+                    <div class="price-header">
+                        <div class="price-location">Mumbai Price: INR {{ starting_price }}</div>
+                        <div class="price-discount">save 20% now</div>
+                    </div>
+                    <div class="price-main">
+                        <div class="price-currency">₹</div>
+                        <div class="price-amount" id="totalPrice">{{ starting_price }}</div>
+                    </div>
+                    <div class="price-details">
+                        <div class="unit-price">Unit Price: ₹<span id="unitPrice">{{ starting_price|floatformat:2 }}</span></div>
+                        <div class="price-note">The price doesn't include shipping costs and duty.</div>
+                        <div class="estimated-weight">Estimated weight: <span id="estimatedWeight">2 kg</span></div>
+                    </div>
+                    <button class="save-quote-btn">SAVE QUOTE</button>
+                </div>
+                
+                <button class="shipping-btn">GET SHIPPING COST / ANY QUESTION?</button>
+                
+                <div class="template-card">
+                    <div class="template-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="template-text">
+                        <div class="template-title">Download Free Template</div>
+                        <div class="template-subtitle">based on your choices</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Price Card Overlay -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-    <div class="price-card p-8 text-center max-w-md mx-auto">
-        <div class="mb-4">
-            <div class="text-4xl font-bold text-gray-900">₹{{ starting_price }}</div>
-            <div class="text-gray-600">Starting from</div>
-        </div>
-        <div class="space-y-2 text-sm text-gray-600">
-            <p>✓ Free design consultation</p>
-            <p>✓ Fast turnaround time</p>
-            <p>✓ Premium quality guaranteed</p>
-        </div>
-    </div>
-</div>
-
 <!-- Features Section -->
-<section class="py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Why Choose Our {{ title }}?
-            </h2>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                Professional quality printing services with attention to every detail
-            </p>
+<section class="features-section">
+    <div class="section-container">
+        <div class="section-header">
+            <h2>Why Choose Our {{ title }}?</h2>
+            <p>Professional quality printing services with attention to every detail</p>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <div class="features-grid">
             {% for feature in features %}
-            <div class="feature-card text-center">
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-check text-white text-xl"></i>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-check"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ feature }}</h3>
-                <p class="text-gray-600">Premium quality feature included in every order</p>
+                <h3 class="feature-title">{{ feature }}</h3>
+                <p class="feature-description">Premium quality feature included in every order</p>
             </div>
             {% endfor %}
         </div>
@@ -253,24 +1231,18 @@
 </section>
 
 <!-- Specifications Section -->
-<section id="specifications" class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Technical Specifications
-            </h2>
-            <p class="text-lg text-gray-600">
-                Detailed specifications for {{ title }}
-            </p>
+<section id="specifications" class="specs-section">
+    <div class="section-container">
+        <div class="section-header">
+            <h2>Technical Specifications</h2>
+            <p>Detailed specifications for {{ title }}</p>
         </div>
-
-        <div class="spec-table max-w-4xl mx-auto">
+        
+        <div class="specs-table">
             {% for spec_key, spec_value in specifications.items %}
-            <div class="spec-row flex">
-                <div class="spec-label w-1/3 p-6">
-                    {{ spec_key }}
-                </div>
-                <div class="w-2/3 p-6 text-gray-700">
+            <div class="spec-row">
+                <div class="spec-label">{{ spec_key }}</div>
+                <div class="spec-value">
                     {% if spec_value|length > 1 %}
                         {% for item in spec_value %}
                             {{ item }}{% if not forloop.last %}, {% endif %}
@@ -285,27 +1257,21 @@
     </div>
 </section>
 
-<!-- Process Steps Section -->
+<!-- Process Section -->
 {% if process_steps %}
-<section class="py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Our Simple Process
-            </h2>
-            <p class="text-lg text-gray-600">
-                From order to delivery in just a few easy steps
-            </p>
+<section class="process-section">
+    <div class="section-container">
+        <div class="section-header">
+            <h2>Our Simple Process</h2>
+            <p>From order to delivery in just a few easy steps</p>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <div class="process-grid">
             {% for step in process_steps %}
-            <div class="process-step text-center">
-                <div class="step-number">
-                    {{ forloop.counter }}
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ step }}</h3>
-                <p class="text-gray-600">Professional handling at every stage</p>
+            <div class="process-step">
+                <div class="step-number">{{ forloop.counter }}</div>
+                <h3 class="step-title">{{ step }}</h3>
+                <p class="step-description">Professional handling at every stage</p>
             </div>
             {% endfor %}
         </div>
@@ -314,104 +1280,388 @@
 {% endif %}
 
 <!-- CTA Section -->
-<section id="get-quote" class="cta-section py-20">
-    <div class="cta-content">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl font-bold text-white mb-6">
-                Ready to Get Started?
-            </h2>
-            <p class="text-xl text-white text-opacity-90 mb-8 max-w-3xl mx-auto">
-                Get an instant quote for {{ title }} or speak with our printing experts
-            </p>
-            
-            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <a href="{% url 'home:contact' %}" class="btn-primary-lg">
-                    <i class="fas fa-calculator mr-2"></i>
-                    Get Free Quote
-                </a>
-                <a href="tel:+919876543210" class="btn-outline-lg">
-                    <i class="fas fa-phone mr-2"></i>
-                    Call Now: +91 98765 43210
-                </a>
-                {% if 'design-tool' in features|join:',' %}
-                <a href="#" class="btn-primary-lg">
-                    <i class="fas fa-palette mr-2"></i>
-                    Design Online
-                </a>
-                {% endif %}
-            </div>
-            
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-white">
-                <div class="text-center">
-                    <div class="text-3xl font-bold mb-2">24-48hrs</div>
-                    <div class="text-white text-opacity-80">Turnaround Time</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold mb-2">100%</div>
-                    <div class="text-white text-opacity-80">Quality Guarantee</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold mb-2">Free</div>
-                    <div class="text-white text-opacity-80">Design Consultation</div>
-                </div>
-            </div>
+<section class="cta-section">
+    <div class="section-container">
+        <h2>Ready to Get Started?</h2>
+        <p>Get an instant quote for {{ title }} or speak with our printing experts</p>
+        
+        <div class="cta-buttons">
+            <a href="{% url 'home:contact' %}" class="btn-white">
+                <i class="fas fa-envelope"></i> Get Free Quote
+            </a>
+            <a href="tel:+919876543210" class="btn-outline-white">
+                <i class="fas fa-phone"></i> Call Now
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Related Services -->
-<section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">
-                Related Services
-            </h2>
-            <p class="text-lg text-gray-600">
-                Explore our other printing services
-            </p>
+<!-- Related Services Section -->
+<section class="related-section">
+    <div class="section-container">
+        <div class="section-header">
+            <h2>Related Services</h2>
+            <p>Explore our other printing services</p>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <a href="{% url 'services:business_cards' %}" class="group block">
-                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
-                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-id-card text-white text-xl"></i>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Business Cards</h3>
-                    <p class="text-gray-600 text-sm">Premium business cards starting from ₹299</p>
+        <div class="related-grid">
+            <a href="{% url 'services:business_cards' %}" class="related-card">
+                <div class="related-icon">
+                    <i class="fas fa-id-card"></i>
                 </div>
+                <h3 class="related-title">Business Cards</h3>
+                <p class="related-price">Starting from ₹299</p>
             </a>
             
-            <a href="{% url 'services:brochures' %}" class="group block">
-                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
-                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-file-alt text-white text-xl"></i>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Brochures</h3>
-                    <p class="text-gray-600 text-sm">Professional brochures starting from ₹599</p>
+            <a href="{% url 'services:brochures' %}" class="related-card">
+                <div class="related-icon">
+                    <i class="fas fa-file-alt"></i>
                 </div>
+                <h3 class="related-title">Brochures</h3>
+                <p class="related-price">Starting from ₹599</p>
             </a>
             
-            <a href="{% url 'services:childrens_book_printing' %}" class="group block">
-                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
-                    <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-book text-white text-xl"></i>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Book Printing</h3>
-                    <p class="text-gray-600 text-sm">Custom book printing starting from ₹299</p>
+            <a href="{% url 'services:childrens_book_printing' %}" class="related-card">
+                <div class="related-icon">
+                    <i class="fas fa-book"></i>
                 </div>
+                <h3 class="related-title">Book Printing</h3>
+                <p class="related-price">Starting from ₹299</p>
             </a>
             
-            <a href="{% url 'services:flyers' %}" class="group block">
-                <div class="feature-card group-hover:scale-105 transition-transform duration-300">
-                    <div class="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-paper-plane text-white text-xl"></i>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Flyers</h3>
-                    <p class="text-gray-600 text-sm">Eye-catching flyers starting from ₹249</p>
+            <a href="{% url 'services:flyers' %}" class="related-card">
+                <div class="related-icon">
+                    <i class="fas fa-paper-plane"></i>
                 </div>
+                <h3 class="related-title">Flyers</h3>
+                <p class="related-price">Starting from ₹249</p>
             </a>
         </div>
     </div>
 </section>
+
+<script>
+// Enhanced Pricing Calculator with Real-time Updates
+let selectedBinding = 'spiral_binding';
+let selectedCorner = 'rounded';
+
+// Initialize calculator
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCalculator();
+    setupSmoothScroll();
+    setupRealTimeUpdates();
+    setupInteractiveOptions();
+});
+
+function initializeCalculator() {
+    // Set initial values
+    calculatePrice();
+    
+    // Setup binding options
+    document.querySelectorAll('.binding-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.binding-option').forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            selectedBinding = this.dataset.binding;
+            calculatePrice();
+        });
+    });
+    
+    // Setup corner options
+    document.querySelectorAll('.corner-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            selectedCorner = this.dataset.corner;
+            calculatePrice();
+        });
+    });
+}
+
+function setupSmoothScroll() {
+    // Enhanced smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const headerOffset = 100;
+                const elementPosition = target.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+}
+
+function setupRealTimeUpdates() {
+    // Real-time price updates as user changes options
+    const inputs = document.querySelectorAll('select, input[type="checkbox"], input[type="number"]');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            calculatePrice();
+        });
+        
+        // Also update on input for number fields
+        if (input.type === 'number') {
+            input.addEventListener('input', function() {
+                calculatePrice();
+            });
+        }
+    });
+}
+
+function setupInteractiveOptions() {
+    // Add visual feedback for selects
+    document.querySelectorAll('.quote-select').forEach(select => {
+        select.addEventListener('focus', function() {
+            this.parentElement.style.borderColor = '#0ea5e9';
+        });
+        
+        select.addEventListener('blur', function() {
+            this.parentElement.style.borderColor = '#e1e5e9';
+        });
+    });
+}
+
+function calculatePrice() {
+    const isBookPrinting = '{{ title|lower }}'.includes('book');
+    let total = 0;
+    let quantity = 0;
+    let unitPrice = 0;
+    let estimatedWeight = 0;
+
+    if (isBookPrinting) {
+        // Book printing calculation
+        const size = document.getElementById('bookSize')?.value || 'A4';
+        const pages = parseInt(document.getElementById('pages')?.value || 100);
+        const paperType = document.getElementById('paperType')?.value || '100gsm';
+        const printType = document.getElementById('printType')?.value || 'color_standard';
+        quantity = parseInt(document.getElementById('quantity')?.value || 50);
+
+        // Simplified rates for real-time calculation
+        const rates = {
+            'A4': {
+                'bw_standard': {'75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1},
+                'color_standard': {'75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15},
+                'color_premium': {'75gsm': 2.7, '100gsm': 2.9, '100gsm_art': 3.1, '130gsm_art': 3.3}
+            },
+            'A5': {
+                'bw_standard': {'75gsm': 0.6, '100gsm': 0.75, '100gsm_art': 0.9, '130gsm_art': 1.1},
+                'color_standard': {'75gsm': 1.25, '100gsm': 1.35, '100gsm_art': 1.45, '130gsm_art': 1.58},
+                'color_premium': {'75gsm': 1.35, '100gsm': 1.45, '100gsm_art': 1.6, '130gsm_art': 1.75}
+            },
+            'Letter': {
+                'bw_standard': {'75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1},
+                'color_standard': {'75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15}
+            },
+            'Executive': {
+                'bw_standard': {'75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1},
+                'color_standard': {'75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15}
+            }
+        };
+
+        const bindingCosts = {
+            'paperback_perfect': 40,
+            'spiral_binding': 40,
+            'hardcover': 150,
+            'saddle_stitch': 25
+        };
+
+        // Calculate costs
+        const rate = rates[size] && rates[size][printType] ? rates[size][printType][paperType] || 1.5 : 1.5;
+        const printingCost = pages * rate * quantity;
+        const bindingCost = bindingCosts[selectedBinding] * quantity;
+        const shippingCost = pages * (printType.includes('color') ? 0.13 : 0.1) * quantity;
+
+        total = printingCost + bindingCost + shippingCost;
+
+        // Quantity discount
+        let discount = 0;
+        if (quantity >= 300) discount = 0.16;
+        else if (quantity >= 200) discount = 0.12;
+        else if (quantity >= 100) discount = 0.08;
+        else if (quantity >= 50) discount = 0.04;
+
+        if (discount > 0) {
+            total = total * (1 - discount);
+        }
+
+        unitPrice = total / quantity;
+        estimatedWeight = Math.ceil((pages * quantity * 0.005) + (quantity * 0.1)); // Rough estimate
+
+    } else {
+        // Standard product calculation
+        const basePrice = {{ starting_price }};
+        quantity = parseInt(document.getElementById('standardQuantity')?.value || 100);
+        const cardCount = parseInt(document.getElementById('cardCount')?.value || 50);
+        const size = document.getElementById('productSize')?.value || 'standard';
+        const paper = document.getElementById('standardPaper')?.value || 'premium';
+        const finish = document.getElementById('finish')?.value || 'gloss';
+
+        unitPrice = basePrice / 100; // Convert to per piece
+
+        // Size adjustments
+        if (size === 'large') unitPrice += 0.50;
+        if (size === 'custom') unitPrice += 1.00;
+
+        // Paper adjustments
+        if (paper === 'premium') unitPrice += 0.30;
+        if (paper === 'luxury') unitPrice += 0.60;
+
+        // Finish adjustments
+        if (finish === 'gloss') unitPrice += 0.15;
+        if (finish === 'spot_uv') unitPrice += 0.50;
+
+        total = unitPrice * quantity;
+        estimatedWeight = Math.ceil(quantity * 0.02); // Rough estimate for cards
+    }
+
+    // Update display with smooth number animation
+    animateNumber('totalPrice', total);
+    animateNumber('unitPrice', unitPrice);
+    
+    // Update estimated weight
+    const weightElement = document.getElementById('estimatedWeight');
+    if (weightElement) {
+        weightElement.textContent = estimatedWeight + ' kg';
+    }
+
+    // Add visual feedback
+    const priceCard = document.querySelector('.price-card');
+    if (priceCard) {
+        priceCard.style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            priceCard.style.transform = 'scale(1)';
+        }, 200);
+    }
+}
+
+function animateNumber(elementId, targetValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    const startValue = parseFloat(element.textContent.replace(/[₹,]/g, '')) || 0;
+    const difference = targetValue - startValue;
+    const duration = 300;
+    const steps = 20;
+    const stepValue = difference / steps;
+    const stepDuration = duration / steps;
+
+    let currentStep = 0;
+    const timer = setInterval(() => {
+        currentStep++;
+        const currentValue = startValue + (stepValue * currentStep);
+        
+        if (elementId === 'totalPrice') {
+            element.textContent = Math.round(currentValue).toLocaleString('en-IN');
+        } else {
+            element.textContent = currentValue.toFixed(2);
+        }
+
+        if (currentStep >= steps) {
+            clearInterval(timer);
+            // Final value to ensure accuracy
+            if (elementId === 'totalPrice') {
+                element.textContent = Math.round(targetValue).toLocaleString('en-IN');
+            } else {
+                element.textContent = targetValue.toFixed(2);
+            }
+        }
+    }, stepDuration);
+}
+
+// Save Quote functionality
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('save-quote-btn')) {
+        saveQuote();
+    }
+    
+    if (e.target.classList.contains('shipping-btn')) {
+        window.location.href = '{% url "home:contact" %}';
+    }
+    
+    if (e.target.closest('.template-card')) {
+        downloadTemplate();
+    }
+});
+
+function saveQuote() {
+    const quoteData = {
+        product: '{{ title }}',
+        totalPrice: document.getElementById('totalPrice').textContent,
+        unitPrice: document.getElementById('unitPrice').textContent,
+        timestamp: new Date().toISOString(),
+        specifications: gatherSpecifications()
+    };
+    
+    // Store in localStorage for now
+    localStorage.setItem('savedQuote', JSON.stringify(quoteData));
+    
+    // Visual feedback
+    const btn = document.querySelector('.save-quote-btn');
+    const originalText = btn.textContent;
+    btn.textContent = 'QUOTE SAVED!';
+    btn.style.background = '#28a745';
+    
+    setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '#17a2b8';
+    }, 2000);
+}
+
+function gatherSpecifications() {
+    const specs = {};
+    const selects = document.querySelectorAll('.quote-select');
+    selects.forEach(select => {
+        if (select.value) {
+            specs[select.id] = select.value;
+        }
+    });
+    return specs;
+}
+
+function downloadTemplate() {
+    // Simulate template download
+    const link = document.createElement('a');
+    link.href = '#';
+    link.download = '{{ title|slugify }}-template.pdf';
+    
+    // Visual feedback
+    const templateCard = document.querySelector('.template-card');
+    templateCard.style.background = '#28a745';
+    setTimeout(() => {
+        templateCard.style.background = '#1a4c68';
+    }, 1000);
+    
+    alert('Template download will be available soon!');
+}
+
+// Intersection Observer for smooth animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe quote cards for entrance animations
+document.querySelectorAll('.quote-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = 'all 0.6s ease';
+    observer.observe(card);
+});
+</script>
 {% endblock %}

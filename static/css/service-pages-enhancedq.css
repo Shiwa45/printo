@@ -1,0 +1,740 @@
+/* Enhanced Process Steps */
+.process-step {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.process-step::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--primary-gradient);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.process-step:hover::after {
+    opacity: 0.05;
+}
+
+.process-step:hover {
+    color: white;
+    transform: translateY(-8px) scale(1.02);
+}
+
+.process-step:hover::after {
+    opacity: 1;
+}
+
+.step-number {
+    position: relative;
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.step-number::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.process-step:hover .step-number::before {
+    opacity: 1;
+}
+
+/* Enhanced CTA Section */
+.cta-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.9) 100%);
+}
+
+.cta-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23dots)"/></svg>');
+    animation: slideInRight 20s linear infinite;
+    z-index: 1;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Enhanced Interactive Elements */
+.option-card {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.option-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.option-card:hover::before {
+    left: 100%;
+}
+
+.option-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+}
+
+.option-card.selected {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.option-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Enhanced Buttons */
+.btn-primary-lg, .btn-outline-lg {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary-lg::before, .btn-outline-lg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-primary-lg:hover::before, .btn-outline-lg:hover::before {
+    left: 100%;
+}
+
+.btn-primary-lg:active, .btn-outline-lg:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Loading States */
+.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Enhanced Form Elements */
+.calculator-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.calculator-input[type="number"]::-webkit-outer-spin-button,
+.calculator-input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.calculator-input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Custom Checkbox Styles */
+input[type="checkbox"] {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    appearance: none;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+input[type="checkbox"]:checked {
+    background: var(--primary-gradient);
+    border-color: #667eea;
+}
+
+input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+input[type="checkbox"]:hover {
+    border-color: #667eea;
+    transform: scale(1.05);
+}
+
+/* Enhanced Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-gradient);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+/* Responsive Enhancements */
+@media (max-width: 1024px) {
+    .floating-card {
+        transform: translateY(-20px);
+        margin: 0 16px;
+    }
+    
+    .price-display {
+        position: static;
+        margin-top: 24px;
+    }
+    
+    .calculator-section {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .service-hero {
+        min-height: 80vh;
+        padding: 60px 0 40px;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.5rem;
+        line-height: 1.2;
+    }
+    
+    .floating-card {
+        padding: 24px 16px;
+    }
+    
+    .feature-card {
+        padding: 20px;
+    }
+    
+    .process-step {
+        padding: 20px;
+    }
+    
+    .calculator-section {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .spec-table .spec-row {
+        flex-direction: column;
+    }
+    
+    .spec-label {
+        width: 100%;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .spec-row > div:last-child {
+        width: 100%;
+        padding: 12px 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    
+    .btn-primary-lg, .btn-outline-lg {
+        padding: 14px 24px;
+        font-size: 1rem;
+    }
+    
+    .feature-card {
+        text-align: center;
+    }
+    
+    .price-display {
+        padding: 20px;
+    }
+    
+    .calculator-input {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .service-hero,
+    .cta-section {
+        background: none !important;
+        color: black !important;
+    }
+    
+    .floating-card,
+    .feature-card,
+    .process-step {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+    }
+    
+    .btn-primary-lg,
+    .btn-outline-lg {
+        display: none !important;
+    }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #1f2937;
+        --text-color: #f9fafb;
+        --border-color: #374151;
+    }
+    
+    .floating-card,
+    .feature-card,
+    .process-step,
+    .calculator-section {
+        background: rgba(31, 41, 55, 0.9) !important;
+        border-color: #374151 !important;
+        color: #f9fafb !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .btn-primary-lg {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: 2px solid #000000 !important;
+    }
+    
+    .btn-outline-lg {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #000000 !important;
+    }
+    
+    .feature-icon {
+        background: #000000 !important;
+    }
+}d Service Pages Styling */
+
+/* Global Enhancements */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 15px 50px rgba(0, 0, 0, 0.15);
+    --shadow-hard: 0 25px 60px rgba(0, 0, 0, 0.2);
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+/* Enhanced Hero Section */
+.service-hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.service-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.8) 100%);
+    z-index: 1;
+}
+
+.service-hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-stats {
+    animation: slideInLeft 0.8s ease-out 0.2s both;
+}
+
+.hero-image {
+    animation: slideInRight 0.8s ease-out 0.4s both;
+}
+
+/* Enhanced Floating Cards */
+.floating-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-hard);
+    position: relative;
+    overflow: hidden;
+}
+
+.floating-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+    z-index: 1;
+}
+
+.floating-card:hover::before {
+    left: 100%;
+}
+
+/* Enhanced Quote Calculator */
+.quote-calculator {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.calculator-section {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.calculator-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.calculator-section:hover::before {
+    opacity: 1;
+}
+
+.calculator-section:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.calculator-input {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.calculator-input:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+.calculator-input::placeholder {
+    color: #9ca3af;
+}
+
+/* Enhanced Price Display */
+.price-display {
+    position: relative;
+    overflow: hidden;
+    animation: pulse 2s infinite;
+}
+
+.price-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.price-display:hover::before {
+    transform: translateX(100%);
+}
+
+.price-breakdown {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.price-breakdown-item {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: var(--transition);
+}
+
+.price-breakdown-item:hover {
+    background: rgba(102, 126, 234, 0.05);
+    padding-left: 8px;
+    border-radius: 6px;
+}
+
+/* Enhanced Feature Cards */
+.feature-card {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--primary-gradient);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+}
+
+.feature-card:hover::before {
+    opacity: 0.05;
+}
+
+.feature-card:hover {
+    color: #1f2937;
+    box-shadow: var(--shadow-hard);
+}
+
+.feature-card:nth-child(2n) .feature-icon {
+    background: var(--secondary-gradient);
+}
+
+.feature-card:nth-child(3n) .feature-icon {
+    background: var(--success-gradient);
+}
+
+.feature-card:nth-child(4n) .feature-icon {
+    background: var(--warning-gradient);
+}
+
+.feature-icon {
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-icon::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card:hover .feature-icon::after {
+    opacity: 1;
+}
+
+/* Enhanced Specifications Table */
+.spec-table {
+    overflow: hidden;
+    position: relative;
+}
+
+.spec-row {
+    transition: var(--transition);
+    position: relative;
+}
+
+.spec-row::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), transparent);
+    transition: width 0.3s ease;
+}
+
+.spec-row:hover::after {
+    width: 100%;
+}
+
+.spec-row:hover {
+    background: rgba(102, 126, 234, 0.02);
+    transform: translateX(4px);
+}
+
+.spec-label {
+    position: relative;
+    font-weight: 600;
+    color: #374151;
+}
+
+.spec-label::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 0;
+    background: var(--primary-gradient);
+    transition: height 0.3s ease;
+    border-radius: 2px;
+}
+
+.spec-row:hover .spec-label::before {
+    height: 60%;
+}
+
+/* Enhance

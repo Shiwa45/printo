@@ -711,6 +711,12 @@ Drishthi Printing - Professional Quality Custom Printing
                         {% else %}
                             {% if 'business' in product.name|lower %}
                                 <img src="{% static 'images/bestselling-business-cards.svg' %}" alt="{{ product.name }}" class="card-image">
+                            {% elif 'book' in product.name|lower %}
+                                <img src="{% static 'images/hero-book.png' %}" alt="{{ product.name }}" class="card-image">
+                            {% elif 'box' in product.name|lower %}
+                                <img src="{% static 'images/bestselling-brochures.svg' %}" alt="{{ product.name }}" class="card-image">
+                            {% elif 'marketing' in product.name|lower %}
+                                <img src="{% static 'images/bestselling-banners.svg' %}" alt="{{ product.name }}" class="card-image">
                             {% elif 'brochure' in product.name|lower %}
                                 <img src="{% static 'images/bestselling-brochures.svg' %}" alt="{{ product.name }}" class="card-image">
                             {% elif 'banner' in product.name|lower %}
@@ -718,7 +724,7 @@ Drishthi Printing - Professional Quality Custom Printing
                             {% elif 't-shirt' in product.name|lower or 'shirt' in product.name|lower %}
                                 <img src="{% static 'images/bestselling-t-shirts.svg' %}" alt="{{ product.name }}" class="card-image">
                             {% else %}
-                                <img src="{% static 'images/hero-book.png' %}" alt="{{ product.name }}" class="card-image">
+                                <img src="{% static 'images/service-design-services.svg' %}" alt="{{ product.name }}" class="card-image">
                             {% endif %}
                         {% endif %}
                         <div class="image-overlay">
