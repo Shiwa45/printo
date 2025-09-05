@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if category %}{{ category.name }} - {% endif %}Products - Drishthi Printing
+{% endblock %}
+
+{% block content %}
+<div class="pt-32 min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                    {% if category %}
+                        {{ category.name }}
+                    {% else %}
+                        Our Products
+                    {% endif %}
+                </h1>
+                <p class="text-xl text-blue-100 max-w-2xl mx-auto">
+                    {% if category and category.description %}
+                        {{ category.description }}
+                    {% else %}
+                        Professional printing services with premium quality and fast delivery
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'home:home' %}" class="text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <a href="{% url 'products:list' %}" class="text-gray-700 hover:text-blue-600">Products</a>
+                    </div>
+                </li>
+                {% if category %}
+                <li>
+                    <div class="flex items-center">
+                        <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                        <span class="text-gray-500">{{ category.name }}</span>
+                    </div>
+                </li>
+                {% endif %}
+            </ol>
+        </nav>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar Filters -->
+            <div class="lg:w-1/4">
+                <div class="bg-white rounded-xl shadow-lg p-6 sticky top-32">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter Products</h3>
+                    
+                    <!-- Categories -->
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-700 mb-3">Categories</h4>
+                        <div class="space-y-2">
+                            <a href="{% url 'products:list' %}" 
+                               class="block text-sm {% if not category %}text-blue-600 font-medium{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                                All Products
+                            </a>
+                            {% for cat in categories %}
+                            <a href="{% url 'products:category' cat.slug %}" 
+                               class="block text-sm {% if category.slug == cat.slug %}text-blue-600 font-medium{% else %}text-gray-600 hover:text-blue-600{% endif %}">
+                                {{ cat.name }}
+                                <span class="text-gray-400">({{ cat.product_count }})</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-700 mb-3">Price Range</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-600">Under ₹100</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-600">₹100 - ₹500</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-600">₹500 - ₹1000</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-600">Above ₹1000</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-700 mb-3">Features</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-600">Design Tool Available</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-600">Quick Delivery</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-2 text-sm text-gray-600">Premium Quality</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="lg:w-3/4">
+                <!-- Sort and View Options -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <p class="text-gray-600 mb-4 sm:mb-0">
+                        Showing {{ products|length }} products
+                        {% if category %}in {{ category.name }}{% endif %}
+                    </p>
+                    <div class="flex items-center space-x-4">
+                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>Sort by: Featured</option>
+                            <option>Price: Low to High</option>
+                            <option>Price: High to Low</option>
+                            <option>Name: A to Z</option>
+                            <option>Newest First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                {% if products %}
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                    {% for product in products %}
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+                        <div class="relative overflow-hidden">
+                            <div class="aspect-w-4 aspect-h-3">
+                                {% if product.images.first %}
+                                    <img src="{{ product.images.first.image.url }}" 
+                                         alt="{{ product.name }}" 
+                                         class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                {% else %}
+                                    {% if 'business' in product.name|lower %}
+                                        <img src="{% static 'images/business-cards.svg' %}" alt="{{ product.name }}" 
+                                             class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                    {% elif 'brochure' in product.name|lower %}
+                                        <img src="{% static 'images/brochure-design.svg' %}" alt="{{ product.name }}" 
+                                             class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                    {% elif 'folder' in product.name|lower %}
+                                        <img src="{% static 'images/product-folders.svg' %}" alt="{{ product.name }}" 
+                                             class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                    {% else %}
+                                        <img src="{% static 'images/service-design-services.svg' %}" alt="{{ product.name }}" 
+                                             class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product badges -->
+                            <div class="absolute top-3 left-3 flex flex-col space-y-1">
+                                {% if product.bestseller %}
+                                    <span class="bg-red-500 text-white px-2 py-1 text-xs font-semibold rounded-full">
+                                        Bestseller
+                                    </span>
+                                {% endif %}
+                                {% if product.design_tool_enabled %}
+                                    <span class="bg-green-500 text-white px-2 py-1 text-xs font-semibold rounded-full">
+                                        Design Available
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Quick actions overlay -->
+                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <div class="flex space-x-3">
+                                    <a href="{% url 'products:detail' product.category.slug product.slug %}" 
+                                       class="bg-white text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                                        View Details
+                                    </a>
+                                    {% if product.design_tool_enabled %}
+                                    <a href="{% url 'products:detail' product.category.slug product.slug %}?design=true" 
+                                       class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                        Design Now
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                                <a href="{% url 'products:detail' product.category.slug product.slug %}">{{ product.name }}</a>
+                            </h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description|truncatewords:20 }}</p>
+                            
+                            <!-- Features -->
+                            <div class="flex flex-wrap gap-1 mb-4">
+                                {% if product.features %}
+                                    {% for feature in product.features|slice:":3" %}
+                                    <span class="bg-gray-100 text-gray-700 px-2 py-1 text-xs rounded-full">
+                                        {{ feature }}
+                                    </span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Pricing -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-2xl font-bold text-gray-900">
+                                        ₹{{ product.base_price }}
+                                    </span>
+                                    <span class="text-gray-500 text-sm">onwards</span>
+                                </div>
+                                <a href="{% url 'products:detail' product.category.slug product.slug %}" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors text-sm">
+                                    Get Quote
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="mt-12 flex justify-center">
+                    <nav class="flex items-center space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                                Previous
+                            </a>
+                        {% endif %}
+                        
+                        {% for page_num in page_obj.paginator.page_range %}
+                            {% if page_num == page_obj.number %}
+                                <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                                    {{ page_num }}
+                                </span>
+                            {% else %}
+                                <a href="?page={{ page_num }}" 
+                                   class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50">
+                                    {{ page_num }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" 
+                               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                                Next
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <!-- No Products Found -->
+                <div class="text-center py-16">
+                    <i class="fas fa-search text-gray-400 text-6xl mb-6"></i>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                    <p class="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
+                    <a href="{% url 'products:list' %}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                        View All Products
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-blue-600 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-4">Need Custom Printing Solutions?</h2>
+            <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+                Our team can help you with bulk orders, custom specifications, and specialized printing requirements.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'home:contact' %}" 
+                   class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Get Custom Quote
+                </a>
+                <a href="tel:+919876543210" 
+                   class="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                    Call Us Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

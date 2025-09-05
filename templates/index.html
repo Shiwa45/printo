@@ -907,10 +907,17 @@ Drishthi Printing - Professional Quality Custom Printing
                                 <span class="feature">✓ Professional Finish</span>
                             {% endif %}
                         </div>
-                        <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
-                            <span class="button-text">Design Now</span>
-                            <i class="fas fa-arrow-right button-icon"></i>
-                        </a>
+                        {% if 'business' in product.name|lower or 'letter' in product.name|lower or 'bill' in product.name|lower or 'sticker' in product.name|lower or 'brochure' in product.name|lower or 'flyer' in product.name|lower %}
+                            <a href="{% url 'design_tool:editor' product.slug %}" class="design-button">
+                                <span class="button-text">Design Now</span>
+                                <i class="fas fa-palette button-icon"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
+                                <span class="button-text">View Details</span>
+                                <i class="fas fa-arrow-right button-icon"></i>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -983,10 +990,17 @@ Drishthi Printing - Professional Quality Custom Printing
                                 <span class="feature">✓ Professional Finish</span>
                             {% endif %}
                         </div>
-                        <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
-                            <span class="button-text">Design Now</span>
-                            <i class="fas fa-arrow-right button-icon"></i>
-                        </a>
+                        {% if 'business' in product.name|lower or 'letter' in product.name|lower or 'bill' in product.name|lower or 'sticker' in product.name|lower or 'brochure' in product.name|lower or 'flyer' in product.name|lower %}
+                            <a href="{% url 'design_tool:editor' product.slug %}" class="design-button">
+                                <span class="button-text">Design Now</span>
+                                <i class="fas fa-palette button-icon"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
+                                <span class="button-text">View Details</span>
+                                <i class="fas fa-arrow-right button-icon"></i>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

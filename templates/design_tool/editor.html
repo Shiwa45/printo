@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Design Editor - Drishthi Printing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+        
+        .design-editor {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+        }
+        
+        .editor-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            z-index: 1000;
+        }
+        
+        .editor-main {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        
+        .left-sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f1f5f9;
+            position: relative;
+        }
+        
+        .right-sidebar {
+            width: 300px;
+            background: #ffffff;
+            border-left: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .toolbar-section {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .tool-button {
+            aspect-ratio: 1;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+            color: #6b7280;
+        }
+        
+        .tool-button:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+        
+        .tool-button.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .canvas-wrapper {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            position: relative;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .category-button {
+            aspect-ratio: 1;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .category-button:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+        }
+        
+        .category-button.active {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .category-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        .category-name {
+            font-size: 10px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        
+        .canvas-controls {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+        
+        .control-button {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6b7280;
+        }
+        
+        .control-button:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+        
+        .zoom-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .zoom-button {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6b7280;
+        }
+        
+        .zoom-level {
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .property-group {
+            margin-bottom: 16px;
+        }
+        
+        .property-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        
+        .property-input {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .property-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .color-input {
+            width: 40px;
+            height: 32px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .template-item {
+            aspect-ratio: 1.4;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .template-item:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bottom-toolbar {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .ruler {
+            background: #ffffff;
+            position: relative;
+        }
+        
+        .ruler-horizontal {
+            height: 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .ruler-vertical {
+            width: 30px;
+            border-right: 1px solid #e5e7eb;
+        }
+        
+        .layer-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+        
+        .layer-item:hover {
+            background: #f3f4f6;
+        }
+        
+        .layer-item.active {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+        }
+        
+        .layer-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            color: #6b7280;
+        }
+        
+        .layer-name {
+            font-size: 13px;
+            color: #374151;
+            flex: 1;
+        }
+        
+        .layer-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .layer-action {
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #9ca3af;
+            transition: all 0.2s;
+        }
+        
+        .layer-action:hover {
+            color: #374151;
+        }
+        
+        .primary-btn {
+            background: #3b82f6;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .primary-btn:hover {
+            background: #2563eb;
+        }
+        
+        .secondary-btn {
+            background: #ffffff;
+            color: #374151;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .secondary-btn:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="design-editor">
+        <!-- Editor Header -->
+        <div class="editor-header">
+            <div class="flex items-center gap-4">
+                <button onclick="goBack()" class="flex items-center gap-2 text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+                <div class="h-6 w-px bg-gray-300"></div>
+                <h1 class="text-lg font-semibold text-gray-900">Design Editor</h1>
+                <span class="text-sm text-gray-500">Business Card Design</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button id="undoBtn" class="control-button" title="Undo">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button id="redoBtn" class="control-button" title="Redo">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                <div class="h-6 w-px bg-gray-300"></div>
+                <button id="previewBtn" class="secondary-btn">
+                    <i class="fas fa-eye mr-2"></i>
+                    Preview
+                </button>
+                <button id="saveBtn" class="primary-btn">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Design
+                </button>
+            </div>
+        </div>
+
+        <!-- Editor Main Area -->
+        <div class="editor-main">
+            <!-- Left Sidebar -->
+            <div class="left-sidebar">
+                <!-- Categories -->
+                <div class="toolbar-section">
+                    <div class="section-title">Categories</div>
+                    <div class="category-grid">
+                        <div class="category-button active" data-category="spa">
+                            <div class="category-icon" style="background: #3b82f6;"><i class="fas fa-spa text-white"></i></div>
+                            <div class="category-name">Spa & Salon</div>
+                        </div>
+                        <div class="category-button" data-category="lawyer">
+                            <div class="category-icon" style="background: #ef4444;"><i class="fas fa-balance-scale text-white"></i></div>
+                            <div class="category-name">Lawyer</div>
+                        </div>
+                        <div class="category-button" data-category="gym">
+                            <div class="category-icon" style="background: #10b981;"><i class="fas fa-dumbbell text-white"></i></div>
+                            <div class="category-name">Gym</div>
+                        </div>
+                        <div class="category-button" data-category="dental">
+                            <div class="category-icon" style="background: #f59e0b;"><i class="fas fa-tooth text-white"></i></div>
+                            <div class="category-name">Dental</div>
+                        </div>
+                        <div class="category-button" data-category="jewelry">
+                            <div class="category-icon" style="background: #f59e0b;"><i class="fas fa-gem text-white"></i></div>
+                            <div class="category-name">Jewelry</div>
+                        </div>
+                        <div class="category-button" data-category="restaurant">
+                            <div class="category-icon" style="background: #10b981;"><i class="fas fa-utensils text-white"></i></div>
+                            <div class="category-name">Restaurant</div>
+                        </div>
+                        <div class="category-button" data-category="yoga">
+                            <div class="category-icon" style="background: #ef4444;"><i class="fas fa-yin-yang text-white"></i></div>
+                            <div class="category-name">Yoga</div>
+                        </div>
+                        <div class="category-button" data-category="transport">
+                            <div class="category-icon" style="background: #3b82f6;"><i class="fas fa-truck text-white"></i></div>
+                            <div class="category-name">Transport</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools -->
+                <div class="toolbar-section">
+                    <div class="section-title">Tools</div>
+                    <div class="tool-grid">
+                        <button class="tool-button active" data-tool="select" title="Select">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </button>
+                        <button class="tool-button" data-tool="text" title="Text">
+                            <i class="fas fa-font"></i>
+                        </button>
+                        <button class="tool-button" data-tool="shape" title="Shapes">
+                            <i class="fas fa-shapes"></i>
+                        </button>
+                        <button class="tool-button" data-tool="image" title="Images">
+                            <i class="fas fa-image"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Templates -->
+                <div class="toolbar-section">
+                    <div class="section-title">Templates</div>
+                    <div class="template-grid">
+                        <div class="template-item" onclick="loadTemplate('spa1')">
+                            <div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                                <span class="text-xs text-blue-600 font-medium">Spa Template</span>
+                            </div>
+                        </div>
+                        <div class="template-item" onclick="loadTemplate('spa2')">
+                            <div class="w-full h-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+                                <span class="text-xs text-purple-600 font-medium">Salon Card</span>
+                            </div>
+                        </div>
+                        <div class="template-item" onclick="loadTemplate('spa3')">
+                            <div class="w-full h-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
+                                <span class="text-xs text-pink-600 font-medium">Beauty Card</span>
+                            </div>
+                        </div>
+                        <div class="template-item" onclick="loadTemplate('spa4')">
+                            <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+                                <span class="text-xs text-green-600 font-medium">Wellness Card</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload -->
+                <div class="toolbar-section">
+                    <div class="section-title">Upload</div>
+                    <button id="uploadBtn" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-upload"></i>
+                        Upload Image
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" class="hidden">
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <!-- Canvas Container -->
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <!-- Canvas Controls -->
+                        <div class="canvas-controls">
+                            <div class="zoom-control">
+                                <button id="zoomOutBtn" class="zoom-button">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <span id="zoomLevel" class="zoom-level">100%</span>
+                                <button id="zoomInBtn" class="zoom-button">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Rulers -->
+                        <div class="ruler ruler-horizontal"></div>
+                        <div class="ruler ruler-vertical"></div>
+                        
+                        <!-- Canvas -->
+                        <canvas id="designCanvas" width="350" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Bottom Toolbar -->
+                <div class="bottom-toolbar">
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-gray-600">Canvas: 89 x 54 mm (Business Card)</span>
+                        <div class="h-4 w-px bg-gray-300"></div>
+                        <button id="gridToggle" class="control-button" title="Toggle Grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button id="snapToggle" class="control-button" title="Snap to Grid">
+                            <i class="fas fa-magnet"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-gray-600">Position: <span id="cursorPos">0, 0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="right-sidebar">
+                <!-- Properties -->
+                <div class="toolbar-section">
+                    <div class="section-title">Properties</div>
+                    
+                    <!-- Text Properties -->
+                    <div id="textProperties" class="hidden">
+                        <div class="property-group">
+                            <div class="property-label">Font Family</div>
+                            <select id="fontFamily" class="property-input">
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Verdana">Verdana</option>
+                            </select>
+                        </div>
+                        <div class="property-group">
+                            <div class="property-label">Font Size</div>
+                            <input type="range" id="fontSize" min="8" max="72" value="16" class="property-input">
+                        </div>
+                        <div class="property-group">
+                            <div class="property-label">Text Color</div>
+                            <input type="color" id="textColor" value="#000000" class="color-input">
+                        </div>
+                        <div class="property-group">
+                            <div class="flex gap-2">
+                                <button id="boldBtn" class="tool-button">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button id="italicBtn" class="tool-button">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button id="underlineBtn" class="tool-button">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shape Properties -->
+                    <div id="shapeProperties" class="hidden">
+                        <div class="property-group">
+                            <div class="property-label">Fill Color</div>
+                            <input type="color" id="fillColor" value="#3b82f6" class="color-input">
+                        </div>
+                        <div class="property-group">
+                            <div class="property-label">Border Color</div>
+                            <input type="color" id="borderColor" value="#000000" class="color-input">
+                        </div>
+                        <div class="property-group">
+                            <div class="property-label">Border Width</div>
+                            <input type="range" id="borderWidth" min="0" max="10" value="1" class="property-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layers -->
+                <div class="toolbar-section">
+                    <div class="section-title">Layers</div>
+                    <div id="layersList">
+                        <div class="layer-item active">
+                            <i class="fas fa-image layer-icon"></i>
+                            <span class="layer-name">Background</span>
+                            <div class="layer-actions">
+                                <button class="layer-action"><i class="fas fa-eye"></i></button>
+                                <button class="layer-action"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History -->
+                <div class="toolbar-section">
+                    <div class="section-title">History</div>
+                    <div id="historyList" class="text-sm text-gray-500 text-center py-4">
+                        No actions yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let canvas;
+        let selectedTool = 'select';
+        let currentZoom = 1;
+        let history = [];
+        let historyStep = -1;
+
+        // Initialize the editor
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCanvas();
+            initializeTools();
+            initializeEventListeners();
+            loadDefaultTemplate();
+        });
+
+        function initializeCanvas() {
+            canvas = new fabric.Canvas('designCanvas', {
+                backgroundColor: '#ffffff',
+                selectionColor: 'rgba(59, 130, 246, 0.3)',
+                selectionLineWidth: 2
+            });
+
+            // Add grid
+            addGrid();
+            
+            // Save initial state
+            saveState();
+        }
+
+        function addGrid() {
+            const gridSize = 20;
+            const width = canvas.getWidth();
+            const height = canvas.getHeight();
+
+            for (let i = 0; i <= width / gridSize; i++) {
+                const line = new fabric.Line([i * gridSize, 0, i * gridSize, height], {
+                    stroke: '#e5e7eb',
+                    strokeWidth: 1,
+                    selectable: false,
+                    evented: false,
+                    excludeFromExport: true
+                });
+                canvas.add(line);
+            }
+
+            for (let i = 0; i <= height / gridSize; i++) {
+                const line = new fabric.Line([0, i * gridSize, width, i * gridSize], {
+                    stroke: '#e5e7eb',
+                    strokeWidth: 1,
+                    selectable: false,
+                    evented: false,
+                    excludeFromExport: true
+                });
+                canvas.add(line);
+            }
+        }
+
+        function initializeTools() {
+            document.querySelectorAll('[data-tool]').forEach(button => {
+                button.addEventListener('click', function() {
+                    selectTool(this.dataset.tool);
+                    updateActiveToolButton(this);
+                });
+            });
+
+            document.querySelectorAll('[data-category]').forEach(button => {
+                button.addEventListener('click', function() {
+                    selectCategory(this.dataset.category);
+                    updateActiveCategoryButton(this);
+                });
+            });
+        }
+
+        function selectTool(tool) {
+            selectedTool = tool;
+            canvas.isDrawingMode = false;
+            
+            if (tool === 'pen') {
+                canvas.isDrawingMode = true;
+                canvas.freeDrawingBrush.width = 3;
+                canvas.freeDrawingBrush.color = '#000000';
+            }
+        }
+
+        function selectCategory(category) {
+            // Load templates for selected category
+            loadTemplatesForCategory(category);
+        }
+
+        function updateActiveToolButton(activeButton) {
+            document.querySelectorAll('[data-tool]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            activeButton.classList.add('active');
+        }
+
+        function updateActiveCategoryButton(activeButton) {
+            document.querySelectorAll('[data-category]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            activeButton.classList.add('active');
+        }
+
+        function initializeEventListeners() {
+            // Canvas events
+            canvas.on('mouse:down', handleMouseDown);
+            canvas.on('mouse:move', handleMouseMove);
+            canvas.on('selection:created', handleObjectSelection);
+            canvas.on('selection:updated', handleObjectSelection);
+            canvas.on('selection:cleared', clearProperties);
+
+            // File upload
+            document.getElementById('uploadBtn').addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+            // Zoom controls
+            document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+            document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+
+            // Undo/Redo
+            document.getElementById('undoBtn').addEventListener('click', undo);
+            document.getElementById('redoBtn').addEventListener('click', redo);
+
+            // Property controls
+            initializePropertyControls();
+        }
+
+        function handleMouseDown(event) {
+            if (selectedTool === 'text') {
+                addText(event.pointer);
+            } else if (selectedTool === 'shape') {
+                addRectangle(event.pointer);
+            }
+        }
+
+        function handleMouseMove(event) {
+            const pointer = event.pointer;
+            document.getElementById('cursorPos').textContent = `${Math.round(pointer.x)}, ${Math.round(pointer.y)}`;
+        }
+
+        function addText(pointer) {
+            const text = new fabric.Textbox('Double click to edit', {
+                left: pointer.x,
+                top: pointer.y,
+                width: 200,
+                fontSize: 16,
+                fontFamily: 'Arial',
+                fill: '#000000'
+            });
+
+            canvas.add(text);
+            canvas.setActiveObject(text);
+            saveState();
+            updateLayers();
+        }
+
+        function addRectangle(pointer) {
+            const rect = new fabric.Rect({
+                left: pointer.x,
+                top: pointer.y,
+                width: 100,
+                height: 60,
+                fill: '#3b82f6',
+                stroke: '#000000',
+                strokeWidth: 1
+            });
+
+            canvas.add(rect);
+            canvas.setActiveObject(rect);
+            saveState();
+            updateLayers();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fabric.Image.fromURL(e.target.result, function(img) {
+                        img.scale(0.3);
+                        img.set({
+                            left: 50,
+                            top: 50
+                        });
+                        canvas.add(img);
+                        canvas.setActiveObject(img);
+                        saveState();
+                        updateLayers();
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleObjectSelection(event) {
+            const activeObject = event.selected ? event.selected[0] : event.target;
+            updatePropertiesPanel(activeObject);
+            updateLayers();
+        }
+
+        function updatePropertiesPanel(object) {
+            // Hide all property panels
+            document.getElementById('textProperties').classList.add('hidden');
+            document.getElementById('shapeProperties').classList.add('hidden');
+
+            if (!object) return;
+
+            if (object.type === 'textbox' || object.type === 'text') {
+                document.getElementById('textProperties').classList.remove('hidden');
+                document.getElementById('fontFamily').value = object.fontFamily || 'Arial';
+                document.getElementById('fontSize').value = object.fontSize || 16;
+                document.getElementById('textColor').value = object.fill || '#000000';
+            } else if (object.type === 'rect' || object.type === 'circle') {
+                document.getElementById('shapeProperties').classList.remove('hidden');
+                document.getElementById('fillColor').value = object.fill || '#3b82f6';
+                document.getElementById('borderColor').value = object.stroke || '#000000';
+                document.getElementById('borderWidth').value = object.strokeWidth || 1;
+            }
+        }
+
+        function clearProperties() {
+            document.getElementById('textProperties').classList.add('hidden');
+            document.getElementById('shapeProperties').classList.add('hidden');
+        }
+
+        function initializePropertyControls() {
+            // Font family
+            document.getElementById('fontFamily').addEventListener('change', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                    activeObject.set('fontFamily', this.value);
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            // Font size
+            document.getElementById('fontSize').addEventListener('input', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                    activeObject.set('fontSize', parseInt(this.value));
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            // Text color
+            document.getElementById('textColor').addEventListener('change', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                    activeObject.set('fill', this.value);
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            // Fill color for shapes
+            document.getElementById('fillColor').addEventListener('change', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'circle')) {
+                    activeObject.set('fill', this.value);
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            // Border color
+            document.getElementById('borderColor').addEventListener('change', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.set('stroke', this.value);
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            // Border width
+            document.getElementById('borderWidth').addEventListener('input', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.set('strokeWidth', parseInt(this.value));
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            // Text formatting buttons
+            document.getElementById('boldBtn').addEventListener('click', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                    const currentWeight = activeObject.fontWeight || 'normal';
+                    activeObject.set('fontWeight', currentWeight === 'bold' ? 'normal' : 'bold');
+                    canvas.renderAll();
+                    saveState();
+                    this.classList.toggle('active');
+                }
+            });
+
+            document.getElementById('italicBtn').addEventListener('click', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                    const currentStyle = activeObject.fontStyle || 'normal';
+                    activeObject.set('fontStyle', currentStyle === 'italic' ? 'normal' : 'italic');
+                    canvas.renderAll();
+                    saveState();
+                    this.classList.toggle('active');
+                }
+            });
+
+            document.getElementById('underlineBtn').addEventListener('click', function() {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                    const currentUnderline = activeObject.underline || false;
+                    activeObject.set('underline', !currentUnderline);
+                    canvas.renderAll();
+                    saveState();
+                    this.classList.toggle('active');
+                }
+            });
+        }
+
+        function updateLayers() {
+            const layersList = document.getElementById('layersList');
+            layersList.innerHTML = '';
+
+            const objects = canvas.getObjects().reverse();
+            objects.forEach((obj, index) => {
+                if (obj.excludeFromExport) return;
+
+                const layerItem = document.createElement('div');
+                layerItem.className = 'layer-item';
+                layerItem.innerHTML = `
+                    <i class="fas fa-${getObjectIcon(obj.type)} layer-icon"></i>
+                    <span class="layer-name">${getObjectName(obj)}</span>
+                    <div class="layer-actions">
+                        <button class="layer-action" onclick="toggleObjectVisibility(${objects.length - 1 - index})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="layer-action" onclick="deleteObject(${objects.length - 1 - index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                layerItem.addEventListener('click', (e) => {
+                    if (!e.target.closest('.layer-actions')) {
+                        canvas.setActiveObject(obj);
+                        canvas.renderAll();
+                        updateActiveLayer(layerItem);
+                    }
+                });
+
+                layersList.appendChild(layerItem);
+            });
+        }
+
+        function getObjectIcon(type) {
+            const icons = {
+                'textbox': 'font',
+                'text': 'font',
+                'rect': 'square',
+                'circle': 'circle',
+                'image': 'image',
+                'line': 'minus'
+            };
+            return icons[type] || 'question';
+        }
+
+        function getObjectName(obj) {
+            if (obj.type === 'textbox' || obj.type === 'text') {
+                return obj.text ? obj.text.substring(0, 15) + (obj.text.length > 15 ? '...' : '') : 'Text';
+            } else if (obj.type === 'image') {
+                return 'Image';
+            } else {
+                return obj.type.charAt(0).toUpperCase() + obj.type.slice(1);
+            }
+        }
+
+        function updateActiveLayer(activeLayer) {
+            document.querySelectorAll('.layer-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            activeLayer.classList.add('active');
+        }
+
+        function toggleObjectVisibility(index) {
+            const objects = canvas.getObjects().filter(obj => !obj.excludeFromExport);
+            const obj = objects[index];
+            if (obj) {
+                obj.visible = !obj.visible;
+                canvas.renderAll();
+                saveState();
+            }
+        }
+
+        function deleteObject(index) {
+            const objects = canvas.getObjects().filter(obj => !obj.excludeFromExport);
+            const obj = objects[index];
+            if (obj) {
+                canvas.remove(obj);
+                canvas.renderAll();
+                saveState();
+                updateLayers();
+            }
+        }
+
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            canvas.setZoom(currentZoom);
+            updateZoomDisplay();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.1);
+            canvas.setZoom(currentZoom);
+            updateZoomDisplay();
+        }
+
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        function saveState() {
+            if (historyStep < history.length - 1) {
+                history = history.slice(0, historyStep + 1);
+            }
+            
+            history.push(JSON.stringify(canvas.toJSON()));
+            historyStep++;
+            
+            if (history.length > 50) {
+                history = history.slice(-50);
+                historyStep = 49;
+            }
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                canvas.loadFromJSON(history[historyStep], function() {
+                    canvas.renderAll();
+                    updateLayers();
+                });
+            }
+        }
+
+        function redo() {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                canvas.loadFromJSON(history[historyStep], function() {
+                    canvas.renderAll();
+                    updateLayers();
+                });
+            }
+        }
+
+        function loadTemplate(templateId) {
+            // Clear canvas
+            canvas.clear();
+            addGrid();
+            
+            // Load template based on ID
+            if (templateId === 'spa1') {
+                loadSpaTemplate1();
+            } else if (templateId === 'spa2') {
+                loadSpaTemplate2();
+            }
+            
+            saveState();
+            updateLayers();
+        }
+
+        function loadSpaTemplate1() {
+            // Add background
+            const bg = new fabric.Rect({
+                left: 0,
+                top: 0,
+                width: canvas.getWidth(),
+                height: canvas.getHeight(),
+                fill: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                selectable: false
+            });
+            canvas.add(bg);
+
+            // Add title text
+            const title = new fabric.Textbox('ANNA KUMAR', {
+                left: 200,
+                top: 50,
+                width: 120,
+                fontSize: 18,
+                fontFamily: 'Arial',
+                fontWeight: 'bold',
+                fill: '#ffffff',
+                textAlign: 'center'
+            });
+            canvas.add(title);
+
+            // Add subtitle
+            const subtitle = new fabric.Textbox('Manicurist', {
+                left: 200,
+                top: 80,
+                width: 120,
+                fontSize: 12,
+                fontFamily: 'Arial',
+                fill: '#ffffff',
+                textAlign: 'center'
+            });
+            canvas.add(subtitle);
+
+            // Add contact info
+            const email = new fabric.Textbox('anna.kumar@gmail.com', {
+                left: 200,
+                top: 120,
+                width: 120,
+                fontSize: 10,
+                fontFamily: 'Arial',
+                fill: '#ffffff',
+                textAlign: 'center'
+            });
+            canvas.add(email);
+
+            const phone = new fabric.Textbox('+91 0000000000', {
+                left: 200,
+                top: 140,
+                width: 120,
+                fontSize: 10,
+                fontFamily: 'Arial',
+                fill: '#ffffff',
+                textAlign: 'center'
+            });
+            canvas.add(phone);
+
+            const website = new fabric.Textbox('www.manicurist.com', {
+                left: 200,
+                top: 160,
+                width: 120,
+                fontSize: 10,
+                fontFamily: 'Arial',
+                fill: '#ffffff',
+                textAlign: 'center'
+            });
+            canvas.add(website);
+
+            canvas.renderAll();
+        }
+
+        function loadSpaTemplate2() {
+            // Add light background
+            const bg = new fabric.Rect({
+                left: 0,
+                top: 0,
+                width: canvas.getWidth(),
+                height: canvas.getHeight(),
+                fill: '#f8fafc',
+                selectable: false
+            });
+            canvas.add(bg);
+
+            // Add colored accent
+            const accent = new fabric.Rect({
+                left: 0,
+                top: 0,
+                width: 80,
+                height: canvas.getHeight(),
+                fill: '#3b82f6',
+                selectable: false
+            });
+            canvas.add(accent);
+
+            // Add main text
+            const title = new fabric.Textbox('BEAUTY SALON', {
+                left: 100,
+                top: 40,
+                width: 200,
+                fontSize: 16,
+                fontFamily: 'Arial',
+                fontWeight: 'bold',
+                fill: '#1f2937',
+                textAlign: 'left'
+            });
+            canvas.add(title);
+
+            canvas.renderAll();
+        }
+
+        function loadDefaultTemplate() {
+            loadTemplate('spa1');
+        }
+
+        function loadTemplatesForCategory(category) {
+            // This would typically load templates from a backend
+            console.log('Loading templates for category:', category);
+        }
+
+        function goBack() {
+            if (confirm('Are you sure you want to leave? Unsaved changes will be lost.')) {
+                window.history.back();
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            redo();
+                        } else {
+                            undo();
+                        }
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        // Save design
+                        break;
+                }
+            }
+            
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && !activeObject.excludeFromExport) {
+                    canvas.remove(activeObject);
+                    saveState();
+                    updateLayers();
+                }
+            }
+        });
+
+        // Grid and snap toggles
+        document.getElementById('gridToggle').addEventListener('click', function() {
+            const gridObjects = canvas.getObjects().filter(obj => obj.excludeFromExport);
+            gridObjects.forEach(obj => {
+                obj.visible = !obj.visible;
+            });
+            canvas.renderAll();
+            this.classList.toggle('active');
+        });
+
+        // Preview functionality
+        document.getElementById('previewBtn').addEventListener('click', function() {
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1,
+                multiplier: 2
+            });
+            
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(`
+                <html>
+                    <head><title>Design Preview</title></head>
+                    <body style="margin:0; padding:20px; background:#f0f0f0; display:flex; justify-content:center; align-items:center; min-height:100vh;">
+                        <img src="${dataURL}" style="max-width:100%; max-height:100%; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+                    </body>
+                </html>
+            `);
+        });
+
+        // Save functionality
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            const designData = JSON.stringify(canvas.toJSON());
+            const previewImage = canvas.toDataURL();
+            
+            // Here you would typically send this to your backend
+            console.log('Saving design...', { designData, previewImage });
+            alert('Design saved successfully!');
+        });
+    </script>
+</body>
+</html>

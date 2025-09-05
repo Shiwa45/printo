@@ -123,6 +123,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
+# Login URLs
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
 # REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -173,6 +178,11 @@ DESIGN_TOOL_CONFIG = {
     'DEFAULT_DPI': 300,
 }
 
+# External API Keys for Design Tool
+PIXABAY_API_KEY = '52058938-73b864e28b7dc377c6a8fce66'
+UNSPLASH_ACCESS_KEY = env('UNSPLASH_ACCESS_KEY', default='')
+PEXELS_API_KEY = env('PEXELS_API_KEY', default='')
+
 # Celery Configuration (for background tasks)
 CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = env('REDIS_URL', default='redis://localhost:6379/0')
@@ -195,3 +205,49 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Template upload directory
+TEMPLATE_UPLOAD_DIR = 'templates/uploads/'
+
+# Allowed file extensions for templates
+ALLOWED_TEMPLATE_EXTENSIONS = ['svg', 'json']
+
+# SVG Processing Settings
+SVG_TO_CANVAS_SCALE = 3.78
+
+# Free Image API Keys for Design Tool
+# Get these free API keys from:
+# - Unsplash: https://unsplash.com/developers
+# - Pixabay: https://pixabay.com/accounts/register/
+# - Pexels: https://www.pexels.com/api/
+
+UNSPLASH_ACCESS_KEY = env('UNSPLASH_ACCESS_KEY', default='')
+PIXABAY_API_KEY = env('PIXABAY_API_KEY', default='')
+PEXELS_API_KEY = env('PEXELS_API_KEY', default='')
+
+# Design Tool Free Image API Configuration
+FREE_IMAGE_APIS = {
+    'unsplash': {
+        'enabled': bool(UNSPLASH_ACCESS_KEY),
+        'rate_limit_per_hour': 50,
+        'api_url': 'https://api.unsplash.com',
+        'attribution_required': True,
+    },
+    'pixabay': {
+        'enabled': bool(PIXABAY_API_KEY),
+        'rate_limit_per_hour': 5000,
+        'api_url': 'https://pixabay.com/api',
+        'attribution_required': False,
+    },
+    'pexels': {
+        'enabled': bool(PEXELS_API_KEY),
+        'rate_limit_per_hour': 200,
+        'api_url': 'https://api.pexels.com/v1',
+        'attribution_required': True,
+    },
+}

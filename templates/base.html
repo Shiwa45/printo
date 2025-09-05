@@ -732,10 +732,10 @@
                                         <div class="mega-menu-column">
                                             <h3 class="mega-menu-heading">Marketing Materials</h3>
                                             <ul class="mega-menu-links">
-                                                <li><a href="{% url 'services:brochures' %}">Brochures</a></li>
+                                                <li><a href="{% url 'design_tool:editor' 'brochure' %}">Brochures ⭐</a></li>
                                                 <li><a href="{% url 'services:catalogue' %}">Catalogue</a></li>
                                                 <li><a href="{% url 'services:poster' %}">Poster</a></li>
-                                                <li><a href="{% url 'services:flyers' %}">Flyers</a></li>
+                                                <li><a href="{% url 'design_tool:editor' 'flyer' %}">Flyers ⭐</a></li>
                                                 <li><a href="{% url 'services:dangler' %}">Dangler</a></li>
                                                 <li><a href="{% url 'services:standees' %}">Standees</a></li>
                                                 <li><a href="{% url 'services:pen_drives' %}">Pen Drives</a></li>
@@ -744,12 +744,12 @@
                                         <div class="mega-menu-column">
                                             <h3 class="mega-menu-heading">Stationery</h3>
                                             <ul class="mega-menu-links">
-                                                <li><a href="{% url 'services:business_cards' %}">Business Cards</a></li>
-                                                <li><a href="{% url 'services:letter_head' %}">Letter Head</a></li>
+                                                <li><a href="{% url 'design_tool:editor' 'business-cards' %}">Business Cards ⭐</a></li>
+                                                <li><a href="{% url 'design_tool:editor' 'letter-head' %}">Letter Head ⭐</a></li>
                                                 <li><a href="{% url 'services:envelopes' %}">Envelopes</a></li>
-                                                <li><a href="{% url 'services:bill_book' %}">Bill Book</a></li>
+                                                <li><a href="{% url 'design_tool:editor' 'bill-book' %}">Bill Book ⭐</a></li>
                                                 <li><a href="{% url 'services:id_cards' %}">ID Cards</a></li>
-                                                <li><a href="{% url 'services:sticker' %}">Sticker</a></li>
+                                                <li><a href="{% url 'design_tool:editor' 'sticker' %}">Sticker ⭐</a></li>
                                                 <li><a href="{% url 'services:document_printing' %}">Document Printing</a></li>
                                             </ul>
                                         </div>
@@ -838,12 +838,12 @@
                 </div>
 
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Services</h3>
+                    <h3 class="text-lg font-semibold mb-4">Design Tools</h3>
                     <ul class="space-y-2">
-                        <li><a href="{% url 'services:business_cards' %}" class="text-gray-400 hover:text-white">Business Cards</a></li>
-                        <li><a href="{% url 'services:brochures' %}" class="text-gray-400 hover:text-white">Brochures</a></li>
-                        <li><a href="{% url 'services:flyers' %}" class="text-gray-400 hover:text-white">Flyers</a></li>
-                        <li><a href="{% url 'services:services_directory' %}" class="text-gray-400 hover:text-white">View All Services</a></li>
+                        <li><a href="{% url 'design_tool:editor' 'business-cards' %}" class="text-gray-400 hover:text-white">Design Business Cards</a></li>
+                        <li><a href="{% url 'design_tool:editor' 'brochure' %}" class="text-gray-400 hover:text-white">Design Brochures</a></li>
+                        <li><a href="{% url 'design_tool:editor' 'flyer' %}" class="text-gray-400 hover:text-white">Design Flyers</a></li>
+                        <li><a href="{% url 'design_tool:templates' %}" class="text-gray-400 hover:text-white">All Design Templates</a></li>
                     </ul>
                 </div>
 

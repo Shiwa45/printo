@@ -1,0 +1,1867 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Design Editor - {{ product.name }} - Drishthi Printing{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+        background: #f8fafc;
+    }
+    
+    .design-editor {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .editor-header {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+        z-index: 1000;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .editor-main {
+        flex: 1;
+        display: flex;
+        height: calc(100vh - 60px);
+    }
+    
+    /* Left Sidebar - Smaller for more canvas space */
+    .left-sidebar {
+        width: 220px;
+        background: #ffffff;
+        border-right: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Canvas Area - Much Larger */
+    .canvas-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #f1f5f9;
+        position: relative;
+        min-width: 800px;
+    }
+    
+    /* Right Sidebar - Compact */
+    .right-sidebar {
+        width: 260px;
+        background: #ffffff;
+        border-left: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        box-shadow: -2px 0 8px rgba(0,0,0,0.05);
+    }
+    
+    .toolbar-section {
+        padding: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Category Grid - Compact */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    
+    .category-button {
+        aspect-ratio: 1;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 4px;
+        text-align: center;
+    }
+    
+    .category-button:hover {
+        background: #f8fafc;
+        border-color: #3b82f6;
+        transform: translateY(-1px);
+    }
+    
+    .category-button.active {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+    
+    .category-icon {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8px;
+    }
+    
+    .category-name {
+        font-size: 8px;
+        font-weight: 500;
+        line-height: 1.1;
+    }
+    
+    /* Tools Grid */
+    .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    
+    .tool-button {
+        aspect-ratio: 1;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+        color: #6b7280;
+    }
+    
+    .tool-button:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #374151;
+        transform: translateY(-1px);
+    }
+    
+    .tool-button.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    
+    /* Canvas Container - Much Larger */
+    .canvas-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        min-height: 600px;
+    }
+    
+    .canvas-wrapper {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+    }
+    
+    .canvas-controls {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: flex;
+        gap: 8px;
+        z-index: 100;
+    }
+    
+    .control-button {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #6b7280;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .control-button:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #374151;
+        transform: translateY(-1px);
+    }
+    
+    .zoom-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .zoom-button {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #6b7280;
+    }
+    
+    .zoom-level {
+        font-size: 11px;
+        font-weight: 500;
+        color: #374151;
+        min-width: 40px;
+        text-align: center;
+    }
+    
+    /* Templates Grid - 2 columns for compact sidebar */
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+    
+    .template-item {
+        aspect-ratio: 1.4;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .template-item:hover {
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* Properties Panel */
+    .property-group {
+        margin-bottom: 12px;
+    }
+    
+    .property-label {
+        font-size: 11px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 4px;
+    }
+    
+    .property-input {
+        width: 100%;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        padding: 6px 8px;
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+    
+    .property-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .color-input {
+        width: 32px;
+        height: 24px;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    /* Layers List */
+    .layer-item {
+        display: flex;
+        align-items: center;
+        padding: 6px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 3px;
+        font-size: 12px;
+    }
+    
+    .layer-item:hover {
+        background: #f3f4f6;
+    }
+    
+    .layer-item.active {
+        background: #eff6ff;
+        border: 1px solid #3b82f6;
+    }
+    
+    .layer-icon {
+        width: 12px;
+        height: 12px;
+        margin-right: 6px;
+        color: #6b7280;
+    }
+    
+    .layer-name {
+        font-size: 11px;
+        color: #374151;
+        flex: 1;
+    }
+    
+    .layer-actions {
+        display: flex;
+        gap: 2px;
+    }
+    
+    .layer-action {
+        width: 16px;
+        height: 16px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: #9ca3af;
+        transition: all 0.2s;
+        font-size: 10px;
+    }
+    
+    .layer-action:hover {
+        color: #374151;
+    }
+    
+    /* Bottom Toolbar */
+    .bottom-toolbar {
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Buttons */
+    .primary-btn {
+        background: #3b82f6;
+        color: #ffffff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    
+    .primary-btn:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    }
+    
+    .secondary-btn {
+        background: #ffffff;
+        color: #374151;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        border: 1px solid #e5e7eb;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    
+    .secondary-btn:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        transform: translateY(-1px);
+    }
+    
+    .success-btn {
+        background: #10b981;
+        color: #ffffff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    
+    .success-btn:hover {
+        background: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    }
+    
+    /* Canvas Sizing */
+    #designCanvas {
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        max-width: 100%;
+        max-height: 100%;
+    }
+    
+    /* Rulers */
+    .ruler {
+        background: #f8fafc;
+        position: relative;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .ruler-horizontal {
+        height: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 5px;
+    }
+    
+    .ruler-vertical {
+        width: 20px;
+        border-right: 1px solid #e5e7eb;
+        margin-right: 5px;
+    }
+    
+    /* Upload area */
+    .upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+        background: #f8fafc;
+    }
+    
+    .upload-area:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+    
+    .upload-area.dragover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        transform: scale(1.02);
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    }
+    
+    .modal-content {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    }
+    
+    .modal-header {
+        margin-bottom: 20px;
+    }
+    
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .modal-description {
+        font-size: 14px;
+        color: #6b7280;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .left-sidebar {
+            width: 200px;
+        }
+        
+        .right-sidebar {
+            width: 240px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .left-sidebar, .right-sidebar {
+            position: fixed;
+            top: 60px;
+            height: calc(100vh - 60px);
+            z-index: 1500;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .left-sidebar.open, .right-sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .canvas-area {
+            min-width: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="design-editor">
+    <!-- Editor Header -->
+    <div class="editor-header">
+        <div class="flex items-center gap-4">
+            <button onclick="goBack()" class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Product</span>
+            </button>
+            <div class="h-6 w-px bg-gray-300"></div>
+            <div>
+                <h1 class="text-lg font-semibold text-gray-900">{{ product.name }} Design Editor</h1>
+                <span class="text-sm text-gray-500">{{ product.category.name }}</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <button id="undoBtn" class="control-button" title="Undo (Ctrl+Z)">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button id="redoBtn" class="control-button" title="Redo (Ctrl+Shift+Z)">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+            <div class="h-6 w-px bg-gray-300"></div>
+            <button id="previewBtn" class="secondary-btn">
+                <i class="fas fa-eye mr-2"></i>
+                Preview
+            </button>
+            {% if user.is_authenticated %}
+                <button id="saveBtn" class="primary-btn">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Design
+                </button>
+                <button id="finalizeOrderBtn" class="success-btn">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Finalize & Order
+                </button>
+            {% else %}
+                <button id="loginPromptBtn" class="primary-btn">
+                    <i class="fas fa-user mr-2"></i>
+                    Login to Save
+                </button>
+                <button id="guestOrderBtn" class="success-btn">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Order Now
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Editor Main Area -->
+    <div class="editor-main">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <!-- Categories -->
+            <div class="toolbar-section">
+                <div class="section-title">Categories</div>
+                <div class="category-grid">
+                    {% for category in categories_with_templates %}
+                    <div class="category-button {% if category == product.category %}active{% endif %}" 
+                         data-category="{{ category.slug }}">
+                        <div class="category-icon" style="background: {% cycle '#3b82f6' '#ef4444' '#10b981' '#f59e0b' '#8b5cf6' '#06b6d4' %};">
+                            <i class="fas fa-{% cycle 'cut' 'balance-scale' 'dumbbell' 'tooth' 'gem' 'utensils' %} text-white"></i>
+                        </div>
+                        <div class="category-name">{{ category.name|truncatechars:8 }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Tools -->
+            <div class="toolbar-section">
+                <div class="section-title">Tools</div>
+                <div class="tool-grid">
+                    <button class="tool-button active" data-tool="select" title="Select Tool">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </button>
+                    <button class="tool-button" data-tool="text" title="Add Text">
+                        <i class="fas fa-font"></i>
+                    </button>
+                    <button class="tool-button" data-tool="shape" title="Add Shapes">
+                        <i class="fas fa-shapes"></i>
+                    </button>
+                    <button class="tool-button" data-tool="image" title="Add Images">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="tool-button" data-tool="line" title="Draw Lines">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="tool-button" data-tool="pen" title="Free Draw">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Templates -->
+            <div class="toolbar-section">
+                <div class="section-title">Templates</div>
+                <div class="template-grid">
+                    {% for template in templates|slice:":6" %}
+                    <div class="template-item" onclick="loadTemplate('{{ template.id }}')">
+                        {% if template.preview_image %}
+                            <img src="{{ template.preview_image.url }}" alt="{{ template.name }}" 
+                                 class="w-full h-full object-cover rounded">
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center rounded">
+                                <span class="text-xs text-blue-600 font-medium text-center px-1">{{ template.name|truncatechars:10 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if templates.count > 6 %}
+                <button class="w-full mt-2 text-xs text-blue-600 hover:text-blue-800 font-medium">
+                    View All Templates ({{ templates.count }})
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Upload -->
+            <div class="toolbar-section">
+                <div class="section-title">Upload</div>
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt text-gray-400 mb-2"></i>
+                    <p class="text-xs text-gray-600">Click or drag images</p>
+                    <p class="text-xs text-gray-400">PNG, JPG, SVG</p>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" class="hidden" multiple>
+            </div>
+        </div>
+
+        <!-- Canvas Area - Much Larger -->
+        <div class="canvas-area">
+            <!-- Canvas Container -->
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <!-- Canvas Controls -->
+                    <div class="canvas-controls">
+                        <div class="zoom-control">
+                            <button id="zoomOutBtn" class="zoom-button">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <span id="zoomLevel" class="zoom-level">100%</span>
+                            <button id="zoomInBtn" class="zoom-button">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button id="fitToScreenBtn" class="zoom-button ml-2" title="Fit to Screen">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Rulers -->
+                    <div class="ruler ruler-horizontal"></div>
+                    <div class="ruler ruler-vertical"></div>
+                    
+                    <!-- Main Canvas -->
+                    <canvas id="designCanvas" width="{{ canvas_width|default:700 }}" height="{{ canvas_height|default:400 }}"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Toolbar -->
+            <div class="bottom-toolbar">
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-600">Canvas: {{ product.default_width_mm|default:89 }} x {{ product.default_height_mm|default:54 }} mm</span>
+                    <div class="h-4 w-px bg-gray-300"></div>
+                    <button id="gridToggle" class="control-button" title="Toggle Grid">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button id="snapToggle" class="control-button" title="Snap to Grid">
+                        <i class="fas fa-magnet"></i>
+                    </button>
+                    <button id="guidesToggle" class="control-button" title="Toggle Guides">
+                        <i class="fas fa-ruler-combined"></i>
+                    </button>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-600">Position: <span id="cursorPos">0, 0</span></span>
+                    <div class="h-4 w-px bg-gray-300"></div>
+                    <span class="text-gray-600">Objects: <span id="objectCount">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="right-sidebar">
+            <!-- Properties -->
+            <div class="toolbar-section">
+                <div class="section-title">Properties</div>
+                
+                <!-- Text Properties -->
+                <div id="textProperties" class="hidden">
+                    <div class="property-group">
+                        <div class="property-label">Font Family</div>
+                        <select id="fontFamily" class="property-input">
+                            <option value="Arial">Arial</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Inter">Inter</option>
+                        </select>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Font Size</div>
+                        <input type="range" id="fontSize" min="8" max="72" value="16" class="property-input">
+                        <span id="fontSizeValue" class="text-xs text-gray-500">16px</span>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Colors</div>
+                        <div class="flex gap-2">
+                            <input type="color" id="textColor" value="#000000" class="color-input">
+                            <input type="text" id="textColorHex" value="#000000" class="property-input flex-1" style="font-size: 10px;">
+                        </div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Style</div>
+                        <div class="flex gap-1">
+                            <button id="boldBtn" class="tool-button">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button id="italicBtn" class="tool-button">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button id="underlineBtn" class="tool-button">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Alignment</div>
+                        <div class="flex gap-1">
+                            <button id="alignLeftBtn" class="tool-button">
+                                <i class="fas fa-align-left"></i>
+                            </button>
+                            <button id="alignCenterBtn" class="tool-button">
+                                <i class="fas fa-align-center"></i>
+                            </button>
+                            <button id="alignRightBtn" class="tool-button">
+                                <i class="fas fa-align-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shape Properties -->
+                <div id="shapeProperties" class="hidden">
+                    <div class="property-group">
+                        <div class="property-label">Fill Color</div>
+                        <div class="flex gap-2">
+                            <input type="color" id="fillColor" value="#3b82f6" class="color-input">
+                            <input type="text" id="fillColorHex" value="#3b82f6" class="property-input flex-1" style="font-size: 10px;">
+                        </div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Border</div>
+                        <div class="flex gap-2 mb-2">
+                            <input type="color" id="borderColor" value="#000000" class="color-input">
+                            <input type="text" id="borderColorHex" value="#000000" class="property-input flex-1" style="font-size: 10px;">
+                        </div>
+                        <input type="range" id="borderWidth" min="0" max="10" value="1" class="property-input">
+                        <span id="borderWidthValue" class="text-xs text-gray-500">1px</span>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Opacity</div>
+                        <input type="range" id="opacity" min="0" max="100" value="100" class="property-input">
+                        <span id="opacityValue" class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+
+                <!-- Image Properties -->
+                <div id="imageProperties" class="hidden">
+                    <div class="property-group">
+                        <div class="property-label">Filters</div>
+                        <div class="grid grid-cols-2 gap-1">
+                            <button class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50" onclick="applyImageFilter('grayscale')">
+                                B&W
+                            </button>
+                            <button class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50" onclick="applyImageFilter('sepia')">
+                                Sepia
+                            </button>
+                            <button class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50" onclick="applyImageFilter('blur')">
+                                Blur
+                            </button>
+                            <button class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50" onclick="applyImageFilter('brightness')">
+                                Bright
+                            </button>
+                        </div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Opacity</div>
+                        <input type="range" id="imageOpacity" min="0" max="100" value="100" class="property-input">
+                        <span id="imageOpacityValue" class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+
+                <!-- Default message when nothing is selected -->
+                <div id="noSelection" class="text-center py-8 text-gray-500">
+                    <i class="fas fa-mouse-pointer text-2xl mb-2"></i>
+                    <p class="text-sm">Select an object to edit properties</p>
+                </div>
+            </div>
+
+            <!-- Layers -->
+            <div class="toolbar-section">
+                <div class="section-title">Layers</div>
+                <div id="layersList">
+                    <div class="text-sm text-gray-500 text-center py-4">No objects yet</div>
+                </div>
+            </div>
+
+            <!-- My Designs -->
+            {% if user.is_authenticated and user_designs %}
+            <div class="toolbar-section">
+                <div class="section-title">My Designs</div>
+                <div class="space-y-2">
+                    {% for design in user_designs %}
+                    <div class="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer" onclick="loadUserDesign('{{ design.id }}')">
+                        {% if design.preview_image %}
+                            <img src="{{ design.preview_image.url }}" alt="{{ design.name }}" class="w-8 h-8 rounded object-cover">
+                        {% else %}
+                            <div class="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
+                                <i class="fas fa-file text-gray-400 text-xs"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-medium text-gray-900 truncate">{{ design.name }}</p>
+                            <p class="text-xs text-gray-500">{{ design.last_modified|timesince }} ago</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Save Design Modal -->
+<div id="saveModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Save Your Design</h3>
+            <p class="modal-description">Give your design a name to save it for later</p>
+        </div>
+        <form id="saveForm">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="designName" class="block text-sm font-medium text-gray-700 mb-2">Design Name</label>
+                <input type="text" id="designName" name="design_name" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="My Business Card Design">
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeSaveModal()" class="secondary-btn">
+                    Cancel
+                </button>
+                <button type="submit" class="primary-btn">
+                    Save Design
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Finalize Order Modal -->
+<div id="finalizeModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Finalize Your Design</h3>
+            <p class="modal-description">Review your design and specify quantity</p>
+        </div>
+        <div id="finalizePreview" class="mb-4 text-center">
+            <!-- Preview will be inserted here -->
+        </div>
+        <form id="finalizeForm">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" value="100" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <p class="text-xs text-gray-500 mt-1">Minimum order: 1 piece</p>
+            </div>
+            <div class="mb-4">
+                <label for="specialInstructions" class="block text-sm font-medium text-gray-700 mb-2">Special Instructions (Optional)</label>
+                <textarea id="specialInstructions" name="special_instructions" rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Any special requirements or notes..."></textarea>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeFinalizeModal()" class="secondary-btn">
+                    Cancel
+                </button>
+                <button type="submit" class="success-btn">
+                    Add to Cart & Proceed
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Design Preview</h3>
+            <p class="modal-description">This is how your design will look when printed</p>
+        </div>
+        <div id="previewContent" class="text-center mb-4">
+            <!-- Preview image will be inserted here -->
+        </div>
+        <div class="flex justify-end gap-3">
+            <button onclick="closePreviewModal()" class="secondary-btn">
+                Close
+            </button>
+            <button onclick="downloadPreview()" class="primary-btn">
+                <i class="fas fa-download mr-2"></i>
+                Download Preview
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script>
+    // Global variables
+    let canvas;
+    let selectedTool = 'select';
+    let currentZoom = 1;
+    let history = [];
+    let historyStep = -1;
+    let currentDesignId = null;
+    let isGridVisible = true;
+    let isSnapEnabled = true;
+
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCanvas();
+        initializeTools();
+        initializeEventListeners();
+        loadDefaultContent();
+    });
+
+    function initializeCanvas() {
+        canvas = new fabric.Canvas('designCanvas', {
+            backgroundColor: '#ffffff',
+            selectionColor: 'rgba(59, 130, 246, 0.3)',
+            selectionLineWidth: 2,
+            preserveObjectStacking: true
+        });
+
+        // Add grid
+        addGrid();
+        
+        // Save initial state
+        saveState();
+        
+        // Update object count
+        updateObjectCount();
+    }
+
+    function addGrid() {
+        const gridSize = 20;
+        const width = canvas.getWidth();
+        const height = canvas.getHeight();
+
+        // Remove existing grid
+        const existingGrid = canvas.getObjects().filter(obj => obj.excludeFromExport);
+        existingGrid.forEach(obj => canvas.remove(obj));
+
+        if (!isGridVisible) return;
+
+        // Add vertical lines
+        for (let i = 0; i <= width / gridSize; i++) {
+            const line = new fabric.Line([i * gridSize, 0, i * gridSize, height], {
+                stroke: '#e5e7eb',
+                strokeWidth: 1,
+                selectable: false,
+                evented: false,
+                excludeFromExport: true
+            });
+            canvas.add(line);
+        }
+
+        // Add horizontal lines
+        for (let i = 0; i <= height / gridSize; i++) {
+            const line = new fabric.Line([0, i * gridSize, width, i * gridSize], {
+                stroke: '#e5e7eb',
+                strokeWidth: 1,
+                selectable: false,
+                evented: false,
+                excludeFromExport: true
+            });
+            canvas.add(line);
+        }
+
+        canvas.renderAll();
+    }
+
+    function initializeTools() {
+        // Tool buttons
+        document.querySelectorAll('[data-tool]').forEach(button => {
+            button.addEventListener('click', function() {
+                selectTool(this.dataset.tool);
+                updateActiveToolButton(this);
+            });
+        });
+
+        // Category buttons
+        document.querySelectorAll('[data-category]').forEach(button => {
+            button.addEventListener('click', function() {
+                loadCategoryTemplates(this.dataset.category);
+                updateActiveCategoryButton(this);
+            });
+        });
+    }
+
+    function selectTool(tool) {
+        selectedTool = tool;
+        canvas.isDrawingMode = false;
+        
+        if (tool === 'pen') {
+            canvas.isDrawingMode = true;
+            canvas.freeDrawingBrush.width = 3;
+            canvas.freeDrawingBrush.color = '#000000';
+        }
+        
+        // Update cursor
+        updateCanvasCursor(tool);
+    }
+
+    function updateCanvasCursor(tool) {
+        const cursors = {
+            select: 'default',
+            text: 'text',
+            shape: 'crosshair',
+            image: 'copy',
+            line: 'crosshair',
+            pen: 'crosshair'
+        };
+        
+        canvas.defaultCursor = cursors[tool] || 'default';
+    }
+
+    function updateActiveToolButton(activeButton) {
+        document.querySelectorAll('[data-tool]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        activeButton.classList.add('active');
+    }
+
+    function updateActiveCategoryButton(activeButton) {
+        document.querySelectorAll('[data-category]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        activeButton.classList.add('active');
+    }
+
+    function initializeEventListeners() {
+        // Canvas events
+        canvas.on('mouse:down', handleMouseDown);
+        canvas.on('mouse:move', handleMouseMove);
+        canvas.on('mouse:up', handleMouseUp);
+        canvas.on('selection:created', handleObjectSelection);
+        canvas.on('selection:updated', handleObjectSelection);
+        canvas.on('selection:cleared', clearProperties);
+        canvas.on('path:created', function() {
+            saveState();
+            updateLayers();
+        });
+
+        // File upload
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileUpload);
+
+        // Control buttons
+        document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+        document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+        document.getElementById('fitToScreenBtn').addEventListener('click', fitToScreen);
+        document.getElementById('undoBtn').addEventListener('click', undo);
+        document.getElementById('redoBtn').addEventListener('click', redo);
+
+        // Grid and snap toggles
+        document.getElementById('gridToggle').addEventListener('click', toggleGrid);
+        document.getElementById('snapToggle').addEventListener('click', toggleSnap);
+
+        // Modal buttons
+        document.getElementById('saveBtn').addEventListener('click', showSaveModal);
+        document.getElementById('finalizeOrderBtn').addEventListener('click', showFinalizeModal);
+        document.getElementById('previewBtn').addEventListener('click', showPreviewModal);
+
+        // Property controls
+        initializePropertyControls();
+
+        // Forms
+        document.getElementById('saveForm').addEventListener('submit', handleSaveDesign);
+        document.getElementById('finalizeForm').addEventListener('submit', handleFinalizeOrder);
+    }
+
+    function handleMouseDown(event) {
+        if (selectedTool === 'text') {
+            addText(event.pointer);
+        } else if (selectedTool === 'shape') {
+            addRectangle(event.pointer);
+        } else if (selectedTool === 'line') {
+            startDrawingLine(event.pointer);
+        }
+    }
+
+    function handleMouseMove(event) {
+        const pointer = event.pointer;
+        document.getElementById('cursorPos').textContent = `${Math.round(pointer.x)}, ${Math.round(pointer.y)}`;
+    }
+
+    function handleMouseUp(event) {
+        if (selectedTool === 'line' && window.tempLine) {
+            finishDrawingLine(event.pointer);
+        }
+    }
+
+    function addText(pointer) {
+        const text = new fabric.Textbox('Double click to edit text', {
+            left: pointer.x,
+            top: pointer.y,
+            width: 200,
+            fontSize: 16,
+            fontFamily: 'Inter',
+            fill: '#000000',
+            editable: true
+        });
+
+        canvas.add(text);
+        canvas.setActiveObject(text);
+        text.enterEditing();
+        saveState();
+        updateLayers();
+    }
+
+    function addRectangle(pointer) {
+        const rect = new fabric.Rect({
+            left: pointer.x,
+            top: pointer.y,
+            width: 100,
+            height: 60,
+            fill: '#3b82f6',
+            stroke: '#000000',
+            strokeWidth: 1
+        });
+
+        canvas.add(rect);
+        canvas.setActiveObject(rect);
+        saveState();
+        updateLayers();
+    }
+
+    function startDrawingLine(pointer) {
+        const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
+            stroke: '#000000',
+            strokeWidth: 2,
+            selectable: false
+        });
+
+        canvas.add(line);
+        window.tempLine = line;
+    }
+
+    function finishDrawingLine(pointer) {
+        if (window.tempLine) {
+            window.tempLine.set({
+                x2: pointer.x,
+                y2: pointer.y,
+                selectable: true
+            });
+            canvas.renderAll();
+            canvas.setActiveObject(window.tempLine);
+            saveState();
+            updateLayers();
+            window.tempLine = null;
+        }
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('dragover');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        handleFileUpload({ target: { files: files } });
+    }
+
+    function handleFileUpload(event) {
+        const files = event.target.files;
+        
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fabric.Image.fromURL(e.target.result, function(img) {
+                        // Scale image to fit canvas
+                        const maxWidth = canvas.getWidth() * 0.4;
+                        const maxHeight = canvas.getHeight() * 0.4;
+                        
+                        if (img.width > maxWidth || img.height > maxHeight) {
+                            const scale = Math.min(maxWidth / img.width, maxHeight / img.height);
+                            img.scale(scale);
+                        }
+
+                        img.set({
+                            left: canvas.getWidth() / 2 - (img.width * img.scaleX) / 2,
+                            top: canvas.getHeight() / 2 - (img.height * img.scaleY) / 2
+                        });
+
+                        canvas.add(img);
+                        canvas.setActiveObject(img);
+                        saveState();
+                        updateLayers();
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Reset file input
+        event.target.value = '';
+    }
+
+    function handleObjectSelection(event) {
+        const activeObject = event.selected ? event.selected[0] : event.target;
+        updatePropertiesPanel(activeObject);
+        updateLayers();
+    }
+
+    function updatePropertiesPanel(object) {
+        // Hide all property panels
+        document.getElementById('textProperties').classList.add('hidden');
+        document.getElementById('shapeProperties').classList.add('hidden');
+        document.getElementById('imageProperties').classList.add('hidden');
+        document.getElementById('noSelection').classList.add('hidden');
+
+        if (!object) {
+            document.getElementById('noSelection').classList.remove('hidden');
+            return;
+        }
+
+        if (object.type === 'textbox' || object.type === 'text') {
+            document.getElementById('textProperties').classList.remove('hidden');
+            updateTextControls(object);
+        } else if (object.type === 'rect' || object.type === 'circle' || object.type === 'line') {
+            document.getElementById('shapeProperties').classList.remove('hidden');
+            updateShapeControls(object);
+        } else if (object.type === 'image') {
+            document.getElementById('imageProperties').classList.remove('hidden');
+            updateImageControls(object);
+        }
+    }
+
+    function updateTextControls(object) {
+        document.getElementById('fontFamily').value = object.fontFamily || 'Inter';
+        document.getElementById('fontSize').value = object.fontSize || 16;
+        document.getElementById('fontSizeValue').textContent = (object.fontSize || 16) + 'px';
+        document.getElementById('textColor').value = object.fill || '#000000';
+        document.getElementById('textColorHex').value = object.fill || '#000000';
+        
+        // Update style buttons
+        document.getElementById('boldBtn').classList.toggle('active', object.fontWeight === 'bold');
+        document.getElementById('italicBtn').classList.toggle('active', object.fontStyle === 'italic');
+        document.getElementById('underlineBtn').classList.toggle('active', object.underline === true);
+    }
+
+    function updateShapeControls(object) {
+        document.getElementById('fillColor').value = object.fill || '#3b82f6';
+        document.getElementById('fillColorHex').value = object.fill || '#3b82f6';
+        document.getElementById('borderColor').value = object.stroke || '#000000';
+        document.getElementById('borderColorHex').value = object.stroke || '#000000';
+        document.getElementById('borderWidth').value = object.strokeWidth || 1;
+        document.getElementById('borderWidthValue').textContent = (object.strokeWidth || 1) + 'px';
+        document.getElementById('opacity').value = (object.opacity || 1) * 100;
+        document.getElementById('opacityValue').textContent = Math.round((object.opacity || 1) * 100) + '%';
+    }
+
+    function updateImageControls(object) {
+        document.getElementById('imageOpacity').value = (object.opacity || 1) * 100;
+        document.getElementById('imageOpacityValue').textContent = Math.round((object.opacity || 1) * 100) + '%';
+    }
+
+    function clearProperties() {
+        document.getElementById('textProperties').classList.add('hidden');
+        document.getElementById('shapeProperties').classList.add('hidden');
+        document.getElementById('imageProperties').classList.add('hidden');
+        document.getElementById('noSelection').classList.remove('hidden');
+    }
+
+    function initializePropertyControls() {
+        // Font controls
+        document.getElementById('fontFamily').addEventListener('change', function() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                activeObject.set('fontFamily', this.value);
+                canvas.renderAll();
+                saveState();
+            }
+        });
+
+        document.getElementById('fontSize').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            document.getElementById('fontSizeValue').textContent = value + 'px';
+            
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                activeObject.set('fontSize', value);
+                canvas.renderAll();
+                saveState();
+            }
+        });
+
+        // Color controls
+        ['textColor', 'fillColor', 'borderColor'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                const color = this.value;
+                document.getElementById(id + 'Hex').value = color;
+                
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    if (id === 'textColor' && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                        activeObject.set('fill', color);
+                    } else if (id === 'fillColor') {
+                        activeObject.set('fill', color);
+                    } else if (id === 'borderColor') {
+                        activeObject.set('stroke', color);
+                    }
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+        });
+
+        // Text formatting buttons
+        document.getElementById('boldBtn').addEventListener('click', function() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'textbox' || activeObject.type === 'text')) {
+                const currentWeight = activeObject.fontWeight || 'normal';
+                activeObject.set('fontWeight', currentWeight === 'bold' ? 'normal' : 'bold');
+                canvas.renderAll();
+                saveState();
+                this.classList.toggle('active');
+            }
+        });
+
+        // Border width
+        document.getElementById('borderWidth').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            document.getElementById('borderWidthValue').textContent = value + 'px';
+            
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                activeObject.set('strokeWidth', value);
+                canvas.renderAll();
+                saveState();
+            }
+        });
+
+        // Opacity controls
+        ['opacity', 'imageOpacity'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function() {
+                const value = parseInt(this.value) / 100;
+                document.getElementById(id + 'Value').textContent = Math.round(value * 100) + '%';
+                
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.set('opacity', value);
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+        });
+    }
+
+    function updateLayers() {
+        const layersList = document.getElementById('layersList');
+        const objects = canvas.getObjects().filter(obj => !obj.excludeFromExport);
+        
+        if (objects.length === 0) {
+            layersList.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">No objects yet</div>';
+            return;
+        }
+
+        layersList.innerHTML = '';
+        objects.reverse().forEach((obj, index) => {
+            const layerItem = document.createElement('div');
+            layerItem.className = 'layer-item';
+            layerItem.innerHTML = `
+                <i class="fas fa-${getObjectIcon(obj.type)} layer-icon"></i>
+                <span class="layer-name">${getObjectName(obj)}</span>
+                <div class="layer-actions">
+                    <button class="layer-action" onclick="toggleObjectVisibility(${objects.length - 1 - index})">
+                        <i class="fas fa-${obj.visible !== false ? 'eye' : 'eye-slash'}"></i>
+                    </button>
+                    <button class="layer-action" onclick="deleteObject(${objects.length - 1 - index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+
+            layerItem.addEventListener('click', (e) => {
+                if (!e.target.closest('.layer-actions')) {
+                    canvas.setActiveObject(obj);
+                    canvas.renderAll();
+                    updateActiveLayer(layerItem);
+                }
+            });
+
+            layersList.appendChild(layerItem);
+        });
+
+        updateObjectCount();
+    }
+
+    function getObjectIcon(type) {
+        const icons = {
+            'textbox': 'font',
+            'text': 'font',
+            'rect': 'square',
+            'circle': 'circle',
+            'image': 'image',
+            'line': 'minus',
+            'path': 'pen'
+        };
+        return icons[type] || 'question';
+    }
+
+    function getObjectName(obj) {
+        if (obj.type === 'textbox' || obj.type === 'text') {
+            const text = obj.text || 'Text';
+            return text.length > 12 ? text.substring(0, 12) + '...' : text;
+        } else if (obj.type === 'image') {
+            return 'Image';
+        } else {
+            return obj.type.charAt(0).toUpperCase() + obj.type.slice(1);
+        }
+    }
+
+    function updateActiveLayer(activeLayer) {
+        document.querySelectorAll('.layer-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        activeLayer.classList.add('active');
+    }
+
+    function updateObjectCount() {
+        const count = canvas.getObjects().filter(obj => !obj.excludeFromExport).length;
+        document.getElementById('objectCount').textContent = count;
+    }
+
+    function toggleObjectVisibility(index) {
+        const objects = canvas.getObjects().filter(obj => !obj.excludeFromExport);
+        const obj = objects[index];
+        if (obj) {
+            obj.visible = !obj.visible;
+            canvas.renderAll();
+            updateLayers();
+        }
+    }
+
+    function deleteObject(index) {
+        const objects = canvas.getObjects().filter(obj => !obj.excludeFromExport);
+        const obj = objects[index];
+        if (obj) {
+            canvas.remove(obj);
+            canvas.renderAll();
+            saveState();
+            updateLayers();
+        }
+    }
+
+    function zoomIn() {
+        currentZoom = Math.min(currentZoom * 1.2, 3);
+        canvas.setZoom(currentZoom);
+        updateZoomDisplay();
+    }
+
+    function zoomOut() {
+        currentZoom = Math.max(currentZoom / 1.2, 0.1);
+        canvas.setZoom(currentZoom);
+        updateZoomDisplay();
+    }
+
+    function fitToScreen() {
+        const containerWidth = document.querySelector('.canvas-wrapper').clientWidth - 100;
+        const containerHeight = document.querySelector('.canvas-wrapper').clientHeight - 100;
+        const canvasWidth = canvas.getWidth();
+        const canvasHeight = canvas.getHeight();
+        
+        const scale = Math.min(containerWidth / canvasWidth, containerHeight / canvasHeight);
+        currentZoom = Math.min(scale, 1);
+        canvas.setZoom(currentZoom);
+        updateZoomDisplay();
+    }
+
+    function updateZoomDisplay() {
+        document.getElementById('zoomLevel').textContent = Math.round(currentZoom * 100) + '%';
+    }
+
+    function toggleGrid() {
+        isGridVisible = !isGridVisible;
+        document.getElementById('gridToggle').classList.toggle('active', isGridVisible);
+        addGrid();
+    }
+
+    function toggleSnap() {
+        isSnapEnabled = !isSnapEnabled;
+        document.getElementById('snapToggle').classList.toggle('active', isSnapEnabled);
+    }
+
+    function saveState() {
+        if (historyStep < history.length - 1) {
+            history = history.slice(0, historyStep + 1);
+        }
+        
+        history.push(JSON.stringify(canvas.toJSON()));
+        historyStep++;
+        
+        if (history.length > 50) {
+            history = history.slice(-50);
+            historyStep = 49;
+        }
+    }
+
+    function undo() {
+        if (historyStep > 0) {
+            historyStep--;
+            canvas.loadFromJSON(history[historyStep], function() {
+                canvas.renderAll();
+                updateLayers();
+                addGrid();
+            });
+        }
+    }
+
+    function redo() {
+        if (historyStep < history.length - 1) {
+            historyStep++;
+            canvas.loadFromJSON(history[historyStep], function() {
+                canvas.renderAll();
+                updateLayers();
+                addGrid();
+            });
+        }
+    }
+
+    function loadTemplate(templateId) {
+        fetch(`/design-tool/template/${templateId}/data/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    canvas.loadFromJSON(data.template_data, function() {
+                        canvas.renderAll();
+                        saveState();
+                        updateLayers();
+                        addGrid();
+                    });
+                } else {
+                    alert('Error loading template');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading template');
+            });
+    }
+
+    function loadUserDesign(designId) {
+        fetch(`/design-tool/design/${designId}/data/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentDesignId = designId;
+                    canvas.loadFromJSON(data.design_data, function() {
+                        canvas.renderAll();
+                        saveState();
+                        updateLayers();
+                        addGrid();
+                    });
+                } else {
+                    alert('Error loading design');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading design');
+            });
+    }
+
+    function loadCategoryTemplates(categorySlug) {
+        // This would load templates for the selected category
+        console.log('Loading templates for:', categorySlug);
+    }
+
+    function loadDefaultContent() {
+        // Add a welcome text
+        const welcomeText = new fabric.Textbox('Click to edit text', {
+            left: canvas.getWidth() / 2 - 100,
+            top: canvas.getHeight() / 2 - 20,
+            width: 200,
+            fontSize: 18,
+            fontFamily: 'Inter',
+            fill: '#374151',
+            textAlign: 'center'
+        });
+
+        canvas.add(welcomeText);
+        saveState();
+        updateLayers();
+    }
+
+    // Modal functions
+    function showSaveModal() {
+        document.getElementById('saveModal').classList.remove('hidden');
+    }
+
+    function closeSaveModal() {
+        document.getElementById('saveModal').classList.add('hidden');
+        document.getElementById('saveForm').reset();
+    }
+
+    function showFinalizeModal() {
+        const previewImage = canvas.toDataURL({
+            format: 'png',
+            quality: 1,
+            multiplier: 2
+        });
+
+        document.getElementById('finalizePreview').innerHTML = `
+            <img src="${previewImage}" alt="Design Preview" class="max-w-full max-h-48 mx-auto rounded-lg shadow-lg">
+        `;
+
+        document.getElementById('finalizeModal').classList.remove('hidden');
+    }
+
+    function closeFinalizeModal() {
+        document.getElementById('finalizeModal').classList.add('hidden');
+        document.getElementById('finalizeForm').reset();
+    }
+
+    function showPreviewModal() {
+        const previewImage = canvas.toDataURL({
+            format: 'png',
+            quality: 1,
+            multiplier: 3
+        });
+
+        document.getElementById('previewContent').innerHTML = `
+            <img src="${previewImage}" alt="High Resolution Preview" class="max-w-full rounded-lg shadow-2xl">
+        `;
+
+        document.getElementById('previewModal').classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+        document.getElementById('previewModal').classList.add('hidden');
+    }
+
+    function downloadPreview() {
+        const dataURL = canvas.toDataURL({
+            format: 'png',
+            quality: 1,
+            multiplier: 4
+        });
+
+        const link = document.createElement('a');
+        link.download = 'design-preview-hd.png';
+        link.href = dataURL;
+        link.click();
+    }
+
+    // Form handlers
+    function handleSaveDesign(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const designData = JSON.stringify(canvas.toJSON());
+        const previewImage = canvas.toDataURL();
+
+        const saveData = {
+            product_id: '{{ product.id }}',
+            name: formData.get('design_name'),
+            design_data: designData,
+            preview_image: previewImage,
+            design_id: currentDesignId
+        };
+
+        fetch('{% url "design_tool:save_design" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(saveData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentDesignId = data.design_id;
+                alert('Design saved successfully!');
+                closeSaveModal();
+            } else if (data.login_required) {
+                window.location.href = '{% url "users:login" %}?next=' + encodeURIComponent(window.location.pathname);
+            } else {
+                alert('Error saving design: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error saving design');
+        });
+    }
+
+    function handleFinalizeOrder(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const designData = JSON.stringify(canvas.toJSON());
+        const previewImage = canvas.toDataURL();
+
+        const orderData = {
+            product_id: '{{ product.id }}',
+            design_id: currentDesignId,
+            design_data: designData,
+            preview_image: previewImage,
+            quantity: parseInt(formData.get('quantity')),
+            special_instructions: formData.get('special_instructions')
+        };
+
+        fetch('{% url "design_tool:finalize_and_order" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Design finalized and added to cart!');
+                window.location.href = data.cart_url;
+            } else {
+                alert('Error finalizing order: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error finalizing order');
+        });
+    }
+
+    function goBack() {
+        if (confirm('Are you sure you want to leave? Any unsaved changes will be lost.')) {
+            window.history.back();
+        }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'z':
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        redo();
+                    } else {
+                        undo();
+                    }
+                    break;
+                case 's':
+                    e.preventDefault();
+                    showSaveModal();
+                    break;
+            }
+        }
+        
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && !activeObject.excludeFromExport) {
+                canvas.remove(activeObject);
+                saveState();
+                updateLayers();
+            }
+        }
+    });
+
+    // Auto-fit canvas on window resize
+    window.addEventListener('resize', function() {
+        setTimeout(fitToScreen, 100);
+    });
+</script>
+{% endblock %}

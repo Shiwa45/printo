@@ -1,0 +1,377 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History - Drishthi Printing{% endblock %}
+
+{% block content %}
+<div class="pt-32 min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="{% url 'users:profile' %}" class="text-gray-700 hover:text-blue-600 inline-flex items-center">
+                            <i class="fas fa-user mr-2"></i>Profile
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-500">Order History</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="text-3xl font-bold text-gray-900 mt-4">Order History</h1>
+            <p class="mt-2 text-gray-600">Track and manage all your orders</p>
+        </div>
+
+        <!-- Filter and Search -->
+        <div class="mb-8 bg-white rounded-xl shadow-lg p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                    <div>
+                        <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Orders</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="printing">Printing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="dateFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Time</option>
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 3 months</option>
+                            <option value="365">Last year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="relative">
+                        <input type="text" id="searchOrders" placeholder="Search orders..." 
+                               class="border border-gray-300 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        {% if orders %}
+        <div class="space-y-6">
+            {% for order in orders %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <!-- Order Header -->
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between space-y-4 lg:space-y-0">
+                        <div class="flex items-center space-x-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Order #{{ order.id }}</h3>
+                                <p class="text-sm text-gray-600">Placed on {{ order.created_at|date:"M d, Y" }} at {{ order.created_at|time:"g:i A" }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full
+                                {% if order.status == 'delivered' %}bg-green-100 text-green-800
+                                {% elif order.status == 'shipped' %}bg-blue-100 text-blue-800
+                                {% elif order.status == 'processing' or order.status == 'printing' %}bg-yellow-100 text-yellow-800
+                                {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                            <span class="text-lg font-bold text-gray-900">₹{{ order.total_amount }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="p-6">
+                    <div class="space-y-4">
+                        {% for item in order.items.all %}
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                {% if item.product and item.product.images.first %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product_name }}" 
+                                         class="w-full h-full object-cover">
+                                {% else %}
+                                    <img src="{% static 'images/service-design-services.svg' %}" alt="{{ item.product_name }}" 
+                                         class="w-full h-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-900">{{ item.product_name }}</h4>
+                                <div class="text-sm text-gray-600 mt-1">
+                                    {% if item.product_options %}
+                                        {% for key, value in item.product_options.items %}
+                                            {{ key|title }}: {{ value }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-sm text-gray-600">Qty: {{ item.quantity }}</span>
+                                    <span class="text-sm font-medium text-gray-900">₹{{ item.unit_price }} each</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-semibold text-gray-900">₹{{ item.total_price }}</div>
+                                <div class="text-sm text-gray-600 mt-1">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                        {% if item.production_status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif item.production_status == 'printing' or item.production_status == 'finishing' %}bg-yellow-100 text-yellow-800
+                                        {% elif item.production_status == 'in_queue' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ item.get_production_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Order Actions -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                            {% if order.tracking_number %}
+                                <span class="flex items-center">
+                                    <i class="fas fa-truck mr-2"></i>
+                                    Tracking: {{ order.tracking_number }}
+                                </span>
+                            {% endif %}
+                            {% if order.expected_delivery %}
+                                <span class="flex items-center">
+                                    <i class="fas fa-calendar mr-2"></i>
+                                    Expected: {{ order.expected_delivery|date:"M d, Y" }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="viewOrderDetails('{{ order.id }}')" 
+                                    class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                                View Details
+                            </button>
+                            {% if order.status == 'delivered' %}
+                                <button onclick="reorderItems('{{ order.id }}')" 
+                                        class="text-green-600 hover:text-green-800 font-medium text-sm">
+                                    Reorder
+                                </button>
+                            {% endif %}
+                            {% if order.status in 'pending,processing' %}
+                                <button onclick="cancelOrder('{{ order.id }}')" 
+                                        class="text-red-600 hover:text-red-800 font-medium text-sm">
+                                    Cancel Order
+                                </button>
+                            {% endif %}
+                            <button onclick="downloadInvoice('{{ order.id }}')" 
+                                    class="text-purple-600 hover:text-purple-800 font-medium text-sm">
+                                Download Invoice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" 
+                       class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                        Previous
+                    </a>
+                {% endif %}
+                
+                {% for page_num in page_obj.paginator.page_range %}
+                    {% if page_num == page_obj.number %}
+                        <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                            {{ page_num }}
+                        </span>
+                    {% else %}
+                        <a href="?page={{ page_num }}" 
+                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50">
+                            {{ page_num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" 
+                       class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                        Next
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- No Orders -->
+        <div class="text-center py-16">
+            <div class="mx-auto h-24 w-24 text-gray-400 mb-6">
+                <i class="fas fa-shopping-bag text-6xl"></i>
+            </div>
+            <h3 class="text-xl font-medium text-gray-900 mb-2">No orders yet</h3>
+            <p class="text-gray-600 mb-8">When you place your first order, it will appear here.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'products:list' %}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center justify-center">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Start Shopping
+                </a>
+                <a href="{% url 'home:contact' %}" 
+                   class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center">
+                    <i class="fas fa-headset mr-2"></i>
+                    Need Help?
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div id="orderDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Order Details</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="orderDetailsContent" class="p-6">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter functionality
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+document.getElementById('dateFilter').addEventListener('change', applyFilters);
+document.getElementById('searchOrders').addEventListener('input', applyFilters);
+
+function applyFilters() {
+    const status = document.getElementById('statusFilter').value;
+    const date = document.getElementById('dateFilter').value;
+    const search = document.getElementById('searchOrders').value;
+    
+    const orders = document.querySelectorAll('.bg-white.rounded-xl.shadow-lg.overflow-hidden');
+    
+    orders.forEach(order => {
+        let show = true;
+        
+        // Status filter
+        if (status) {
+            const orderStatus = order.querySelector('.inline-flex.px-3.py-1').textContent.toLowerCase().trim();
+            if (!orderStatus.includes(status.toLowerCase())) {
+                show = false;
+            }
+        }
+        
+        // Search filter
+        if (search) {
+            const orderText = order.textContent.toLowerCase();
+            if (!orderText.includes(search.toLowerCase())) {
+                show = false;
+            }
+        }
+        
+        order.style.display = show ? 'block' : 'none';
+    });
+}
+
+// Order actions
+function viewOrderDetails(orderId) {
+    // Show loading
+    document.getElementById('orderDetailsContent').innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i></div>';
+    document.getElementById('orderDetailsModal').classList.remove('hidden');
+    
+    // Fetch order details
+    fetch(`/api/orders/${orderId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('orderDetailsContent').innerHTML = data.html;
+        })
+        .catch(error => {
+            document.getElementById('orderDetailsContent').innerHTML = '<div class="text-center py-8 text-red-600">Error loading order details</div>';
+        });
+}
+
+function reorderItems(orderId) {
+    if (confirm('Add all items from this order to your cart?')) {
+        fetch(`/api/orders/${orderId}/reorder/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Items added to cart successfully!');
+                window.location.href = '{% url "orders:cart" %}';
+            } else {
+                alert('Error adding items to cart. Please try again.');
+            }
+        })
+        .catch(error => {
+            alert('Error adding items to cart. Please try again.');
+        });
+    }
+}
+
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+        fetch(`/api/orders/${orderId}/cancel/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Order cancelled successfully.');
+                location.reload();
+            } else {
+                alert('Error cancelling order. Please contact support.');
+            }
+        })
+        .catch(error => {
+            alert('Error cancelling order. Please contact support.');
+        });
+    }
+}
+
+function downloadInvoice(orderId) {
+    window.open(`/api/orders/${orderId}/invoice/`, '_blank');
+}
+
+function closeModal() {
+    document.getElementById('orderDetailsModal').classList.add('hidden');
+}
+
+// Close modal on outside click
+document.getElementById('orderDetailsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+{% endblock %}

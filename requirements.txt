@@ -14,3 +14,8 @@ django-crispy-forms==2.1
 crispy-bootstrap5==0.7
 django-extensions==3.2.3
 python-decouple==3.8
+
+# Design Tool Dependencies
+requests==2.31.0  # For API calls to image services
+cairosvg==2.7.1   # For SVG to PNG conversion
+defusedxml==0.7.1 # For secure XML parsing

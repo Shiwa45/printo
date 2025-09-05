@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Design Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+        
+        .design-editor {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        
+        .toolbar {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: auto;
+            position: relative;
+            background: #f3f4f6;
+        }
+        
+        .canvas-wrapper {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .section {
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .section-header {
+            padding: 16px 20px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .section-content {
+            padding: 16px 20px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .section.collapsed .section-content {
+            display: none;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .tool-btn {
+            padding: 12px 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .tool-btn:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        .tool-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .shape-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .shape-item {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+        }
+        
+        .shape-item:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .color-item {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-item:hover, .color-item.active {
+            border-color: #374151;
+            transform: scale(1.1);
+        }
+        
+        .font-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .font-item {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .font-item:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        .properties-panel {
+            padding: 16px 20px;
+            background: #f9fafb;
+        }
+        
+        .property-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .property-input {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .right-panel {
+            width: 280px;
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            overflow-y: auto;
+        }
+        
+        .layers-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .layer-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        
+        .layer-item:hover {
+            background: #f3f4f6;
+        }
+        
+        .layer-item.active {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+        }
+        
+        .layer-icon {
+            width: 16px;
+            margin-right: 8px;
+            color: #6b7280;
+        }
+        
+        .layer-name {
+            flex: 1;
+            color: #374151;
+        }
+        
+        .layer-action {
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #9ca3af;
+            transition: all 0.2s;
+            border-radius: 3px;
+        }
+        
+        .layer-action:hover {
+            color: #374151;
+            background: #f3f4f6;
+        }
+        
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 16px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .gradient-preview {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .filter-btn {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .filter-btn:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .size-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .size-btn {
+            padding: 8px 4px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 11px;
+        }
+        
+        .size-btn:hover {
+            border-color: #3b82f6;
+        }
+        
+        .size-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        #customColor {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .image-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="design-editor">
+        <!-- Left Sidebar -->
+        <div class="sidebar" id="leftSidebar">
+            <!-- Design Tools -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Design Tools</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <div class="tool-grid">
+                        <div class="tool-btn active" data-tool="select" onclick="setTool('select')">
+                            <i class="fas fa-mouse-pointer mb-1"></i>
+                            <div>Select</div>
+                        </div>
+                        <div class="tool-btn" data-tool="text" onclick="setTool('text')">
+                            <i class="fas fa-font mb-1"></i>
+                            <div>Text</div>
+                        </div>
+                        <div class="tool-btn" data-tool="shapes" onclick="setTool('shapes')">
+                            <i class="fas fa-shapes mb-1"></i>
+                            <div>Shapes</div>
+                        </div>
+                        <div class="tool-btn" data-tool="draw" onclick="setTool('draw')">
+                            <i class="fas fa-pen mb-1"></i>
+                            <div>Draw</div>
+                        </div>
+                        <div class="tool-btn" data-tool="crop" onclick="setTool('crop')">
+                            <i class="fas fa-crop mb-1"></i>
+                            <div>Crop</div>
+                        </div>
+                        <div class="tool-btn" data-tool="effects" onclick="setTool('effects')">
+                            <i class="fas fa-magic mb-1"></i>
+                            <div>Effects</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text & Fonts -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Text & Fonts</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <button class="btn-primary w-full mb-3" onclick="addText()">Add Text</button>
+                    <div class="font-grid">
+                        <div class="font-item" onclick="changeFont('Arial')" style="font-family: Arial;">Arial</div>
+                        <div class="font-item" onclick="changeFont('Helvetica')" style="font-family: Helvetica;">Helvetica</div>
+                        <div class="font-item" onclick="changeFont('Times New Roman')" style="font-family: 'Times New Roman';">Times New Roman</div>
+                        <div class="font-item" onclick="changeFont('Georgia')" style="font-family: Georgia;">Georgia</div>
+                        <div class="font-item" onclick="changeFont('Verdana')" style="font-family: Verdana;">Verdana</div>
+                    </div>
+                    <div class="size-controls">
+                        <div class="size-btn" onclick="changeFontSize(12)">12</div>
+                        <div class="size-btn" onclick="changeFontSize(16)">16</div>
+                        <div class="size-btn" onclick="changeFontSize(20)">20</div>
+                        <div class="size-btn active" onclick="changeFontSize(24)">24</div>
+                        <div class="size-btn" onclick="changeFontSize(32)">32</div>
+                        <div class="size-btn" onclick="changeFontSize(48)">48</div>
+                        <div class="size-btn" onclick="changeFontSize(64)">64</div>
+                        <div class="size-btn" onclick="changeFontSize(96)">96</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shapes & Graphics -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Shapes & Graphics</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab(this, 'basic-shapes')">Basic</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'arrows')">Arrows</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'icons')">Icons</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'pixabay-elements')">Elements</button>
+                    </div>
+                    
+                    <div id="basic-shapes" class="tab-content active">
+                        <div class="shape-grid">
+                            <div class="shape-item" onclick="addShape('rect')">
+                                <div style="width: 24px; height: 16px; background: #3b82f6; border-radius: 2px;"></div>
+                            </div>
+                            <div class="shape-item" onclick="addShape('circle')">
+                                <div style="width: 20px; height: 20px; background: #10b981; border-radius: 50%;"></div>
+                            </div>
+                            <div class="shape-item" onclick="addShape('triangle')">
+                                <div style="width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 20px solid #ef4444;"></div>
+                            </div>
+                            <div class="shape-item" onclick="addShape('star')">
+                                <i class="fas fa-star" style="color: #f59e0b; font-size: 18px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="arrows" class="tab-content">
+                        <div class="shape-grid">
+                            <div class="shape-item" onclick="addArrow('right')">
+                                <i class="fas fa-arrow-right" style="color: #3b82f6; font-size: 16px;"></i>
+                            </div>
+                            <div class="shape-item" onclick="addArrow('left')">
+                                <i class="fas fa-arrow-left" style="color: #10b981; font-size: 16px;"></i>
+                            </div>
+                            <div class="shape-item" onclick="addArrow('up')">
+                                <i class="fas fa-arrow-up" style="color: #ef4444; font-size: 16px;"></i>
+                            </div>
+                            <div class="shape-item" onclick="addArrow('down')">
+                                <i class="fas fa-arrow-down" style="color: #f59e0b; font-size: 16px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="icons" class="tab-content">
+                        <div class="shape-grid">
+                            <div class="shape-item" onclick="addIcon('phone')">
+                                <i class="fas fa-phone" style="color: #3b82f6; font-size: 16px;"></i>
+                            </div>
+                            <div class="shape-item" onclick="addIcon('email')">
+                                <i class="fas fa-envelope" style="color: #10b981; font-size: 16px;"></i>
+                            </div>
+                            <div class="shape-item" onclick="addIcon('location')">
+                                <i class="fas fa-map-marker-alt" style="color: #ef4444; font-size: 16px;"></i>
+                            </div>
+                            <div class="shape-item" onclick="addIcon('globe')">
+                                <i class="fas fa-globe" style="color: #f59e0b; font-size: 16px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="pixabay-elements" class="tab-content">
+                        <!-- Element Search -->
+                        <div class="mb-3">
+                            <input type="text" id="elementSearch" class="search-box text-sm" placeholder="Search icons, shapes, elements..." onkeypress="if(event.key==='Enter') searchPixabayElements()">
+                            <button class="btn-secondary w-full text-sm py-1 mb-2" onclick="searchPixabayElements()">
+                                <i class="fas fa-search mr-1"></i>
+                                Search Elements
+                            </button>
+                        </div>
+                        
+                        <!-- Quick Element Categories -->
+                        <div class="mb-3">
+                            <div class="text-xs font-medium text-gray-600 mb-2">Quick Search:</div>
+                            <div class="flex flex-wrap gap-1">
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchElementKeyword('icon')">Icons</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchElementKeyword('logo')">Logos</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchElementKeyword('symbol')">Symbols</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchElementKeyword('badge')">Badges</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchElementKeyword('arrow')">Arrows</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchElementKeyword('decoration')">Decorations</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Element Type Filter -->
+                        <div class="mb-3">
+                            <select id="elementType" class="property-input w-full text-sm">
+                                <option value="all">All Elements</option>
+                                <option value="vector">Vector Graphics</option>
+                                <option value="illustration">Illustrations</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Loading indicator -->
+                        <div id="elementLoading" class="text-center text-sm text-gray-500 hidden">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Searching...
+                        </div>
+                        
+                        <!-- Element Results -->
+                        <div id="elementResults" class="shape-grid mb-3"></div>
+                        
+                        <!-- Element Pagination -->
+                        <div id="elementPagination" class="flex justify-center gap-2 hidden">
+                            <button id="prevElementPage" class="btn-secondary text-xs py-1 px-2" onclick="changeElementPage(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span id="elementPageInfo" class="text-xs px-2 py-1"></span>
+                            <button id="nextElementPage" class="btn-secondary text-xs py-1 px-2" onclick="changeElementPage(1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Images</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                    <button class="btn-primary w-full mb-3" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-upload mr-2"></i>
+                        Upload Images
+                    </button>
+                    
+                    <!-- Pixabay Search -->
+                    <div class="mb-4 border-t pt-4">
+                        <div class="mb-2">
+                            <span class="text-sm font-medium text-gray-700">Search Stock Images</span>
+                        </div>
+                        <input type="text" id="pixabaySearch" class="search-box" placeholder="Search for images..." onkeypress="if(event.key==='Enter') searchPixabayImages()">
+                        <button class="btn-secondary w-full mb-2" onclick="searchPixabayImages()">
+                            <i class="fas fa-search mr-2"></i>
+                            Search Images
+                        </button>
+                        
+                        <!-- Search Filters -->
+                        <div class="flex gap-2 mb-3">
+                            <select id="imageType" class="property-input flex-1">
+                                <option value="all">All Types</option>
+                                <option value="photo">Photos</option>
+                                <option value="illustration">Illustrations</option>
+                                <option value="vector">Vectors</option>
+                            </select>
+                            <select id="imageCategory" class="property-input flex-1">
+                                <option value="">All Categories</option>
+                                <option value="backgrounds">Backgrounds</option>
+                                <option value="nature">Nature</option>
+                                <option value="business">Business</option>
+                                <option value="animals">Animals</option>
+                                <option value="food">Food</option>
+                                <option value="computer">Technology</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="sports">Sports</option>
+                                <option value="travel">Travel</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Loading indicator -->
+                        <div id="pixabayLoading" class="text-center text-sm text-gray-500 hidden">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Searching images...
+                        </div>
+                        
+                        <!-- Pixabay Results -->
+                        <div id="pixabayResults" class="images-grid mb-4"></div>
+                        
+                        <!-- Pagination -->
+                        <div id="pixabayPagination" class="flex justify-center gap-2 hidden">
+                            <button id="prevPage" class="btn-secondary" onclick="changePage(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span id="pageInfo" class="px-3 py-2 text-sm"></span>
+                            <button id="nextPage" class="btn-secondary" onclick="changePage(1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="imagesContainer" class="images-grid">
+                        <!-- Sample images -->
+                        <div class="image-item" onclick="addSampleImage('https://via.placeholder.com/300x300/3b82f6/ffffff?text=Sample+1')">
+                            <div style="color: #3b82f6; font-size: 14px;">Sample 1</div>
+                        </div>
+                        <div class="image-item" onclick="addSampleImage('https://via.placeholder.com/300x300/10b981/ffffff?text=Sample+2')">
+                            <div style="color: #10b981; font-size: 14px;">Sample 2</div>
+                        </div>
+                        <div class="image-item" onclick="addSampleImage('https://via.placeholder.com/300x300/ef4444/ffffff?text=Sample+3')">
+                            <div style="color: #ef4444; font-size: 14px;">Sample 3</div>
+                        </div>
+                        <div class="image-item" onclick="addSampleImage('https://via.placeholder.com/300x300/f59e0b/ffffff?text=Sample+4')">
+                            <div style="color: #f59e0b; font-size: 14px;">Sample 4</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Design Templates -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Design Templates</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <!-- Template Tabs -->
+                    <div class="tab-nav mb-3">
+                        <button class="tab-btn active" onclick="switchTab(this, 'pixabay-templates')">Pixabay</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'client-templates')">My Templates</button>
+                    </div>
+                    
+                    <!-- Pixabay Template Search -->
+                    <div id="pixabay-templates" class="tab-content active mb-4">
+                        <div class="mb-2">
+                            <span class="text-sm font-medium text-gray-700">Search Design Templates</span>
+                        </div>
+                        <input type="text" id="templateSearch" class="search-box" placeholder="Search for design templates..." onkeypress="if(event.key==='Enter') searchPixabayTemplates()">
+                        <button class="btn-secondary w-full mb-2" onclick="searchPixabayTemplates()">
+                            <i class="fas fa-search mr-2"></i>
+                            Search Templates
+                        </button>
+                        
+                        <!-- Template Filters -->
+                        <div class="flex gap-2 mb-3">
+                            <select id="templateType" class="property-input flex-1">
+                                <option value="all">All Types</option>
+                                <option value="vector">Vectors</option>
+                                <option value="illustration">Illustrations</option>
+                            </select>
+                            <select id="templateCategory" class="property-input flex-1">
+                                <option value="">All Categories</option>
+                                <option value="backgrounds">Backgrounds</option>
+                                <option value="business">Business</option>
+                                <option value="computer">Technology</option>
+                                <option value="education">Education</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="graphics">Graphics</option>
+                                <option value="industry">Industry</option>
+                                <option value="science">Science</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Popular Template Keywords -->
+                        <div class="mb-3">
+                            <div class="text-xs font-medium text-gray-600 mb-2">Popular Templates:</div>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchTemplateKeyword('business card')">Business Card</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchTemplateKeyword('flyer')">Flyer</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchTemplateKeyword('brochure')">Brochure</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchTemplateKeyword('poster')">Poster</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchTemplateKeyword('banner')">Banner</button>
+                                <button class="btn-secondary text-xs py-1 px-2" onclick="searchTemplateKeyword('logo')">Logo</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading indicator -->
+                        <div id="templateLoading" class="text-center text-sm text-gray-500 hidden">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Searching templates...
+                        </div>
+                        
+                        <!-- Template Results -->
+                        <div id="templateResults" class="images-grid mb-4"></div>
+                        
+                        <!-- Template Pagination -->
+                        <div id="templatePagination" class="flex justify-center gap-2 hidden">
+                            <button id="prevTemplatePage" class="btn-secondary" onclick="changeTemplatePage(-1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span id="templatePageInfo" class="px-3 py-2 text-sm"></span>
+                            <button id="nextTemplatePage" class="btn-secondary" onclick="changeTemplatePage(1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colors & Background -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Colors & Background</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab(this, 'solid-colors')">Colors</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'gradients')">Gradients</button>
+                    </div>
+                    
+                    <div id="solid-colors" class="tab-content active">
+                        <div class="color-grid">
+                            <div class="color-item active" style="background: #ffffff; border: 1px solid #e5e7eb;" data-color="#ffffff" onclick="selectColor('#ffffff')"></div>
+                            <div class="color-item" style="background: #000000;" data-color="#000000" onclick="selectColor('#000000')"></div>
+                            <div class="color-item" style="background: #3b82f6;" data-color="#3b82f6" onclick="selectColor('#3b82f6')"></div>
+                            <div class="color-item" style="background: #ef4444;" data-color="#ef4444" onclick="selectColor('#ef4444')"></div>
+                            <div class="color-item" style="background: #10b981;" data-color="#10b981" onclick="selectColor('#10b981')"></div>
+                            <div class="color-item" style="background: #f59e0b;" data-color="#f59e0b" onclick="selectColor('#f59e0b')"></div>
+                            <div class="color-item" style="background: #8b5cf6;" data-color="#8b5cf6" onclick="selectColor('#8b5cf6')"></div>
+                            <div class="color-item" style="background: #ec4899;" data-color="#ec4899" onclick="selectColor('#ec4899')"></div>
+                        </div>
+                        <input type="color" id="customColor" onchange="selectColor(this.value)">
+                    </div>
+                    
+                    <div id="gradients" class="tab-content">
+                        <div class="gradient-preview" style="background: linear-gradient(45deg, #3b82f6, #8b5cf6);" onclick="applyGradientBackground('linear-gradient(45deg, #3b82f6, #8b5cf6)')"></div>
+                        <div class="gradient-preview" style="background: linear-gradient(90deg, #ef4444, #f59e0b);" onclick="applyGradientBackground('linear-gradient(90deg, #ef4444, #f59e0b)')"></div>
+                        <div class="gradient-preview" style="background: linear-gradient(135deg, #10b981, #06b6d4);" onclick="applyGradientBackground('linear-gradient(135deg, #10b981, #06b6d4)')"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Area -->
+        <div class="main-area">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="flex items-center space-x-3">
+                    <button onclick="undo()" class="btn-secondary">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button onclick="redo()" class="btn-secondary">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <div class="h-6 w-px bg-gray-300"></div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="zoomOut()" class="btn-secondary">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <span id="zoomLevel" class="text-sm font-medium min-w-12 text-center">100%</span>
+                        <button onclick="zoomIn()" class="btn-secondary">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button onclick="fitToScreen()" class="btn-secondary">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                    </div>
+                    <div class="h-6 w-px bg-gray-300"></div>
+                    <button onclick="duplicateSelected()" class="btn-secondary">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button onclick="deleteSelected()" class="btn-secondary text-red-600">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleGrid()" class="btn-secondary" id="gridToggle">
+                        <i class="fas fa-th mr-1"></i>
+                        Grid
+                    </button>
+                    <div class="h-6 w-px bg-gray-300"></div>
+                    <button class="btn-secondary" onclick="saveDesign()">
+                        <i class="fas fa-save mr-2"></i>
+                        Save
+                    </button>
+                    <button class="btn-primary" onclick="exportDesign()">
+                        <i class="fas fa-download mr-2"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-container" id="canvasContainer">
+                <div class="canvas-wrapper">
+                    <div id="konva-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <!-- Properties Panel -->
+            <div class="properties-panel" id="propertiesPanel">
+                <div class="section-title mb-4">Element Properties</div>
+                <div id="elementProperties">
+                    <div class="property-row">
+                        <span class="text-sm font-medium">Width:</span>
+                        <input type="number" id="propWidth" class="property-input" onchange="updateSelectedElement()">
+                    </div>
+                    <div class="property-row">
+                        <span class="text-sm font-medium">Height:</span>
+                        <input type="number" id="propHeight" class="property-input" onchange="updateSelectedElement()">
+                    </div>
+                    <div class="property-row">
+                        <span class="text-sm font-medium">X Position:</span>
+                        <input type="number" id="propX" class="property-input" onchange="updateSelectedElement()">
+                    </div>
+                    <div class="property-row">
+                        <span class="text-sm font-medium">Y Position:</span>
+                        <input type="number" id="propY" class="property-input" onchange="updateSelectedElement()">
+                    </div>
+                    <div class="property-row">
+                        <span class="text-sm font-medium">Rotation:</span>
+                        <input type="number" id="propRotation" class="property-input" onchange="updateSelectedElement()">
+                    </div>
+                    <div class="property-row">
+                        <span class="text-sm font-medium">Opacity:</span>
+                        <input type="range" id="propOpacity" min="0" max="1" step="0.1" value="1" onchange="updateSelectedElement()" style="width: 80px;">
+                    </div>
+                    
+                    <!-- Text Properties -->
+                    <div id="textProperties" style="display: none;">
+                        <div class="property-row">
+                            <span class="text-sm font-medium">Font Size:</span>
+                            <input type="number" id="propFontSize" class="property-input" onchange="updateSelectedElement()">
+                        </div>
+                        <div class="property-row">
+                            <span class="text-sm font-medium">Font Family:</span>
+                            <select id="propFontFamily" class="property-input" style="width: 120px;" onchange="updateSelectedElement()">
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Verdana">Verdana</option>
+                            </select>
+                        </div>
+                        <div class="property-row">
+                            <span class="text-sm font-medium">Text Color:</span>
+                            <input type="color" id="propTextColor" onchange="updateSelectedElement()" style="width: 50px; height: 30px;">
+                        </div>
+                        <div class="flex gap-2 mb-3">
+                            <button id="boldBtn" class="btn-secondary flex-1" onclick="toggleTextStyle('bold')">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button id="italicBtn" class="btn-secondary flex-1" onclick="toggleTextStyle('italic')">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button id="underlineBtn" class="btn-secondary flex-1" onclick="toggleTextStyle('underline')">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Image Properties -->
+                    <div id="imageProperties" style="display: none;">
+                        <div class="property-row">
+                            <span class="text-sm font-medium">Filters:</span>
+                        </div>
+                        <div class="filter-grid">
+                            <button class="filter-btn" onclick="applyImageFilter('none')">Original</button>
+                            <button class="filter-btn" onclick="applyImageFilter('grayscale')">B&W</button>
+                            <button class="filter-btn" onclick="applyImageFilter('sepia')">Sepia</button>
+                            <button class="filter-btn" onclick="applyImageFilter('blur')">Blur</button>
+                            <button class="filter-btn" onclick="applyImageFilter('brightness')">Bright</button>
+                            <button class="filter-btn" onclick="applyImageFilter('contrast')">Contrast</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layers Panel -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Layers</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <div class="flex gap-2 mb-3">
+                        <button class="btn-secondary flex-1" onclick="moveLayerUp()">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <button class="btn-secondary flex-1" onclick="moveLayerDown()">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <button class="btn-secondary flex-1" onclick="duplicateSelected()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-secondary flex-1 text-red-600" onclick="deleteSelected()">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div id="layersList" class="layers-list">
+                        <!-- Layers will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animation Panel -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Animation</div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="section-content">
+                    <div class="filter-grid">
+                        <button class="filter-btn" onclick="addAnimation('fadeIn')">Fade In</button>
+                        <button class="filter-btn" onclick="addAnimation('slideIn')">Slide In</button>
+                        <button class="filter-btn" onclick="addAnimation('bounce')">Bounce</button>
+                        <button class="filter-btn" onclick="addAnimation('rotate')">Rotate</button>
+                        <button class="filter-btn" onclick="addAnimation('pulse')">Pulse</button>
+                        <button class="filter-btn" onclick="addAnimation('shake')">Shake</button>
+                    </div>
+                    <button class="btn-primary w-full mt-3" onclick="playAnimation()">
+                        <i class="fas fa-play mr-2"></i>
+                        Preview Animation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let stage, layer, backgroundLayer, gridLayer;
+        let currentTool = 'select';
+        let history = [];
+        let historyStep = -1;
+        let currentZoom = 1;
+        let selectedElement = null;
+        let gridVisible = false;
+        let transformer = null;
+        
+        // Settings
+        let currentColor = '#3b82f6';
+        let currentFont = 'Arial';
+        let currentFontSize = 24;
+        
+        // Pixabay API settings
+        let pixabayCurrentPage = 1;
+        let pixabayTotalHits = 0;
+        const pixabayPerPage = 12;
+        
+        // Template search settings
+        let templateCurrentPage = 1;
+        let templateTotalHits = 0;
+        const templatePerPage = 12;
+
+        // Initialize Konva
+        function initKonva() {
+            stage = new Konva.Stage({
+                container: 'konva-container',
+                width: 800,
+                height: 600,
+                draggable: false
+            });
+
+            // Create layers
+            backgroundLayer = new Konva.Layer();
+            layer = new Konva.Layer();
+            gridLayer = new Konva.Layer();
+            
+            stage.add(backgroundLayer);
+            stage.add(layer);
+            stage.add(gridLayer);
+
+            // Add background
+            const background = new Konva.Rect({
+                x: 0,
+                y: 0,
+                width: stage.width(),
+                height: stage.height(),
+                fill: 'white',
+                stroke: '#e5e7eb',
+                strokeWidth: 1,
+                name: 'background'
+            });
+            backgroundLayer.add(background);
+
+            // Add grid
+            addGrid();
+            
+            // Stage events
+            stage.on('click tap', function (e) {
+                if (e.target === stage || e.target.name() === 'background') {
+                    if (currentTool === 'text') {
+                        addTextAtPosition(stage.getPointerPosition());
+                    } else {
+                        clearSelection();
+                    }
+                    return;
+                }
+                selectElement(e.target);
+            });
+            
+            stage.draw();
+            saveState();
+            updateLayers();
+        }
+
+        // Grid functionality
+        function addGrid() {
+            gridLayer.destroyChildren();
+            
+            if (!gridVisible) return;
+
+            const gridSize = 20;
+            const width = stage.width();
+            const height = stage.height();
+
+            // Vertical lines
+            for (let i = 0; i <= width / gridSize; i++) {
+                const line = new Konva.Line({
+                    points: [i * gridSize, 0, i * gridSize, height],
+                    stroke: '#f1f5f9',
+                    strokeWidth: 1,
+                    listening: false
+                });
+                gridLayer.add(line);
+            }
+
+            // Horizontal lines
+            for (let i = 0; i <= height / gridSize; i++) {
+                const line = new Konva.Line({
+                    points: [0, i * gridSize, width, i * gridSize],
+                    stroke: '#f1f5f9',
+                    strokeWidth: 1,
+                    listening: false
+                });
+                gridLayer.add(line);
+            }
+            
+            gridLayer.draw();
+        }
+
+        function toggleGrid() {
+            gridVisible = !gridVisible;
+            addGrid();
+            document.getElementById('gridToggle').classList.toggle('active', gridVisible);
+        }
+
+        // Tool selection
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+        }
+
+        // Text functionality
+        function addText() {
+            addTextAtPosition({ x: stage.width() / 2 - 50, y: stage.height() / 2 - 10 });
+        }
+
+        function addTextAtPosition(pos) {
+            const text = new Konva.Text({
+                x: pos.x,
+                y: pos.y,
+                text: 'Click to edit text',
+                fontSize: currentFontSize,
+                fontFamily: currentFont,
+                fill: currentColor,
+                draggable: true,
+                name: 'text-element'
+            });
+
+            text.on('dblclick', () => editText(text));
+            text.on('dragend', saveState);
+            text.on('transform', saveState);
+
+            layer.add(text);
+            layer.draw();
+            saveState();
+            updateLayers();
+            selectElement(text);
+        }
+
+        function editText(textNode) {
+            const textPosition = textNode.absolutePosition();
+            const stageBox = stage.container().getBoundingClientRect();
+
+            // Create textarea
+            const textarea = document.createElement('textarea');
+            document.body.appendChild(textarea);
+
+            // Position and style textarea
+            textarea.value = textNode.text();
+            textarea.style.position = 'absolute';
+            textarea.style.top = (stageBox.top + textPosition.y) + 'px';
+            textarea.style.left = (stageBox.left + textPosition.x) + 'px';
+            textarea.style.width = Math.max(textNode.width(), 100) + 'px';
+            textarea.style.height = Math.max(textNode.height(), 50) + 'px';
+            textarea.style.fontSize = textNode.fontSize() + 'px';
+            textarea.style.fontFamily = textNode.fontFamily();
+            textarea.style.color = textNode.fill();
+            textarea.style.border = '2px solid #3b82f6';
+            textarea.style.borderRadius = '4px';
+            textarea.style.padding = '4px';
+            textarea.style.background = 'white';
+            textarea.style.outline = 'none';
+            textarea.style.resize = 'both';
+            textarea.style.zIndex = '10000';
+
+            textarea.focus();
+            textarea.select();
+
+            function finishEditing() {
+                textNode.text(textarea.value);
+                document.body.removeChild(textarea);
+                layer.draw();
+                saveState();
+                updateProperties();
+            }
+
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    finishEditing();
+                } else if (e.key === 'Escape') {
+                    document.body.removeChild(textarea);
+                }
+            });
+
+            textarea.addEventListener('blur', finishEditing);
+        }
+
+        // Shape functionality
+        function addShape(shapeType) {
+            let shape;
+            const centerX = stage.width() / 2;
+            const centerY = stage.height() / 2;
+
+            switch(shapeType) {
+                case 'rect':
+                    shape = new Konva.Rect({
+                        x: centerX - 60,
+                        y: centerY - 40,
+                        width: 120,
+                        height: 80,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'rect-element'
+                    });
+                    break;
+                
+                case 'circle':
+                    shape = new Konva.Circle({
+                        x: centerX,
+                        y: centerY,
+                        radius: 50,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'circle-element'
+                    });
+                    break;
+                
+                case 'triangle':
+                    shape = new Konva.RegularPolygon({
+                        x: centerX,
+                        y: centerY,
+                        sides: 3,
+                        radius: 50,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'triangle-element'
+                    });
+                    break;
+                
+                case 'star':
+                    shape = new Konva.Star({
+                        x: centerX,
+                        y: centerY,
+                        numPoints: 5,
+                        innerRadius: 25,
+                        outerRadius: 50,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'star-element'
+                    });
+                    break;
+            }
+
+            if (shape) {
+                shape.on('dragend', saveState);
+                shape.on('transform', saveState);
+                layer.add(shape);
+                layer.draw();
+                saveState();
+                updateLayers();
+                selectElement(shape);
+            }
+        }
+
+        function addArrow(direction) {
+            const centerX = stage.width() / 2;
+            const centerY = stage.height() / 2;
+            let points, rotation = 0;
+
+            switch(direction) {
+                case 'right':
+                    points = [centerX - 50, centerY, centerX + 30, centerY];
+                    break;
+                case 'left':
+                    points = [centerX + 50, centerY, centerX - 30, centerY];
+                    rotation = 180;
+                    break;
+                case 'up':
+                    points = [centerX, centerY + 50, centerX, centerY - 30];
+                    rotation = -90;
+                    break;
+                case 'down':
+                    points = [centerX, centerY - 50, centerX, centerY + 30];
+                    rotation = 90;
+                    break;
+            }
+
+            const arrow = new Konva.Arrow({
+                points: points,
+                pointerLength: 15,
+                pointerWidth: 15,
+                fill: currentColor,
+                stroke: currentColor,
+                strokeWidth: 4,
+                draggable: true,
+                rotation: rotation,
+                name: 'arrow-element'
+            });
+
+            arrow.on('dragend', saveState);
+            arrow.on('transform', saveState);
+            layer.add(arrow);
+            layer.draw();
+            saveState();
+            updateLayers();
+            selectElement(arrow);
+        }
+
+        function addIcon(iconType) {
+            const iconUnicodes = {
+                'phone': '\uf095',
+                'email': '\uf0e0',
+                'location': '\uf041',
+                'globe': '\uf0ac'
+            };
+
+            const icon = new Konva.Text({
+                x: stage.width() / 2 - 20,
+                y: stage.height() / 2 - 20,
+                text: iconUnicodes[iconType] || '\uf005',
+                fontSize: 40,
+                fontFamily: 'FontAwesome',
+                fill: currentColor,
+                draggable: true,
+                name: 'icon-element'
+            });
+
+            icon.on('dragend', saveState);
+            icon.on('transform', saveState);
+            layer.add(icon);
+            layer.draw();
+            saveState();
+            updateLayers();
+            selectElement(icon);
+        }
+
+        // Image functionality
+        function addSampleImage(imageUrl) {
+            addImageFromUrl(imageUrl);
+        }
+
+        function addImageFromUrl(imageUrl, width = 200, height = 200) {
+            const imageObj = new Image();
+            imageObj.crossOrigin = 'anonymous';
+            
+            imageObj.onload = function() {
+                const aspectRatio = imageObj.width / imageObj.height;
+                let finalWidth = width;
+                let finalHeight = height;
+                
+                if (aspectRatio > 1) {
+                    finalHeight = width / aspectRatio;
+                } else {
+                    finalWidth = height * aspectRatio;
+                }
+
+                const image = new Konva.Image({
+                    x: stage.width() / 2 - finalWidth / 2,
+                    y: stage.height() / 2 - finalHeight / 2,
+                    image: imageObj,
+                    width: finalWidth,
+                    height: finalHeight,
+                    draggable: true,
+                    name: 'image-element'
+                });
+
+                image.on('dragend', saveState);
+                image.on('transform', saveState);
+                layer.add(image);
+                layer.draw();
+                saveState();
+                updateLayers();
+                selectElement(image);
+            };
+            
+            imageObj.onerror = function() {
+                console.error('Failed to load image:', imageUrl);
+                alert('Failed to load image. Please try another image.');
+            };
+            
+            imageObj.src = imageUrl;
+        }
+
+        // File upload
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = e.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addImageFromUrl(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Selection and properties
+        function selectElement(element) {
+            if (!element || element.name() === 'background') return;
+
+            clearSelection();
+            selectedElement = element;
+
+            // Add transformer
+            transformer = new Konva.Transformer({
+                nodes: [element],
+                keepRatio: element.name().includes('image') || element.name().includes('icon'),
+                enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right', 'top-center', 'bottom-center']
+            });
+            
+            layer.add(transformer);
+            layer.draw();
+
+            updateProperties();
+            highlightLayerItem(element);
+        }
+
+        function clearSelection() {
+            selectedElement = null;
+            
+            if (transformer) {
+                transformer.destroy();
+                transformer = null;
+            }
+            
+            layer.draw();
+            clearLayerHighlight();
+        }
+
+        function updateProperties() {
+            if (!selectedElement) return;
+
+            // Update basic properties
+            document.getElementById('propWidth').value = Math.round(selectedElement.width() || selectedElement.radius() * 2 || 100);
+            document.getElementById('propHeight').value = Math.round(selectedElement.height() || selectedElement.radius() * 2 || 100);
+            document.getElementById('propX').value = Math.round(selectedElement.x());
+            document.getElementById('propY').value = Math.round(selectedElement.y());
+            document.getElementById('propRotation').value = Math.round(selectedElement.rotation());
+            document.getElementById('propOpacity').value = selectedElement.opacity() || 1;
+
+            // Show/hide specific properties
+            const textProps = document.getElementById('textProperties');
+            const imageProps = document.getElementById('imageProperties');
+            
+            textProps.style.display = 'none';
+            imageProps.style.display = 'none';
+
+            if (selectedElement.name().includes('text') || selectedElement.name().includes('icon')) {
+                textProps.style.display = 'block';
+                document.getElementById('propFontSize').value = selectedElement.fontSize() || 24;
+                document.getElementById('propFontFamily').value = selectedElement.fontFamily() || 'Arial';
+                document.getElementById('propTextColor').value = selectedElement.fill() || '#000000';
+            } else if (selectedElement.name().includes('image')) {
+                imageProps.style.display = 'block';
+            }
+        }
+
+        function updateSelectedElement() {
+            if (!selectedElement) return;
+
+            const width = parseFloat(document.getElementById('propWidth').value);
+            const height = parseFloat(document.getElementById('propHeight').value);
+            const x = parseFloat(document.getElementById('propX').value);
+            const y = parseFloat(document.getElementById('propY').value);
+            const rotation = parseFloat(document.getElementById('propRotation').value);
+            const opacity = parseFloat(document.getElementById('propOpacity').value);
+
+            selectedElement.x(x);
+            selectedElement.y(y);
+            selectedElement.rotation(rotation);
+            selectedElement.opacity(opacity);
+
+            if (selectedElement.name().includes('circle')) {
+                selectedElement.radius(width / 2);
+            } else if (selectedElement.width && selectedElement.height) {
+                selectedElement.width(width);
+                selectedElement.height(height);
+            }
+
+            // Update text properties
+            if (selectedElement.name().includes('text') || selectedElement.name().includes('icon')) {
+                const fontSize = parseFloat(document.getElementById('propFontSize').value);
+                const fontFamily = document.getElementById('propFontFamily').value;
+                const textColor = document.getElementById('propTextColor').value;
+
+                selectedElement.fontSize(fontSize);
+                selectedElement.fontFamily(fontFamily);
+                selectedElement.fill(textColor);
+            }
+
+            layer.draw();
+            saveState();
+        }
+
+        // Color and style functions
+        function selectColor(color) {
+            currentColor = color;
+            
+            // Update UI
+            document.querySelectorAll('.color-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-color="${color}"]`)?.classList.add('active');
+
+            // Apply to selected element
+            if (selectedElement) {
+                if (selectedElement.name().includes('text') || selectedElement.name().includes('icon')) {
+                    selectedElement.fill(color);
+                    document.getElementById('propTextColor').value = color;
+                } else {
+                    selectedElement.fill(color);
+                    if (selectedElement.stroke) {
+                        selectedElement.stroke(darkenColor(color, 20));
+                    }
+                }
+                layer.draw();
+                saveState();
+            }
+        }
+
+        function changeFont(fontFamily) {
+            currentFont = fontFamily;
+            
+            if (selectedElement && (selectedElement.name().includes('text') || selectedElement.name().includes('icon'))) {
+                selectedElement.fontFamily(fontFamily);
+                document.getElementById('propFontFamily').value = fontFamily;
+                layer.draw();
+                saveState();
+            }
+        }
+
+        function changeFontSize(size) {
+            currentFontSize = size;
+            
+            // Update UI
+            document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (selectedElement && (selectedElement.name().includes('text') || selectedElement.name().includes('icon'))) {
+                selectedElement.fontSize(size);
+                document.getElementById('propFontSize').value = size;
+                layer.draw();
+                saveState();
+            }
+        }
+
+        function toggleTextStyle(style) {
+            if (!selectedElement || (!selectedElement.name().includes('text') && !selectedElement.name().includes('icon'))) return;
+
+            switch(style) {
+                case 'bold':
+                    const currentWeight = selectedElement.fontStyle() || 'normal';
+                    selectedElement.fontStyle(currentWeight === 'bold' ? 'normal' : 'bold');
+                    break;
+                case 'italic':
+                    const currentStyle = selectedElement.fontStyle() || 'normal';
+                    selectedElement.fontStyle(currentStyle === 'italic' ? 'normal' : 'italic');
+                    break;
+                case 'underline':
+                    const currentDecoration = selectedElement.textDecoration() || 'none';
+                    selectedElement.textDecoration(currentDecoration === 'underline' ? 'none' : 'underline');
+                    break;
+            }
+            
+            layer.draw();
+            saveState();
+        }
+
+        // Background functions
+        function applyGradientBackground(gradient) {
+            const background = backgroundLayer.findOne('Rect');
+            if (background) {
+                // For simplicity, we'll just change the fill color to the first color in the gradient
+                const colors = gradient.match(/#[a-fA-F0-9]{6}/g);
+                if (colors && colors.length > 0) {
+                    background.fill(colors[0]);
+                    backgroundLayer.draw();
+                    saveState();
+                }
+            }
+        }
+
+        // Utility functions
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace("#",""), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + 
+                   (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + 
+                   (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        }
+
+        // Layer management
+        function updateLayers() {
+            const layersList = document.getElementById('layersList');
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            ).reverse();
+            
+            layersList.innerHTML = '';
+
+            objects.forEach((obj, index) => {
+                const layerItem = document.createElement('div');
+                layerItem.className = 'layer-item';
+                layerItem.innerHTML = `
+                    <i class="fas fa-${getObjectIcon(obj.name())} layer-icon"></i>
+                    <span class="layer-name">${getObjectName(obj)}</span>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="layer-action" onclick="toggleObjectVisibility(${objects.length - 1 - index})">
+                            <i class="fas fa-${obj.visible() !== false ? 'eye' : 'eye-slash'}"></i>
+                        </button>
+                        <button class="layer-action" onclick="deleteObject(${objects.length - 1 - index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                layerItem.addEventListener('click', (e) => {
+                    if (!e.target.closest('.layer-action')) {
+                        selectElement(obj);
+                    }
+                });
+
+                layersList.appendChild(layerItem);
+            });
+        }
+
+        function getObjectIcon(name) {
+            if (name.includes('text')) return 'font';
+            if (name.includes('image')) return 'image';
+            if (name.includes('rect')) return 'square';
+            if (name.includes('circle')) return 'circle';
+            if (name.includes('star')) return 'star';
+            if (name.includes('triangle')) return 'play';
+            if (name.includes('arrow')) return 'arrow-right';
+            if (name.includes('icon')) return 'icons';
+            return 'square';
+        }
+
+        function getObjectName(obj) {
+            if (obj.name().includes('text')) {
+                const text = obj.text() || 'Text';
+                return text.length > 15 ? text.substring(0, 15) + '...' : text;
+            }
+            return obj.name().replace('-element', '').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
+
+        function highlightLayerItem(element) {
+            clearLayerHighlight();
+            const layers = document.querySelectorAll('.layer-item');
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            ).reverse();
+            const index = objects.indexOf(element);
+            if (layers[index]) {
+                layers[index].classList.add('active');
+            }
+        }
+
+        function clearLayerHighlight() {
+            document.querySelectorAll('.layer-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        function toggleObjectVisibility(index) {
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            );
+            const obj = objects[index];
+            if (obj) {
+                obj.visible(!obj.visible());
+                layer.draw();
+                updateLayers();
+                saveState();
+            }
+        }
+
+        function deleteObject(index) {
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            );
+            const obj = objects[index];
+            if (obj) {
+                if (obj === selectedElement) {
+                    clearSelection();
+                }
+                obj.destroy();
+                layer.draw();
+                updateLayers();
+                saveState();
+            }
+        }
+
+        function moveLayerUp() {
+            if (!selectedElement) return;
+            selectedElement.moveUp();
+            layer.draw();
+            updateLayers();
+            saveState();
+        }
+
+        function moveLayerDown() {
+            if (!selectedElement) return;
+            selectedElement.moveDown();
+            layer.draw();
+            updateLayers();
+            saveState();
+        }
+
+        // History management
+        function saveState() {
+            history = history.slice(0, historyStep + 1);
+            const state = stage.toJSON();
+            history.push(state);
+            historyStep++;
+            
+            if (history.length > 50) {
+                history.shift();
+                historyStep--;
+            }
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                restoreState();
+            }
+        }
+
+        function redo() {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                restoreState();
+            }
+        }
+
+        function restoreState() {
+            clearSelection();
+            stage.destroy();
+            stage = Konva.Node.create(history[historyStep], 'konva-container');
+            backgroundLayer = stage.children[0];
+            layer = stage.children[1];
+            gridLayer = stage.children[2] || new Konva.Layer();
+            if (!stage.children[2]) {
+                stage.add(gridLayer);
+            }
+            addGrid();
+            updateLayers();
+        }
+
+        // Zoom controls
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            stage.scale({ x: currentZoom, y: currentZoom });
+            stage.draw();
+            updateZoomLevel();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.2);
+            stage.scale({ x: currentZoom, y: currentZoom });
+            stage.draw();
+            updateZoomLevel();
+        }
+
+        function fitToScreen() {
+            currentZoom = 1;
+            stage.scale({ x: 1, y: 1 });
+            stage.position({ x: 0, y: 0 });
+            stage.draw();
+            updateZoomLevel();
+        }
+
+        function updateZoomLevel() {
+            document.getElementById('zoomLevel').textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        // Animation functions
+        function addAnimation(animationType) {
+            if (!selectedElement) {
+                alert('Please select an element first');
+                return;
+            }
+
+            selectedElement.animationType = animationType;
+            
+            // Visual feedback
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function playAnimation() {
+            if (!selectedElement || !selectedElement.animationType) {
+                alert('Please select an element and add an animation first');
+                return;
+            }
+
+            const originalX = selectedElement.x();
+            const originalY = selectedElement.y();
+            const originalScaleX = selectedElement.scaleX() || 1;
+            const originalScaleY = selectedElement.scaleY() || 1;
+            const originalRotation = selectedElement.rotation();
+            const originalOpacity = selectedElement.opacity() || 1;
+
+            switch(selectedElement.animationType) {
+                case 'fadeIn':
+                    selectedElement.opacity(0);
+                    selectedElement.to({
+                        opacity: originalOpacity,
+                        duration: 1,
+                        easing: Konva.Easings.EaseInOut
+                    });
+                    break;
+                
+                case 'slideIn':
+                    selectedElement.x(originalX - 100);
+                    selectedElement.to({
+                        x: originalX,
+                        duration: 0.8,
+                        easing: Konva.Easings.BackEaseOut
+                    });
+                    break;
+                
+                case 'bounce':
+                    selectedElement.to({
+                        scaleX: originalScaleX * 1.2,
+                        scaleY: originalScaleY * 1.2,
+                        duration: 0.3,
+                        easing: Konva.Easings.ElasticEaseOut,
+                        onFinish: () => {
+                            selectedElement.to({
+                                scaleX: originalScaleX,
+                                scaleY: originalScaleY,
+                                duration: 0.3,
+                                easing: Konva.Easings.ElasticEaseOut
+                            });
+                        }
+                    });
+                    break;
+                
+                case 'rotate':
+                    selectedElement.to({
+                        rotation: originalRotation + 360,
+                        duration: 1,
+                        easing: Konva.Easings.EaseInOut,
+                        onFinish: () => {
+                            selectedElement.rotation(originalRotation);
+                        }
+                    });
+                    break;
+                
+                case 'pulse':
+                    selectedElement.to({
+                        scaleX: originalScaleX * 1.2,
+                        scaleY: originalScaleY * 1.2,
+                        duration: 0.5,
+                        easing: Konva.Easings.EaseInOut,
+                        onFinish: () => {
+                            selectedElement.to({
+                                scaleX: originalScaleX,
+                                scaleY: originalScaleY,
+                                duration: 0.5,
+                                easing: Konva.Easings.EaseInOut
+                            });
+                        }
+                    });
+                    break;
+                
+                case 'shake':
+                    const shakeDistance = 10;
+                    let shakeCount = 0;
+                    const maxShakes = 6;
+                    
+                    function shake() {
+                        if (shakeCount < maxShakes) {
+                            selectedElement.to({
+                                x: originalX + (shakeCount % 2 === 0 ? shakeDistance : -shakeDistance),
+                                duration: 0.1,
+                                onFinish: () => {
+                                    shakeCount++;
+                                    shake();
+                                }
+                            });
+                        } else {
+                            selectedElement.to({
+                                x: originalX,
+                                duration: 0.1
+                            });
+                        }
+                    }
+                    shake();
+                    break;
+            }
+        }
+
+        // Image filter functions
+        function applyImageFilter(filterType) {
+            if (!selectedElement || !selectedElement.name().includes('image')) {
+                alert('Please select an image first');
+                return;
+            }
+
+            // Clear existing filters
+            selectedElement.filters([]);
+            
+            switch(filterType) {
+                case 'none':
+                    break;
+                case 'grayscale':
+                    selectedElement.filters([Konva.Filters.Grayscale]);
+                    break;
+                case 'sepia':
+                    selectedElement.filters([Konva.Filters.Sepia]);
+                    break;
+                case 'blur':
+                    selectedElement.filters([Konva.Filters.Blur]);
+                    selectedElement.blurRadius(3);
+                    break;
+                case 'brightness':
+                    selectedElement.filters([Konva.Filters.Brighten]);
+                    selectedElement.brightness(0.3);
+                    break;
+                case 'contrast':
+                    selectedElement.filters([Konva.Filters.Contrast]);
+                    selectedElement.contrast(20);
+                    break;
+            }
+            
+            selectedElement.cache();
+            layer.draw();
+            
+            // Update UI
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            saveState();
+        }
+
+        // Delete and duplicate functions
+        function deleteSelected() {
+            if (selectedElement) {
+                selectedElement.destroy();
+                clearSelection();
+                layer.draw();
+                updateLayers();
+                saveState();
+            }
+        }
+
+        function duplicateSelected() {
+            if (selectedElement) {
+                const clone = selectedElement.clone({
+                    x: selectedElement.x() + 20,
+                    y: selectedElement.y() + 20
+                });
+                layer.add(clone);
+                layer.draw();
+                updateLayers();
+                saveState();
+                selectElement(clone);
+            }
+        }
+
+        // Export and save functions
+        function exportDesign() {
+            const dataURL = stage.toDataURL({
+                pixelRatio: 2,
+                mimeType: 'image/png',
+                quality: 1
+            });
+            const link = document.createElement('a');
+            link.download = 'design.png';
+            link.href = dataURL;
+            link.click();
+        }
+
+        function saveDesign() {
+            const json = stage.toJSON();
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = 'design.json';
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            // Also save to localStorage for auto-save
+            try {
+                localStorage.setItem('canva_design_autosave', json);
+            } catch(e) {
+                console.warn('Could not save to localStorage:', e);
+            }
+        }
+
+        // Load design from localStorage on startup
+        function loadAutoSave() {
+            try {
+                const saved = localStorage.getItem('canva_design_autosave');
+                if (saved && confirm('Found auto-saved design. Would you like to restore it?')) {
+                    stage.destroy();
+                    stage = Konva.Node.create(saved, 'konva-container');
+                    backgroundLayer = stage.children[0];
+                    layer = stage.children[1];
+                    gridLayer = stage.children[2] || new Konva.Layer();
+                    if (!stage.children[2]) {
+                        stage.add(gridLayer);
+                    }
+                    addGrid();
+                    updateLayers();
+                    saveState();
+                }
+            } catch(e) {
+                console.warn('Could not load auto-save:', e);
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(() => {
+            try {
+                const json = stage.toJSON();
+                localStorage.setItem('canva_design_autosave', json);
+            } catch(e) {
+                console.warn('Auto-save failed:', e);
+            }
+        }, 30000);
+
+        // UI helper functions
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('collapsed');
+            const icon = header.querySelector('i');
+            icon.style.transform = section.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0deg)';
+        }
+
+        function switchTab(btn, tabId) {
+            // Update button states
+            btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update content visibility
+            const container = btn.closest('.section-content');
+            container.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'z':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            redo();
+                        } else {
+                            undo();
+                        }
+                        break;
+                    case 'y':
+                        e.preventDefault();
+                        redo();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveDesign();
+                        break;
+                    case 'd':
+                        e.preventDefault();
+                        duplicateSelected();
+                        break;
+                }
+            } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedElement && !document.activeElement.matches('input, textarea')) {
+                    e.preventDefault();
+                    deleteSelected();
+                }
+            } else if (!document.activeElement.matches('input, textarea')) {
+                // Arrow keys for movement
+                if (selectedElement) {
+                    const moveDistance = e.shiftKey ? 10 : 1;
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            selectedElement.x(selectedElement.x() - moveDistance);
+                            layer.draw();
+                            updateProperties();
+                            saveState();
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            selectedElement.x(selectedElement.x() + moveDistance);
+                            layer.draw();
+                            updateProperties();
+                            saveState();
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            selectedElement.y(selectedElement.y() - moveDistance);
+                            layer.draw();
+                            updateProperties();
+                            saveState();
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            selectedElement.y(selectedElement.y() + moveDistance);
+                            layer.draw();
+                            updateProperties();
+                            saveState();
+                            break;
+                    }
+                }
+            }
+        });
+
+        // Pixabay API Functions
+        async function searchPixabayImages() {
+            const query = document.getElementById('pixabaySearch').value.trim();
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            pixabayCurrentPage = 1;
+            await fetchPixabayImages(query);
+        }
+        
+        async function fetchPixabayImages(query) {
+            const imageType = document.getElementById('imageType').value;
+            const category = document.getElementById('imageCategory').value;
+            const loading = document.getElementById('pixabayLoading');
+            const results = document.getElementById('pixabayResults');
+            const pagination = document.getElementById('pixabayPagination');
+            
+            try {
+                loading.classList.remove('hidden');
+                results.innerHTML = '';
+                pagination.classList.add('hidden');
+                
+                // Build API URL for backend endpoint
+                let apiUrl = `/design-tool/api/search/pixabay/?q=${encodeURIComponent(query)}`;
+                apiUrl += `&page=${pixabayCurrentPage}`;
+                apiUrl += `&per_page=${pixabayPerPage}`;
+                
+                if (imageType !== 'all') {
+                    apiUrl += `&image_type=${imageType}`;
+                }
+                
+                if (category) {
+                    apiUrl += `&category=${category}`;
+                }
+                
+                const response = await fetch(apiUrl);
+                const responseData = await response.json();
+                
+                if (responseData.success && responseData.data.hits.length > 0) {
+                    pixabayTotalHits = responseData.data.totalHits;
+                    displayPixabayResults(responseData.data.hits);
+                    setupPagination(query);
+                } else {
+                    results.innerHTML = '<div class="text-center text-gray-500 py-4">No images found. Try different keywords.</div>';
+                }
+                
+            } catch (error) {
+                console.error('Pixabay search error:', error);
+                results.innerHTML = '<div class="text-center text-red-500 py-4">Error searching images. Please try again.</div>';
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+        
+        function displayPixabayResults(images) {
+            const results = document.getElementById('pixabayResults');
+            results.innerHTML = '';
+            
+            images.forEach(image => {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'image-item';
+                imageDiv.title = `${image.tags} - ${image.user}`;
+                
+                const img = document.createElement('img');
+                img.src = image.webformatURL;
+                img.alt = image.tags;
+                img.loading = 'lazy';
+                
+                imageDiv.appendChild(img);
+                imageDiv.onclick = () => addPixabayImage(image);
+                
+                results.appendChild(imageDiv);
+            });
+        }
+        
+        function addPixabayImage(imageData) {
+            // Use the larger image for better quality
+            const imageUrl = imageData.largeImageURL || imageData.webformatURL;
+            addImageFromUrl(imageUrl, 300, 300);
+            
+            // Show attribution info (optional)
+            console.log(`Image by ${imageData.user} from Pixabay`);
+        }
+        
+        function setupPagination(query) {
+            const pagination = document.getElementById('pixabayPagination');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            
+            const totalPages = Math.ceil(pixabayTotalHits / pixabayPerPage);
+            
+            if (totalPages > 1) {
+                pagination.classList.remove('hidden');
+                pageInfo.textContent = `${pixabayCurrentPage} / ${totalPages}`;
+                
+                prevBtn.disabled = pixabayCurrentPage <= 1;
+                nextBtn.disabled = pixabayCurrentPage >= totalPages;
+                
+                prevBtn.style.opacity = prevBtn.disabled ? '0.5' : '1';
+                nextBtn.style.opacity = nextBtn.disabled ? '0.5' : '1';
+            }
+        }
+        
+        async function changePage(direction) {
+            const query = document.getElementById('pixabaySearch').value.trim();
+            if (!query) return;
+            
+            const newPage = pixabayCurrentPage + direction;
+            const totalPages = Math.ceil(pixabayTotalHits / pixabayPerPage);
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                pixabayCurrentPage = newPage;
+                await fetchPixabayImages(query);
+            }
+        }
+        
+        // Template Search Functions
+        async function searchPixabayTemplates() {
+            const query = document.getElementById('templateSearch').value.trim();
+            templateCurrentPage = 1;
+            await fetchPixabayTemplates(query);
+        }
+        
+        async function searchTemplateKeyword(keyword) {
+            document.getElementById('templateSearch').value = keyword;
+            templateCurrentPage = 1;
+            await fetchPixabayTemplates(keyword);
+        }
+        
+        async function fetchPixabayTemplates(query) {
+            const templateType = document.getElementById('templateType').value;
+            const category = document.getElementById('templateCategory').value;
+            const loading = document.getElementById('templateLoading');
+            const results = document.getElementById('templateResults');
+            const pagination = document.getElementById('templatePagination');
+            
+            try {
+                loading.classList.remove('hidden');
+                results.innerHTML = '';
+                pagination.classList.add('hidden');
+                
+                // Build API URL for template endpoint
+                let apiUrl = `/design-tool/api/search/pixabay-templates/?q=${encodeURIComponent(query || '')}`;
+                apiUrl += `&page=${templateCurrentPage}`;
+                apiUrl += `&per_page=${templatePerPage}`;
+                
+                if (templateType !== 'all') {
+                    apiUrl += `&template_type=${templateType}`;
+                }
+                
+                if (category) {
+                    apiUrl += `&category=${category}`;
+                }
+                
+                const response = await fetch(apiUrl);
+                const responseData = await response.json();
+                
+                if (responseData.success && responseData.data.hits.length > 0) {
+                    templateTotalHits = responseData.data.totalHits;
+                    displayTemplateResults(responseData.data.hits);
+                    setupTemplatePagination(query);
+                } else {
+                    results.innerHTML = '<div class="text-center text-gray-500 py-4">No templates found. Try different keywords.</div>';
+                }
+                
+            } catch (error) {
+                console.error('Template search error:', error);
+                results.innerHTML = '<div class="text-center text-red-500 py-4">Error searching templates. Please try again.</div>';
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+        
+        function displayTemplateResults(templates) {
+            const results = document.getElementById('templateResults');
+            results.innerHTML = '';
+            
+            templates.forEach(template => {
+                const templateDiv = document.createElement('div');
+                templateDiv.className = 'image-item template-item';
+                templateDiv.title = `${template.tags} - ${template.user} - ${template.aspectRatio} ratio${template.isVector ? ' (Vector)' : ''}`;
+                
+                const img = document.createElement('img');
+                img.src = template.webformatURL;
+                img.alt = template.tags;
+                img.loading = 'lazy';
+                
+                // Add template type indicator
+                const typeIndicator = document.createElement('div');
+                typeIndicator.className = 'absolute top-1 right-1 text-xs px-2 py-1 bg-blue-500 text-white rounded';
+                typeIndicator.textContent = template.isVector ? 'Vector' : 'Template';
+                templateDiv.style.position = 'relative';
+                
+                templateDiv.appendChild(img);
+                templateDiv.appendChild(typeIndicator);
+                templateDiv.onclick = () => useTemplate(template);
+                
+                results.appendChild(templateDiv);
+            });
+        }
+        
+        function useTemplate(templateData) {
+            if (confirm('This will replace your current canvas with this template. Continue?')) {
+                // Clear current canvas
+                clearCanvas();
+                
+                // Add template as background image
+                const imageUrl = templateData.largeImageURL || templateData.webformatURL;
+                addTemplateAsBackground(imageUrl, templateData);
+            }
+        }
+        
+        function clearCanvas() {
+            // Clear all elements except background
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            );
+            objects.forEach(obj => obj.destroy());
+            
+            clearSelection();
+            layer.draw();
+            updateLayers();
+            saveState();
+        }
+        
+        function addTemplateAsBackground(imageUrl, templateData) {
+            const imageObj = new Image();
+            imageObj.crossOrigin = 'anonymous';
+            
+            imageObj.onload = function() {
+                // Calculate size to fit canvas while maintaining aspect ratio
+                const canvasWidth = stage.width();
+                const canvasHeight = stage.height();
+                const imageAspect = imageObj.width / imageObj.height;
+                const canvasAspect = canvasWidth / canvasHeight;
+                
+                let finalWidth, finalHeight;
+                
+                if (imageAspect > canvasAspect) {
+                    finalWidth = canvasWidth;
+                    finalHeight = canvasWidth / imageAspect;
+                } else {
+                    finalHeight = canvasHeight;
+                    finalWidth = canvasHeight * imageAspect;
+                }
+                
+                // Position to center
+                const x = (canvasWidth - finalWidth) / 2;
+                const y = (canvasHeight - finalHeight) / 2;
+                
+                const templateImage = new Konva.Image({
+                    x: x,
+                    y: y,
+                    image: imageObj,
+                    width: finalWidth,
+                    height: finalHeight,
+                    draggable: true,
+                    name: 'template-background'
+                });
+
+                templateImage.on('dragend', saveState);
+                templateImage.on('transform', saveState);
+                
+                // Add to layer (it will appear above the white background)
+                layer.add(templateImage);
+                layer.draw();
+                saveState();
+                updateLayers();
+                
+                // Auto-select the template for easy adjustment
+                selectElement(templateImage);
+                
+                console.log(`Template by ${templateData.user} from Pixabay added`);
+            };
+            
+            imageObj.onerror = function() {
+                console.error('Failed to load template:', imageUrl);
+                alert('Failed to load template. Please try another one.');
+            };
+            
+            imageObj.src = imageUrl;
+        }
+        
+        function setupTemplatePagination(query) {
+            const pagination = document.getElementById('templatePagination');
+            const pageInfo = document.getElementById('templatePageInfo');
+            const prevBtn = document.getElementById('prevTemplatePage');
+            const nextBtn = document.getElementById('nextTemplatePage');
+            
+            const totalPages = Math.ceil(templateTotalHits / templatePerPage);
+            
+            if (totalPages > 1) {
+                pagination.classList.remove('hidden');
+                pageInfo.textContent = `${templateCurrentPage} / ${totalPages}`;
+                
+                prevBtn.disabled = templateCurrentPage <= 1;
+                nextBtn.disabled = templateCurrentPage >= totalPages;
+                
+                prevBtn.style.opacity = prevBtn.disabled ? '0.5' : '1';
+                nextBtn.style.opacity = nextBtn.disabled ? '0.5' : '1';
+            }
+        }
+        
+        async function changeTemplatePage(direction) {
+            const query = document.getElementById('templateSearch').value.trim();
+            
+            const newPage = templateCurrentPage + direction;
+            const totalPages = Math.ceil(templateTotalHits / templatePerPage);
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                templateCurrentPage = newPage;
+                await fetchPixabayTemplates(query);
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initKonva();
+            
+            // Load auto-save after a short delay
+            setTimeout(loadAutoSave, 500);
+        });
+    </script>
+</body>
+</html>
