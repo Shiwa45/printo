@@ -777,3 +777,139 @@ def my_designs_view(request):
     }
     
     return render(request, 'design_tool/my_designs.html', context)
+
+
+@require_http_methods(["GET"])
+def get_database_templates_api(request):
+    """Get templates from database instead of Pixabay"""
+    try:
+        category = request.GET.get('category', '')
+        search = request.GET.get('q', '')
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 12))
+        
+        # Start with all active templates
+        templates = DesignTemplate.objects.filter(status='active')
+        
+        # Filter by category if specified
+        if category:
+            templates = templates.filter(category__slug=category)
+        
+        # Filter by search term
+        if search:
+            templates = templates.filter(
+                Q(name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(tags__contains=[search])
+            )
+        
+        # Get total count
+        total_count = templates.count()
+        
+        # Apply pagination
+        start = (page - 1) * per_page
+        end = start + per_page
+        templates = templates[start:end]
+        
+        # Format results similar to Pixabay API
+        results = {
+            'total': total_count,
+            'totalHits': total_count,
+            'hits': []
+        }
+        
+        for template in templates:
+            # Use preview image if available, otherwise use a placeholder
+            preview_url = template.preview_image.url if template.preview_image else '/static/design_tool/placeholder-template.png'
+            large_url = template.template_file.url if template.template_file else preview_url
+            
+            results['hits'].append({
+                'id': str(template.id),
+                'webformatURL': preview_url,
+                'largeImageURL': large_url,
+                'templateFileURL': template.template_file.url if template.template_file else '',
+                'tags': ', '.join(template.tags) if template.tags else template.name,
+                'user': template.uploaded_by.username if template.uploaded_by else 'System',
+                'user_id': template.uploaded_by.id if template.uploaded_by else 0,
+                'name': template.name,
+                'description': template.description,
+                'category': template.category.name,
+                'width': template.width,
+                'height': template.height,
+                'is_premium': template.is_premium,
+                'is_featured': template.is_featured,
+                'template_data': template.template_data,
+                'imageWidth': int(template.width * 3.78),  # Convert mm to px
+                'imageHeight': int(template.height * 3.78),
+                'webformatWidth': int(template.width * 3.78),
+                'webformatHeight': int(template.height * 3.78)
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'data': results,
+            'source': 'database'
+        })
+        
+    except Exception as e:
+        logger.error(f"Database templates API error: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        })
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def upload_template_file_api(request):
+    """Upload template file from user's computer"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Authentication required'})
+    
+    try:
+        if 'template_file' not in request.FILES:
+            return JsonResponse({'success': False, 'message': 'No file provided'})
+        
+        uploaded_file = request.FILES['template_file']
+        
+        # Validate file type
+        allowed_extensions = ['.svg', '.json']
+        file_extension = uploaded_file.name.lower().split('.')[-1]
+        if f'.{file_extension}' not in allowed_extensions:
+            return JsonResponse({'success': False, 'message': 'Only SVG and JSON files are allowed'})
+        
+        # Create a temporary template record
+        template_name = request.POST.get('name', uploaded_file.name.replace(f'.{file_extension}', ''))
+        
+        # For now, we'll return the file data for immediate use
+        file_content = uploaded_file.read()
+        
+        if file_extension == 'svg':
+            # For SVG files, return the SVG content
+            file_data = file_content.decode('utf-8')
+            return JsonResponse({
+                'success': True,
+                'template': {
+                    'name': template_name,
+                    'type': 'svg',
+                    'data': file_data,
+                    'source': 'user_upload'
+                }
+            })
+        elif file_extension == 'json':
+            # For JSON files, parse and return the canvas data
+            import json
+            canvas_data = json.loads(file_content.decode('utf-8'))
+            return JsonResponse({
+                'success': True,
+                'template': {
+                    'name': template_name,
+                    'type': 'json',
+                    'data': canvas_data,
+                    'source': 'user_upload'
+                }
+            })
+        
+    except Exception as e:
+        logger.error(f"Template upload error: {e}")
+        return JsonResponse({'success': False, 'message': str(e)})

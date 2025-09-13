@@ -26,6 +26,10 @@ urlpatterns = [
     path('api/upload/asset/', views.upload_asset_api, name='upload_asset_api'),
     path('api/assets/', views.get_user_assets_api, name='get_user_assets_api'),
     
+    # Database templates and local upload APIs
+    path('api/database-templates/', views.get_database_templates_api, name='get_database_templates_api'),
+    path('api/upload-template/', views.upload_template_file_api, name='upload_template_file_api'),
+    
     # Order integration
     path('api/finalize-and-order/', views.finalize_and_order_view, name='finalize_and_order'),
     

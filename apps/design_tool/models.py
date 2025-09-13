@@ -9,6 +9,7 @@ User = settings.AUTH_USER_MODEL
 
 class DesignTemplate(models.Model):
     """Enhanced design templates with SVG support"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, related_name='design_templates')
     product_types = models.JSONField(default=list, help_text="Which products can use this template")
@@ -32,6 +33,12 @@ class DesignTemplate(models.Model):
     width = models.FloatField(help_text="Width in mm")
     height = models.FloatField(help_text="Height in mm")
     dpi = models.IntegerField(default=300)
+    
+    # Print specifications
+    bleed_mm = models.FloatField(default=3.0, help_text="Bleed area in mm")
+    safe_area_mm = models.FloatField(default=5.0, help_text="Safe area margin in mm")
+    min_font_size = models.FloatField(default=6.0, help_text="Minimum font size in pt")
+    description = models.TextField(blank=True)
     
     COLOR_MODES = [
         ('RGB', 'RGB'),
@@ -86,6 +93,7 @@ class DesignTemplate(models.Model):
 
 class UserDesign(models.Model):
     """User saved designs with order integration"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='designs')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     template = models.ForeignKey(DesignTemplate, on_delete=models.SET_NULL, null=True, blank=True)
@@ -118,6 +126,7 @@ class UserDesign(models.Model):
 
 class DesignAsset(models.Model):
     """User uploaded assets like images, fonts, graphics"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='design_assets')
     name = models.CharField(max_length=255)
     asset_file = models.FileField(upload_to='design_assets/')

@@ -30,6 +30,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
@@ -251,3 +252,55 @@ FREE_IMAGE_APIS = {
         'attribution_required': True,
     },
 }
+
+
+
+
+# Add this to your INSTALLED_APPS in settings.py
+
+LOCAL_APPS = [
+    'apps.core',
+    'apps.users',
+    'apps.products',
+    'apps.orders',
+    'apps.design_tool',
+    'apps.pricing',
+    'apps.services',
+    'apps.api',  # Add this new app
+]
+
+# Update CORS settings for React development
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React dev server
+    "http://localhost:4000",  # react-design-editor default port
+]
+
+# For development, you can also use:
+CORS_ALLOW_ALL_ORIGINS = True  # Only for development!
+
+# Add these to REST_FRAMEWORK settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ]
+}
+
+# Add django-filter to THIRD_PARTY_APPS if not already there
+THIRD_PARTY_APPS = [
+    'rest_framework',
+    'corsheaders',
+    'django_filters',  # Add this if not present
+    'crispy_forms',
+    'crispy_bootstrap5',
+]

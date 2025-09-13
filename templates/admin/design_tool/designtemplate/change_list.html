@@ -1,0 +1,52 @@
+{% extends "admin/change_list.html" %}
+{% load admin_urls static admin_list %}
+
+{% block content_title %}
+    <h1>{{ title }}</h1>
+    <div class="object-tools">
+        <a href="{% url 'admin:design_tool_designtemplate_bulk_upload' %}" class="btn btn-success" style="background-color: #28a745; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; margin-right: 10px;">
+            <i class="fas fa-upload"></i> Bulk Upload Templates
+        </a>
+        <a href="{% url 'admin:design_tool_designtemplate_add' %}" class="addlink">Add Design Template</a>
+    </div>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid transparent;
+            font-size: 14px;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+        }
+        
+        .btn-success {
+            color: #fff;
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        .btn-success:hover {
+            color: #fff;
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        
+        .object-tools {
+            float: right;
+            margin-left: 20px;
+            margin-top: -2.2em;
+        }
+        
+        .object-tools li {
+            display: inline-block;
+            margin-left: 5px;
+        }
+    </style>
+{% endblock %}
