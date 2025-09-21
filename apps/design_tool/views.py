@@ -73,6 +73,22 @@ def template_list_view(request):
 
 def design_editor_view(request, product_slug):
     """Enhanced design editor with Konva.js"""
+    
+    # Handle legacy/common slug redirects
+    slug_redirects = {
+        'business-cards': 'business-cards-premium',
+        'business-card': 'business-cards-premium',
+        'brochures': 'brochures-design',
+        'brochure': 'brochures-design',
+        'flyers': 'flyer',
+        'letterheads': 'letter-heads',
+        'letterhead': 'letter-heads',
+        'stickers': 'sticker',
+    }
+    
+    if product_slug in slug_redirects:
+        return redirect('design_tool:editor', product_slug=slug_redirects[product_slug])
+    
     product = get_object_or_404(Product, slug=product_slug, design_tool_enabled=True)
     
     # Get templates for this product category
@@ -145,13 +161,18 @@ def get_canvas_dimensions_for_product(product):
 @require_http_methods(["POST"])
 @csrf_exempt
 def save_design_api(request):
-    """Enhanced save design with preview generation"""
+    """Enhanced save design with preview generation and front/back support"""
     try:
         data = json.loads(request.body)
         
         product_id = data.get('product_id')
         design_name = data.get('name', 'Untitled Design')
-        design_data = data.get('design_data')
+        
+        # Handle both legacy and new design data formats
+        design_type = data.get('design_type', 'single')
+        design_data = data.get('design_data')  # Legacy single-sided data
+        front_design_data = data.get('front_design_data')
+        back_design_data = data.get('back_design_data')
         
         if not request.user.is_authenticated:
             return JsonResponse({
@@ -162,54 +183,114 @@ def save_design_api(request):
         
         product = get_object_or_404(Product, id=product_id, design_tool_enabled=True)
         
+        # Validate design data based on type
+        if design_type == 'single' and not design_data:
+            return JsonResponse({
+                'success': False,
+                'message': 'Single-sided designs must have design data'
+            })
+        elif design_type == 'front_only' and not front_design_data:
+            return JsonResponse({
+                'success': False,
+                'message': 'Front-only designs must have front design data'
+            })
+        elif design_type == 'back_only' and not back_design_data:
+            return JsonResponse({
+                'success': False,
+                'message': 'Back-only designs must have back design data'
+            })
+        elif design_type == 'both_sides' and (not front_design_data or not back_design_data):
+            return JsonResponse({
+                'success': False,
+                'message': 'Both-sides designs must have both front and back design data'
+            })
+        
         # Create or update design
         design_id = data.get('design_id')
         if design_id:
             try:
                 design = get_object_or_404(UserDesign, id=design_id, user=request.user)
-                design.design_data = design_data
                 design.name = design_name
+                design.design_type = design_type
+                design.design_data = design_data
+                design.front_design_data = front_design_data
+                design.back_design_data = back_design_data
             except:
                 # Create new if not found
                 design = UserDesign.objects.create(
                     user=request.user,
                     product=product,
                     name=design_name,
-                    design_data=design_data
+                    design_type=design_type,
+                    design_data=design_data,
+                    front_design_data=front_design_data,
+                    back_design_data=back_design_data
                 )
         else:
             design = UserDesign.objects.create(
                 user=request.user,
                 product=product,
                 name=design_name,
-                design_data=design_data
+                design_type=design_type,
+                design_data=design_data,
+                front_design_data=front_design_data,
+                back_design_data=back_design_data
             )
         
-        # Generate preview using renderer service
+        # Generate previews based on design type
+        preview_urls = {}
         try:
-            preview_file = design_renderer.generate_preview(design_data)
-            design.preview_image.save(
-                f'preview_{design.id}_{uuid.uuid4().hex[:8]}.jpg',
-                preview_file,
-                save=False
-            )
+            if design_type == 'single' and design_data:
+                preview_file = design_renderer.generate_preview(design_data)
+                design.preview_image.save(
+                    f'preview_{design.id}_{uuid.uuid4().hex[:8]}.jpg',
+                    preview_file,
+                    save=False
+                )
+                preview_urls['main'] = design.preview_image.url
+            
+            if design_type in ['front_only', 'both_sides'] and front_design_data:
+                front_preview_file = design_renderer.generate_preview(front_design_data)
+                design.front_preview_image.save(
+                    f'front_preview_{design.id}_{uuid.uuid4().hex[:8]}.jpg',
+                    front_preview_file,
+                    save=False
+                )
+                preview_urls['front'] = design.front_preview_image.url
+            
+            if design_type in ['back_only', 'both_sides'] and back_design_data:
+                back_preview_file = design_renderer.generate_preview(back_design_data)
+                design.back_preview_image.save(
+                    f'back_preview_{design.id}_{uuid.uuid4().hex[:8]}.jpg',
+                    back_preview_file,
+                    save=False
+                )
+                preview_urls['back'] = design.back_preview_image.url
+                
         except Exception as e:
             logger.warning(f"Could not generate preview: {e}")
         
         design.save()
         
         # Save to history for undo/redo
+        history_data = {
+            'type': design_type,
+            'design_data': design_data,
+            'front_design_data': front_design_data,
+            'back_design_data': back_design_data
+        }
+        
         DesignHistory.objects.create(
             design=design,
-            action='save_design',
-            canvas_state=design_data
+            design_data=history_data
         )
         
         return JsonResponse({
             'success': True,
             'design_id': str(design.id),
+            'design_type': design_type,
             'message': 'Design saved successfully!',
-            'preview_url': design.preview_image.url if design.preview_image else None
+            'preview_urls': preview_urls
         })
         
     except Exception as e:
@@ -534,6 +615,48 @@ def upload_asset_api(request):
 
 
 @require_http_methods(["GET"])
+def get_canvas_config_api(request):
+    """Get canvas configuration for a product category"""
+    try:
+        category = request.GET.get('category', 'business-cards')
+        
+        # Canvas dimensions based on category
+        dimensions = {
+            'business-cards': {'width': 89, 'height': 54},
+            'brochures': {'width': 210, 'height': 297},  # A4
+            'flyers': {'width': 210, 'height': 297},     # A4
+            'letter-heads': {'width': 210, 'height': 297}, # A4
+            'stickers': {'width': 100, 'height': 100},   # Square default
+            'bill-book': {'width': 148, 'height': 210},  # A5
+        }
+        
+        dims = dimensions.get(category, dimensions['business-cards'])
+        
+        # Convert mm to pixels at 300 DPI
+        dpi = 300
+        mm_to_px = dpi / 25.4
+        
+        config = {
+            'width_mm': dims['width'],
+            'height_mm': dims['height'],
+            'width_px': int(dims['width'] * mm_to_px),
+            'height_px': int(dims['height'] * mm_to_px),
+            'dpi': dpi,
+            'color_mode': 'CMYK',
+            'bleed_mm': 3.0,
+            'safe_area_mm': 5.0
+        }
+        
+        return JsonResponse({
+            'success': True,
+            'config': config
+        })
+        
+    except Exception as e:
+        logger.error(f"Get canvas config error: {e}")
+        return JsonResponse({'success': False, 'message': str(e)})
+
+@require_http_methods(["GET"])
 def get_user_assets_api(request):
     """Get user's uploaded assets"""
     if not request.user.is_authenticated:
@@ -599,19 +722,54 @@ def get_template_data(request, template_id):
 
 @require_http_methods(["GET"])
 def get_design_data(request, design_id):
-    """Get user design data for loading in editor"""
+    """Get user design data for loading in editor with front/back support"""
     if not request.user.is_authenticated:
         return JsonResponse({'success': False, 'message': 'Authentication required'})
     
     try:
         design = get_object_or_404(UserDesign, id=design_id, user=request.user)
-        return JsonResponse({
+        
+        # Prepare response data based on design type
+        response_data = {
             'success': True,
-            'design_data': design.design_data,
             'name': design.name,
             'design_id': str(design.id),
-            'product_id': design.product.id
-        })
+            'product_id': design.product.id,
+            'design_type': design.design_type
+        }
+        
+        # Add design data based on type
+        if design.design_type == 'single':
+            # Legacy single-sided design
+            response_data['design_data'] = design.design_data
+        else:
+            # New front/back design format
+            response_data['front_design_data'] = design.front_design_data
+            response_data['back_design_data'] = design.back_design_data
+            
+            # For backward compatibility, also include legacy format
+            response_data['design_data'] = design.get_design_data()
+        
+        # Add preview URLs
+        preview_urls = {}
+        if design.preview_image:
+            preview_urls['main'] = design.preview_image.url
+        if design.front_preview_image:
+            preview_urls['front'] = design.front_preview_image.url
+        if design.back_preview_image:
+            preview_urls['back'] = design.back_preview_image.url
+        
+        response_data['preview_urls'] = preview_urls
+        
+        # Add product information
+        response_data['product'] = {
+            'id': design.product.id,
+            'name': design.product.name,
+            'front_back_enabled': design.product.front_back_design_enabled
+        }
+        
+        return JsonResponse(response_data)
+        
     except Exception as e:
         logger.error(f"Get design data error: {e}")
         return JsonResponse({'success': False, 'message': str(e)})
@@ -859,6 +1017,82 @@ def get_database_templates_api(request):
         })
 
 
+@require_http_methods(["GET"])
+def get_templates_for_product_api(request, product_id):
+    """Get templates for a specific product, grouped by side"""
+    try:
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Get templates for this product category
+        templates_query = DesignTemplate.objects.filter(
+            status='active',
+            category=product.category
+        ).order_by('-is_featured', '-usage_count', 'name')
+        
+        # Group templates by side
+        templates = {
+            'front': [],
+            'back': [],
+            'single': []
+        }
+        
+        for template in templates_query:
+            template_data = {
+                'id': str(template.id),
+                'name': template.name,
+                'side': template.side,
+                'template_data': template.template_data,
+                'preview_url': template.preview_image.url if template.preview_image else None,
+                'thumbnail_url': template.thumbnail_image.url if template.thumbnail_image else None,
+                'width_mm': template.width,
+                'height_mm': template.height,
+                'dpi': template.dpi,
+                'color_mode': template.color_mode,
+                'bleed_mm': template.bleed_mm,
+                'safe_area_mm': template.safe_area_mm,
+                'is_premium': template.is_premium,
+                'is_featured': template.is_featured,
+                'tags': template.tags
+            }
+            
+            templates[template.side].append(template_data)
+        
+        # Determine available design options based on templates
+        available_options = []
+        if templates['front']:
+            available_options.append('front_only')
+        if templates['back']:
+            available_options.append('back_only')
+        if templates['front'] and templates['back']:
+            available_options.append('both_sides')
+        if templates['single']:
+            available_options.append('single')
+        
+        return JsonResponse({
+            'success': True,
+            'templates': templates,
+            'front_back_enabled': product.front_back_design_enabled,
+            'available_options': available_options,
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'category': product.category.name if product.category else None
+            }
+        })
+        
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Product not found'
+        }, status=404)
+    except Exception as e:
+        logger.error(f"Get templates for product error: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+
 @require_http_methods(["POST"])
 @csrf_exempt
 def upload_template_file_api(request):
@@ -913,3 +1147,134 @@ def upload_template_file_api(request):
     except Exception as e:
         logger.error(f"Template upload error: {e}")
         return JsonResponse({'success': False, 'message': str(e)})
+
+
+@require_http_methods(["GET"])
+def get_templates_for_product_api(request, product_id):
+    """Get templates grouped by side for a specific product"""
+    try:
+        product = get_object_or_404(Product, id=product_id, design_tool_enabled=True)
+        
+        # Initialize template groups
+        templates = {
+            'front': [],
+            'back': [],
+            'single': []
+        }
+        
+        # Get templates for this product's category
+        product_templates = DesignTemplate.objects.filter(
+            status='active',
+            category=product.category
+        ).order_by('-is_featured', '-usage_count', 'name')
+        
+        # Group templates by side
+        for template in product_templates:
+            template_data = {
+                'id': str(template.id),
+                'name': template.name,
+                'side': template.side,
+                'template_data': template.template_data,
+                'preview_url': template.preview_image.url if template.preview_image else None,
+                'thumbnail_url': template.thumbnail_image.url if template.thumbnail_image else None,
+                'width_mm': template.width,
+                'height_mm': template.height,
+                'dpi': template.dpi,
+                'bleed_mm': template.bleed_mm,
+                'safe_area_mm': template.safe_area_mm,
+                'tags': template.tags,
+                'is_premium': template.is_premium,
+                'is_featured': template.is_featured
+            }
+            
+            templates[template.side].append(template_data)
+        
+        return JsonResponse({
+            'success': True,
+            'templates': templates,
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'front_back_enabled': product.front_back_design_enabled,
+                'has_front_templates': len(templates['front']) > 0,
+                'has_back_templates': len(templates['back']) > 0,
+                'has_single_templates': len(templates['single']) > 0
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Get templates for product error: {e}")
+        return JsonResponse({
+            'success': False, 
+            'message': str(e),
+            'templates': {'front': [], 'back': [], 'single': []}
+        })
+
+
+@require_http_methods(["GET"])
+def get_design_options_for_product_api(request, product_id):
+    """Get available design options for a product"""
+    try:
+        product = get_object_or_404(Product, id=product_id, design_tool_enabled=True)
+        
+        if not product.front_back_design_enabled:
+            return JsonResponse({
+                'success': True,
+                'design_options': ['single'],
+                'default_option': 'single',
+                'front_back_enabled': False
+            })
+        
+        # Check what templates are available
+        has_front = DesignTemplate.objects.filter(
+            category=product.category,
+            side='front',
+            status='active'
+        ).exists()
+        
+        has_back = DesignTemplate.objects.filter(
+            category=product.category,
+            side='back',
+            status='active'
+        ).exists()
+        
+        # Determine available options
+        options = []
+        default_option = 'single'
+        
+        if has_front:
+            options.append('front_only')
+            default_option = 'front_only'
+        
+        if has_back:
+            options.append('back_only')
+            if not has_front:
+                default_option = 'back_only'
+        
+        if has_front and has_back:
+            options.append('both_sides')
+            default_option = 'both_sides'
+        
+        # Fallback to single if no front/back templates
+        if not options:
+            options = ['single']
+            default_option = 'single'
+        
+        return JsonResponse({
+            'success': True,
+            'design_options': options,
+            'default_option': default_option,
+            'front_back_enabled': product.front_back_design_enabled,
+            'has_front_templates': has_front,
+            'has_back_templates': has_back
+        })
+        
+    except Exception as e:
+        logger.error(f"Get design options error: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e),
+            'design_options': ['single'],
+            'default_option': 'single',
+            'front_back_enabled': False
+        })

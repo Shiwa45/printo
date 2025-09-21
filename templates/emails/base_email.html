@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .email-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .email-body {
+            padding: 30px 20px;
+        }
+        .email-footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .order-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .order-item {
+            border-bottom: 1px solid #e9ecef;
+            padding: 10px 0;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .total-row {
+            font-weight: 600;
+            font-size: 18px;
+            color: #3b82f6;
+        }
+        .contact-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #10b981;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .email-header, .email-body, .email-footer {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>{% block header %}{{ site_name }}{% endblock %}</h1>
+        </div>
+        
+        <div class="email-body">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="email-footer">
+            {% block footer %}
+                <p>
+                    <strong>{{ site_name }}</strong><br>
+                    Professional Printing Services<br>
+                    Email: {{ support_email }}<br>
+                    Website: <a href="{{ site_url }}">{{ site_url }}</a>
+                </p>
+                <p style="font-size: 12px; color: #999;">
+                    This email was sent automatically. Please do not reply to this email.
+                </p>
+            {% endblock %}
+        </div>
+    </div>
+</body>
+</html>

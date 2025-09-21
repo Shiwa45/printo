@@ -15,6 +15,7 @@ urlpatterns = [
     path('orders/', include('apps.orders.urls')),
     path('users/', include('apps.users.urls')),
     path('design-tool/', include('apps.design_tool.urls')),
+    path('api/pricing/', include('apps.pricing.urls')),
 
     
     # API endpoints (v1)

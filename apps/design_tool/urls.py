@@ -10,12 +10,15 @@ urlpatterns = [
     # Template management
     path('templates/', views.template_list_view, name='templates'),
     path('api/template/<uuid:template_id>/data/', views.get_template_data, name='template_data'),
+    path('api/product/<int:product_id>/templates/', views.get_templates_for_product_api, name='get_templates_for_product_api'),
+    path('api/product/<int:product_id>/design-options/', views.get_design_options_for_product_api, name='get_design_options_for_product_api'),
     
     # User design management
     path('my-designs/', views.my_designs_view, name='my_designs'),
     path('api/design/<uuid:design_id>/data/', views.get_design_data, name='design_data'),
     
     # API endpoints for design operations
+    path('api/canvas-config/', views.get_canvas_config_api, name='canvas_config_api'),
     path('api/save/', views.save_design_api, name='save_design_api'),
     path('api/export/', views.export_design_api, name='export_design_api'),
     

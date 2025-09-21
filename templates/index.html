@@ -574,90 +574,70 @@ Drishthi Printing - Professional Quality Custom Printing
 <!-- Hero Slider Section -->
 <section id="home" class="hero-slider pt-32">
     <div class="slider-container relative overflow-hidden" style="min-height: 70vh;">
-        <!-- Slide 1 -->
-        <div class="hero-slide active" data-slide="1">
-            <div class="hero bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 flex items-center" style="min-height: 70vh;">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <span class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Professional Printing Services</span>
-                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
-                                Quality Custom
-                                <span class="text-gray-700">Printing Solutions</span>
-                            </h1>
-                            <p class="text-lg text-gray-600 mt-6 max-w-lg">
-                                Transform your ideas into premium printed materials that leave a lasting impression on your customers.
-                            </p>
-                            <div class="mt-8">
-                                <a href="{% url 'products:list' %}" class="btn-primary mr-4">Get Started</a>
-                                <a href="{% url 'home:about' %}" class="text-gray-700 font-semibold">View Portfolio</a>
+        {% with slides=hero_slides %}
+        {% if slides and slides|length > 0 %}
+            {% for slide in slides %}
+            <div class="hero-slide {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.counter }}">
+                <div class="hero bg-gradient-to-br {{ slide.background_gradient_from }} {{ slide.background_gradient_via }} {{ slide.background_gradient_to }} flex items-center" style="min-height: 70vh;">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div>
+                                {% if slide.subtitle %}
+                                <span class="text-gray-700 font-semibold text-sm tracking-wide uppercase">{{ slide.subtitle }}</span>
+                                {% endif %}
+                                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
+                                    {{ slide.title }}
+                                </h1>
+                                {% if slide.description %}
+                                <p class="text-lg text-gray-700 mt-6 max-w-lg">
+                                    {{ slide.description }}
+                                </p>
+                                {% endif %}
+                                <div class="mt-8 space-x-4">
+                                    {% if slide.primary_cta_text and slide.primary_cta_url %}
+                                        <a href="{{ slide.primary_cta_url }}" class="btn-primary">{{ slide.primary_cta_text }}</a>
+                                    {% endif %}
+                                    {% if slide.secondary_cta_text and slide.secondary_cta_url %}
+                                        <a href="{{ slide.secondary_cta_url }}" class="text-gray-800 font-semibold">{{ slide.secondary_cta_text }}</a>
+                                    {% endif %}
+                                </div>
                             </div>
-                        </div>
-                        <div class="relative">
-                            <img src="{% static 'images/hero-book.png' %}" alt="Printing Services" class="w-full max-w-lg mx-auto" width="500" height="500">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 2 -->
-        <div class="hero-slide" data-slide="2">
-            <div class="hero bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 flex items-center" style="min-height: 70vh;">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <span class="text-blue-600 font-semibold text-sm tracking-wide uppercase">Business Cards & More</span>
-                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
-                                Professional
-                                <span class="text-blue-700">Business Cards</span>
-                            </h1>
-                            <p class="text-lg text-gray-600 mt-6 max-w-lg">
-                                Make a lasting first impression with our premium business cards. Multiple finishes and paper options available.
-                            </p>
-                            <div class="mt-8">
-                                <a href="{% url 'products:business_cards' %}" class="btn-primary mr-4">Order Cards</a>
-                                <a href="{% url 'products:business_cards' %}" class="text-gray-700 font-semibold">See Samples</a>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <img src="{% static 'images/business-cards.svg' %}" alt="Business Cards" class="w-full max-w-lg mx-auto" width="500" height="500">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="hero-slide" data-slide="3">
-            <div class="hero bg-gradient-to-br from-green-100 via-green-200 to-green-300 flex items-center" style="min-height: 70vh;">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <span class="text-green-600 font-semibold text-sm tracking-wide uppercase">Free Design Service</span>
-                            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">
-                                No Design?
-                                <span class="text-green-700">No Problem!</span>
-                            </h1>
-                            <p class="text-lg text-gray-600 mt-6 max-w-lg">
-                                Our expert design team creates stunning, professional designs tailored to your brand at no extra cost.
-                            </p>
-                            <div class="mt-8">
-                                <a href="{% url 'home:contact' %}" class="btn-primary mr-4">Get Free Design</a>
-                                <a href="{% url 'home:about' %}" class="text-gray-700 font-semibold">Learn More</a>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <img src="{% static 'images/feature-color-customize.svg' %}" alt="Design Team" class="w-full max-w-lg mx-auto" width="500" height="500">
-                            <div class="absolute -bottom-4 -right-4 bg-green-600 text-white p-3 rounded-lg shadow-lg">
-                                <div class="text-xl font-bold">FREE</div>
-                                <div class="text-xs">Design</div>
+                            <div class="relative">
+                                {% if slide.image %}
+                                    <img src="{{ slide.image.url }}" alt="{{ slide.title }}" class="w-full max-w-lg mx-auto" width="500" height="500">
+                                {% else %}
+                                    <img src="{% static 'images/hero-book.png' %}" alt="{{ slide.title }}" class="w-full max-w-lg mx-auto" width="500" height="500">
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            {% endfor %}
+        {% else %}
+            <!-- Fallback: one default slide when no admin slides exist -->
+            <div class="hero-slide active" data-slide="1">
+                <div class="hero bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 flex items-center" style="min-height: 70vh;">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                            <div>
+                                <span class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Professional Printing Services</span>
+                                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mt-4 leading-tight">Quality Custom Printing Solutions</h1>
+                                <p class="text-lg text-gray-600 mt-6 max-w-lg">Transform your ideas into premium printed materials that leave a lasting impression.</p>
+                                <div class="mt-8">
+                                    <a href="{% url 'services:services_directory' %}" class="btn-primary mr-4">Get Started</a>
+                                    <a href="{% url 'home:about' %}" class="text-gray-700 font-semibold">View Portfolio</a>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <img src="{% static 'images/hero-book.png' %}" alt="Printing Services" class="w-full max-w-lg mx-auto" width="500" height="500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% endwith %}
 
         <!-- Navigation Arrows -->
         <button class="slider-btn prev-btn" id="prevBtn">
@@ -673,9 +653,16 @@ Drishthi Printing - Professional Quality Custom Printing
 
         <!-- Dots Indicator -->
         <div class="slider-dots">
-            <span class="dot active" data-slide="1"></span>
-            <span class="dot" data-slide="2"></span>
-            <span class="dot" data-slide="3"></span>
+            {% with count=hero_slides|length %}
+                {% if count and count > 0 %}
+                    {% for i in "123456789"|slice:":"|add:count|stringformat:"s" %}{% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% for slide in hero_slides %}
+                <span class="dot {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.counter }}"></span>
+            {% empty %}
+                <span class="dot active" data-slide="1"></span>
+            {% endfor %}
         </div>
     </div>
 </section>
@@ -751,10 +738,47 @@ Drishthi Printing - Professional Quality Custom Printing
                                 <span class="feature-item">✓ Professional Finish</span>
                             {% endif %}
                         </div>
-                        <a href="{% url 'products:detail' product.category.slug product.slug %}" class="card-button">
-                            <span>Explore {{ product.name }}</span>
-                            <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
-                        </a>
+                        {% if product.slug == 'book-printing' %}
+                            <a href="{% url 'services:services_directory' %}#book-printing" class="card-button">
+                                <span>Explore Book Printing</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% elif product.slug == 'business-cards-premium' or product.slug == 'business-card-printing' %}
+                            <a href="{% url 'services:business_cards' %}" class="card-button">
+                                <span>Explore Business Cards</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% elif product.category.slug == 'brochures' %}
+                            <a href="{% url 'services:brochures' %}" class="card-button">
+                                <span>Explore {{ product.category.name }}</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% elif product.category.slug == 'flyers' %}
+                            <a href="{% url 'services:flyers' %}" class="card-button">
+                                <span>Explore {{ product.category.name }}</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% elif product.category.slug == 'posters' %}
+                            <a href="{% url 'services:poster' %}" class="card-button">
+                                <span>Explore {{ product.category.name }}</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% elif product.category.slug == 'stickers' %}
+                            <a href="{% url 'services:sticker' %}" class="card-button">
+                                <span>Explore {{ product.category.name }}</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% elif product.category.slug == 'letterheads' %}
+                            <a href="{% url 'services:letter_head' %}" class="card-button">
+                                <span>Explore {{ product.category.name }}</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'services:services_directory' %}" class="card-button">
+                                <span>Explore {{ product.category.name }}</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -907,14 +931,14 @@ Drishthi Printing - Professional Quality Custom Printing
                                 <span class="feature">✓ Professional Finish</span>
                             {% endif %}
                         </div>
-                        {% if 'business' in product.name|lower or 'letter' in product.name|lower or 'bill' in product.name|lower or 'sticker' in product.name|lower or 'brochure' in product.name|lower or 'flyer' in product.name|lower %}
-                            <a href="{% url 'design_tool:editor' product.slug %}" class="design-button">
-                                <span class="button-text">Design Now</span>
+                        {% if product.design_tool_enabled %}
+                            <a href="{% url 'services:business_cards' %}" class="design-button">
+                                <span class="button-text">Start Designing</span>
                                 <i class="fas fa-palette button-icon"></i>
                             </a>
                         {% else %}
-                            <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
-                                <span class="button-text">View Details</span>
+                            <a href="{% url 'services:services_directory' %}" class="design-button">
+                                <span class="button-text">Explore {{ product.category.name }}</span>
                                 <i class="fas fa-arrow-right button-icon"></i>
                             </a>
                         {% endif %}
@@ -990,14 +1014,14 @@ Drishthi Printing - Professional Quality Custom Printing
                                 <span class="feature">✓ Professional Finish</span>
                             {% endif %}
                         </div>
-                        {% if 'business' in product.name|lower or 'letter' in product.name|lower or 'bill' in product.name|lower or 'sticker' in product.name|lower or 'brochure' in product.name|lower or 'flyer' in product.name|lower %}
-                            <a href="{% url 'design_tool:editor' product.slug %}" class="design-button">
-                                <span class="button-text">Design Now</span>
+                        {% if product.design_tool_enabled %}
+                            <a href="{% url 'services:business_cards' %}" class="design-button">
+                                <span class="button-text">Start Designing</span>
                                 <i class="fas fa-palette button-icon"></i>
                             </a>
                         {% else %}
-                            <a href="{% url 'products:detail' product.category.slug product.slug %}" class="design-button">
-                                <span class="button-text">View Details</span>
+                            <a href="{% url 'services:services_directory' %}" class="design-button">
+                                <span class="button-text">Explore {{ product.category.name }}</span>
                                 <i class="fas fa-arrow-right button-icon"></i>
                             </a>
                         {% endif %}

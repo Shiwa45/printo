@@ -14,19 +14,19 @@ class DesignTemplateAdmin(admin.ModelAdmin):
     form = DesignTemplateAdminForm
     
     list_display = [
-        'name', 'category', 'template_preview', 'tags_display', 'status', 'is_featured', 
+        'name', 'category', 'side', 'template_preview', 'tags_display', 'status', 'is_featured', 
         'usage_count', 'uploaded_by', 'upload_date'
     ]
     list_filter = [
-        'status', 'is_featured', 'is_premium', 'category', 'color_mode', 'upload_date'
+        'status', 'side', 'is_featured', 'is_premium', 'category', 'color_mode', 'upload_date'
     ]
     search_fields = ['name', 'tags', 'category__name']
     list_editable = ['status', 'is_featured']
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'category', 'description'),
-            'description': 'Enter basic template information'
+            'fields': ('name', 'category', 'side', 'description'),
+            'description': 'Enter basic template information and specify which side this template is for'
         }),
         ('Content & Categorization', {
             'fields': ('tags', 'product_types'),
@@ -162,22 +162,33 @@ class DesignTemplateAdmin(admin.ModelAdmin):
         updated = queryset.update(status='inactive')
         messages.success(request, f'{updated} templates deactivated.')
     make_inactive.short_description = "Deactivate selected templates"
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        
+        # Add help text for side field
+        if 'side' in form.base_fields:
+            form.base_fields['side'].help_text = (
+                'Select which side this template is for. Use "Single Side" for backward compatibility with existing products.'
+            )
+        
+        return form
 
 @admin.register(UserDesign)
 class UserDesignAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 'user', 'product', 'design_preview', 'is_ready_for_print', 
+        'name', 'user', 'product', 'design_type', 'design_preview', 'is_ready_for_print', 
         'is_ordered', 'order_count', 'last_modified'
     ]
     list_filter = [
-        'is_ready_for_print', 'is_ordered', 'is_favorite', 'product__category', 'last_modified'
+        'design_type', 'is_ready_for_print', 'is_ordered', 'is_favorite', 'product__category', 'last_modified'
     ]
     search_fields = ['name', 'user__username', 'user__email', 'product__name']
     readonly_fields = ['design_preview_large', 'created_at', 'last_modified']
     
     fieldsets = (
         ('Design Information', {
-            'fields': ('name', 'user', 'product', 'template')
+            'fields': ('name', 'user', 'product', 'template', 'design_type')
         }),
         ('Preview', {
             'fields': ('design_preview_large',),
@@ -189,8 +200,9 @@ class UserDesignAdmin(admin.ModelAdmin):
             'fields': ('is_favorite', 'is_ready_for_print', 'is_ordered', 'order_count'),
         }),
         ('Technical Data', {
-            'fields': ('design_data',),
+            'fields': ('design_data', 'front_design_data', 'back_design_data'),
             'classes': ('collapse',),
+            'description': 'Canvas data for different design types. Legacy designs use design_data, new designs use front/back fields.'
         })
     )
     

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Products - Drishthi Printing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .category-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .featured-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .bestseller-badge {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+        
+        .design-tool-indicator {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .search-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .filter-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-purple-600">Drishthi Printing</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="/" class="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="/products/" class="text-purple-600 px-3 py-2 rounded-md text-sm font-medium">Products</a>
+                        <a href="/design-tool/" class="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">Design Tool</a>
+                        <a href="/contact/" class="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="search-container py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                Our Products
+            </h1>
+            <p class="text-xl text-white opacity-90 mb-8 max-w-3xl mx-auto">
+                Discover our comprehensive range of printing services and design tools. 
+                From business cards to books, we've got everything you need.
+            </p>
+            
+            <!-- Search Bar -->
+            <div class="max-w-2xl mx-auto">
+                <div class="relative">
+                    <input type="text" 
+                           id="productSearch" 
+                           placeholder="Search products..." 
+                           class="w-full px-6 py-4 pr-12 rounded-full text-lg focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50">
+                    <button onclick="searchProducts()" 
+                            class="absolute right-2 top-2 bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+            <i class="fas fa-th-large mr-2 text-purple-500"></i>Product Categories
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for category in categories %}
+            <a href="/products/category/{{ category.slug }}/" 
+               class="category-card rounded-2xl p-8 text-white text-center hover:no-underline">
+                <div class="text-4xl mb-4">
+                    {% if category.icon %}
+                        <i class="{{ category.icon }}"></i>
+                    {% else %}
+                        <i class="fas fa-box"></i>
+                    {% endif %}
+                </div>
+                <h3 class="text-2xl font-bold mb-2">{{ category.name }}</h3>
+                <p class="text-white opacity-90">{{ category.description|truncatewords:15 }}</p>
+                <div class="mt-4 text-sm opacity-75">
+                    {{ category.product_count }} products
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    <div class="bg-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+                <i class="fas fa-star mr-2 text-yellow-500"></i>Featured Products
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for product in featured_products %}
+                <div class="product-card rounded-2xl overflow-hidden shadow-lg">
+                    <div class="relative">
+                        <div class="aspect-square bg-gray-100">
+                            {% if product.images.first %}
+                                <img src="{{ product.images.first.image.url }}" 
+                                     alt="{{ product.name }}" 
+                                     class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fas fa-image text-4xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Badges -->
+                        <div class="absolute top-4 left-4 flex flex-col space-y-2">
+                            {% if product.featured %}
+                            <span class="featured-badge px-3 py-1 rounded-full text-white text-xs font-semibold">
+                                <i class="fas fa-star mr-1"></i>Featured
+                            </span>
+                            {% endif %}
+                            {% if product.bestseller %}
+                            <span class="bestseller-badge px-3 py-1 rounded-full text-orange-800 text-xs font-semibold">
+                                <i class="fas fa-trophy mr-1"></i>Bestseller
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if product.design_tool_enabled %}
+                        <div class="absolute top-4 right-4">
+                            <span class="design-tool-indicator px-3 py-1 rounded-full text-white text-xs font-semibold">
+                                <i class="fas fa-palette mr-1"></i>Design Tool
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">{{ product.name }}</h3>
+                        <p class="text-gray-600 mb-4">{{ product.short_description|truncatewords:15 }}</p>
+                        
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-2xl font-bold text-purple-600">₹{{ product.base_price }}</span>
+                            <span class="text-sm text-gray-500">{{ product.category.name }}</span>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <a href="/products/category/{{ product.category.slug }}/{{ product.slug }}/" 
+                               class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-center font-medium hover:bg-gray-200 transition-colors">
+                                View Details
+                            </a>
+                            {% if product.design_tool_enabled %}
+                            <a href="/design-tool/enhanced-editor/?product={{ product.slug }}&category={{ product.category.slug }}" 
+                               class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium hover:bg-purple-700 transition-colors">
+                                Design
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- All Products Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Filters Sidebar -->
+            <div class="lg:w-1/4">
+                <div class="filter-card rounded-2xl p-6 sticky top-24">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">
+                        <i class="fas fa-filter mr-2 text-purple-500"></i>Filters
+                    </h3>
+                    
+                    <!-- Category Filter -->
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-700 mb-3">Category</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="category-filter" value="" checked>
+                                <span class="ml-2 text-gray-600">All Categories</span>
+                            </label>
+                            {% for category in categories %}
+                            <label class="flex items-center">
+                                <input type="checkbox" class="category-filter" value="{{ category.slug }}">
+                                <span class="ml-2 text-gray-600">{{ category.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Price Range Filter -->
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-700 mb-3">Price Range</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="price-filter" value="0-500">
+                                <span class="ml-2 text-gray-600">Under ₹500</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="price-filter" value="500-1000">
+                                <span class="ml-2 text-gray-600">₹500 - ₹1000</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="price-filter" value="1000-2500">
+                                <span class="ml-2 text-gray-600">₹1000 - ₹2500</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="price-filter" value="2500-">
+                                <span class="ml-2 text-gray-600">Above ₹2500</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Features Filter -->
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-700 mb-3">Features</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="feature-filter" value="design_tool">
+                                <span class="ml-2 text-gray-600">Design Tool Available</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="feature-filter" value="front_back">
+                                <span class="ml-2 text-gray-600">Front & Back Design</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="feature-filter" value="rush_delivery">
+                                <span class="ml-2 text-gray-600">Rush Delivery</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button onclick="applyFilters()" 
+                            class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="lg:w-3/4">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        All Products
+                        <span class="text-lg font-normal text-gray-500" id="productCount">({{ products|length }} products)</span>
+                    </h2>
+                    
+                    <div class="flex items-center space-x-4">
+                        <select id="sortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="name">Sort by Name</option>
+                            <option value="price_low">Price: Low to High</option>
+                            <option value="price_high">Price: High to Low</option>
+                            <option value="featured">Featured First</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {% for product in products %}
+                    <div class="product-card rounded-2xl overflow-hidden shadow-lg" 
+                         data-category="{{ product.category.slug }}" 
+                         data-price="{{ product.base_price }}"
+                         data-features="{{ product.design_tool_enabled|yesno:'design_tool,', }}{{ product.front_back_design_enabled|yesno:'front_back,', }}{{ product.rush_available|yesno:'rush_delivery,', }}">
+                        <div class="relative">
+                            <div class="aspect-square bg-gray-100">
+                                {% if product.images.first %}
+                                    <img src="{{ product.images.first.image.url }}" 
+                                         alt="{{ product.name }}" 
+                                         class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <i class="fas fa-image text-4xl text-gray-400"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Badges -->
+                            <div class="absolute top-4 left-4 flex flex-col space-y-2">
+                                {% if product.featured %}
+                                <span class="featured-badge px-3 py-1 rounded-full text-white text-xs font-semibold">
+                                    <i class="fas fa-star mr-1"></i>Featured
+                                </span>
+                                {% endif %}
+                                {% if product.bestseller %}
+                                <span class="bestseller-badge px-3 py-1 rounded-full text-orange-800 text-xs font-semibold">
+                                    <i class="fas fa-trophy mr-1"></i>Bestseller
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if product.design_tool_enabled %}
+                            <div class="absolute top-4 right-4">
+                                <span class="design-tool-indicator px-3 py-1 rounded-full text-white text-xs font-semibold">
+                                    <i class="fas fa-palette mr-1"></i>Design Tool
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ product.name }}</h3>
+                            <p class="text-gray-600 mb-4">{{ product.short_description|truncatewords:15 }}</p>
+                            
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-2xl font-bold text-purple-600">₹{{ product.base_price }}</span>
+                                <span class="text-sm text-gray-500">{{ product.category.name }}</span>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <a href="/products/category/{{ product.category.slug }}/{{ product.slug }}/" 
+                                   class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-center font-medium hover:bg-gray-200 transition-colors">
+                                    View Details
+                                </a>
+                                {% if product.design_tool_enabled %}
+                                <a href="/design-tool/enhanced-editor/?product={{ product.slug }}&category={{ product.category.slug }}" 
+                                   class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium hover:bg-purple-700 transition-colors">
+                                    Design
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if products.has_other_pages %}
+                <div class="mt-12 flex justify-center">
+                    <nav class="flex items-center space-x-2">
+                        {% if products.has_previous %}
+                        <a href="?page={{ products.previous_page_number }}" 
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                        <span class="px-4 py-2 bg-purple-600 text-white rounded-lg">{{ num }}</span>
+                        {% else %}
+                        <a href="?page={{ num }}" 
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if products.has_next %}
+                        <a href="?page={{ products.next_page_number }}" 
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function searchProducts() {
+            const query = document.getElementById('productSearch').value;
+            if (query.length >= 3) {
+                window.location.href = `/products/?q=${encodeURIComponent(query)}`;
+            }
+        }
+
+        function applyFilters() {
+            const categoryFilters = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const priceFilters = Array.from(document.querySelectorAll('.price-filter:checked')).map(cb => cb.value);
+            const featureFilters = Array.from(document.querySelectorAll('.feature-filter:checked')).map(cb => cb.value);
+            
+            // Build URL with filters
+            const params = new URLSearchParams();
+            if (categoryFilters.length > 0 && !categoryFilters.includes('')) {
+                params.append('category', categoryFilters.join(','));
+            }
+            if (priceFilters.length > 0) {
+                params.append('price', priceFilters.join(','));
+            }
+            if (featureFilters.length > 0) {
+                params.append('features', featureFilters.join(','));
+            }
+            
+            window.location.href = `/products/?${params.toString()}`;
+        }
+
+        function sortProducts() {
+            const sortBy = document.getElementById('sortBy').value;
+            const params = new URLSearchParams(window.location.search);
+            params.set('sort', sortBy);
+            window.location.href = `/products/?${params.toString()}`;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('sortBy').addEventListener('change', sortProducts);
+            
+            // Search on Enter key
+            document.getElementById('productSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchProducts();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

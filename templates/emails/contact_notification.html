@@ -1,0 +1,49 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}New Contact Inquiry - {{ submission.subject }}{% endblock %}
+
+{% block header %}New Contact Inquiry{% endblock %}
+
+{% block content %}
+    <h2>New Contact Form Submission</h2>
+    
+    <p>A new contact inquiry has been submitted through the website.</p>
+    
+    <div class="order-details">
+        <h3>Contact Details:</h3>
+        <p><strong>Name:</strong> {{ submission.name }}</p>
+        <p><strong>Email:</strong> {{ submission.email }}</p>
+        {% if submission.phone %}<p><strong>Phone:</strong> {{ submission.phone }}</p>{% endif %}
+        {% if submission.company %}<p><strong>Company:</strong> {{ submission.company }}</p>{% endif %}
+        
+        <h4>Inquiry Details:</h4>
+        <p><strong>Subject:</strong> {{ submission.subject }}</p>
+        <p><strong>Message:</strong></p>
+        <p>{{ submission.message|linebreaks }}</p>
+        
+        {% if submission.interested_services %}
+        <p><strong>Services of Interest:</strong> {{ submission.interested_services|join:", " }}</p>
+        {% endif %}
+        
+        {% if submission.budget_range %}
+        <p><strong>Budget Range:</strong> {{ submission.budget_range }}</p>
+        {% endif %}
+        
+        {% if submission.timeline %}
+        <p><strong>Timeline:</strong> {{ submission.timeline }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="contact-info">
+        <h4>Technical Information:</h4>
+        <p><strong>Submitted:</strong> {{ submission.created_at|date:"F d, Y g:i A" }}</p>
+        {% if submission.ip_address %}<p><strong>IP Address:</strong> {{ submission.ip_address }}</p>{% endif %}
+        {% if submission.referrer %}<p><strong>Referrer:</strong> {{ submission.referrer }}</p>{% endif %}
+    </div>
+    
+    <p style="text-align: center;">
+        <a href="{{ admin_url }}core/contactsubmission/{{ submission.id }}/change/" class="btn">View in Admin</a>
+    </p>
+    
+    <p><strong>Action Required:</strong> Please respond to this inquiry within 24 hours.</p>
+{% endblock %}

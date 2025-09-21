@@ -1,0 +1,3548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drishthi Design Studio</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'css/enhanced_editor.css' %}" rel="stylesheet">
+
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <a href="/" class="logo">Drishthi Studio</a>
+                <div class="design-title" id="designTitle">Business Card Design</div>
+            </div>
+            
+            <div class="header-center">
+                <button class="btn-icon" onclick="undo()" title="Undo (Ctrl+Z)">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn-icon" onclick="redo()" title="Redo (Ctrl+Y)">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <div style="width: 1px; height: 24px; background: var(--gray-300); margin: 0 8px;"></div>
+                <button class="btn-icon" onclick="zoomOut()" title="Zoom Out">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <span id="zoomLevel" style="min-width: 50px; text-align: center; font-size: 12px; color: var(--gray-600);">100%</span>
+                <button class="btn-icon" onclick="zoomIn()" title="Zoom In">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="btn-icon" onclick="fitToScreen()" title="Fit to Screen">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+            </div>
+            
+            <div class="header-right">
+                <button class="btn btn-secondary" onclick="previewDesign()">
+                    <i class="fas fa-eye"></i>
+                    Preview
+                </button>
+                <button class="btn btn-secondary" onclick="saveDesign()">
+                    <i class="fas fa-save"></i>
+                    Save
+                </button>
+                <button class="btn btn-primary" onclick="exportDesign()">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="app-main">
+            <!-- Left Sidebar -->
+            <aside class="app-sidebar">
+                <!-- Tools Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-header" onclick="toggleSection(this)">
+                        <div class="sidebar-title">Design Tools</div>
+                        <i class="fas fa-chevron-down" style="transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="tool-grid">
+                            <div class="tool-item active" data-tool="select" onclick="setTool('select')">
+                                <i class="tool-icon fas fa-mouse-pointer"></i>
+                                <div>Select</div>
+                            </div>
+                            <div class="tool-item" data-tool="text" onclick="setTool('text')">
+                                <i class="tool-icon fas fa-font"></i>
+                                <div>Text</div>
+                            </div>
+                            <div class="tool-item" data-tool="shapes" onclick="setTool('shapes')">
+                                <i class="tool-icon fas fa-shapes"></i>
+                                <div>Shapes</div>
+                            </div>
+                            <div class="tool-item" data-tool="images" onclick="setTool('images')">
+                                <i class="tool-icon fas fa-image"></i>
+                                <div>Images</div>
+                            </div>
+                            <div class="tool-item" data-tool="draw" onclick="setTool('draw')">
+                                <i class="tool-icon fas fa-pen"></i>
+                                <div>Draw</div>
+                            </div>
+                            <div class="tool-item" data-tool="effects" onclick="setTool('effects')">
+                                <i class="tool-icon fas fa-magic"></i>
+                                <div>Effects</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Templates Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-header" onclick="toggleSection(this)">
+                        <div class="sidebar-title">Templates</div>
+                        <i class="fas fa-chevron-down" style="transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <input type="text" id="templateSearch" class="search-input" placeholder="Search templates..." onkeypress="if(event.key==='Enter') searchTemplates()">
+                        
+                        <div class="tab-nav">
+                            <button class="tab-btn active" onclick="switchTab(this, 'category-templates')">Category</button>
+                            <button class="tab-btn" onclick="switchTab(this, 'pixabay-templates')">Browse</button>
+                        </div>
+                        
+                        <div id="category-templates" class="tab-content active">
+                            <div class="templates-grid" id="categoryTemplatesGrid">
+                                <!-- Category-specific templates will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div id="pixabay-templates" class="tab-content">
+                            <div class="loading" id="templateLoading" style="display: none;">
+                                <i class="fas fa-spinner spinner"></i>
+                                Searching...
+                            </div>
+                            <div class="templates-grid" id="pixabayTemplatesGrid"></div>
+                            <div class="pagination" id="templatePagination" style="display: none;">
+                                <button onclick="changeTemplatePage(-1)" id="prevTemplatePage">‹</button>
+                                <span id="templatePageInfo"></span>
+                                <button onclick="changeTemplatePage(1)" id="nextTemplatePage">›</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Elements Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-header" onclick="toggleSection(this)">
+                        <div class="sidebar-title">Elements</div>
+                        <i class="fas fa-chevron-down" style="transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="tab-nav">
+                            <button class="tab-btn active" onclick="switchTab(this, 'basic-shapes')">Shapes</button>
+                            <button class="tab-btn" onclick="switchTab(this, 'icons')">Icons</button>
+                            <button class="tab-btn" onclick="switchTab(this, 'elements')">Graphics</button>
+                        </div>
+                        
+                        <div id="basic-shapes" class="tab-content active">
+                            <div class="tool-grid">
+                                <div class="tool-item" onclick="addShape('rect')">
+                                    <div style="width: 20px; height: 12px; background: var(--blue-500); border-radius: 2px; margin: 0 auto 4px;"></div>
+                                    <div>Rectangle</div>
+                                </div>
+                                <div class="tool-item" onclick="addShape('circle')">
+                                    <div style="width: 16px; height: 16px; background: var(--green-500); border-radius: 50%; margin: 0 auto 4px;"></div>
+                                    <div>Circle</div>
+                                </div>
+                                <div class="tool-item" onclick="addShape('triangle')">
+                                    <div style="width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid var(--red-500); margin: 0 auto 4px;"></div>
+                                    <div>Triangle</div>
+                                </div>
+                                <div class="tool-item" onclick="addShape('star')">
+                                    <i class="fas fa-star" style="color: var(--yellow-500); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>Star</div>
+                                </div>
+                                <div class="tool-item" onclick="addArrow('right')">
+                                    <i class="fas fa-arrow-right" style="color: var(--purple-500); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>Arrow</div>
+                                </div>
+                                <div class="tool-item" onclick="addShape('line')">
+                                    <div style="width: 20px; height: 2px; background: var(--gray-400); margin: 7px auto 5px;"></div>
+                                    <div>Line</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="icons" class="tab-content">
+                            <div class="tool-grid">
+                                <div class="tool-item" onclick="addIcon('phone')">
+                                    <i class="fas fa-phone" style="color: var(--blue-500); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>Phone</div>
+                                </div>
+                                <div class="tool-item" onclick="addIcon('email')">
+                                    <i class="fas fa-envelope" style="color: var(--green-500); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>Email</div>
+                                </div>
+                                <div class="tool-item" onclick="addIcon('location')">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--red-500); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>Location</div>
+                                </div>
+                                <div class="tool-item" onclick="addIcon('globe')">
+                                    <i class="fas fa-globe" style="color: var(--blue-500); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>Website</div>
+                                </div>
+                                <div class="tool-item" onclick="addIcon('linkedin')">
+                                    <i class="fab fa-linkedin" style="color: var(--blue-600); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>LinkedIn</div>
+                                </div>
+                                <div class="tool-item" onclick="addIcon('facebook')">
+                                    <i class="fab fa-facebook" style="color: var(--blue-600); font-size: 16px; margin-bottom: 4px;"></i>
+                                    <div>Facebook</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="elements" class="tab-content">
+                            <input type="text" id="elementSearch" class="search-input" placeholder="Search graphics..." onkeypress="if(event.key==='Enter') searchElements()">
+                            <div class="loading" id="elementLoading" style="display: none;">
+                                <i class="fas fa-spinner spinner"></i>
+                                Searching...
+                            </div>
+                            <div class="templates-grid" id="elementsGrid"></div>
+                            <div class="pagination" id="elementPagination" style="display: none;">
+                                <button onclick="changeElementPage(-1)" id="prevElementPage">‹</button>
+                                <span id="elementPageInfo"></span>
+                                <button onclick="changeElementPage(1)" id="nextElementPage">›</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Images Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-header" onclick="toggleSection(this)">
+                        <div class="sidebar-title">Images</div>
+                        <i class="fas fa-chevron-down" style="transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 16px;" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-upload"></i>
+                            Upload Images
+                        </button>
+                        
+                        <input type="text" id="imageSearch" class="search-input" placeholder="Search stock images..." onkeypress="if(event.key==='Enter') searchImages()">
+                        
+                        <div class="loading" id="imageLoading" style="display: none;">
+                            <i class="fas fa-spinner spinner"></i>
+                            Searching...
+                        </div>
+                        
+                        <div class="templates-grid" id="imagesGrid">
+                            <!-- Sample images -->
+                            <div class="template-item" onclick="addSampleImage('https://via.placeholder.com/400x400/3b82f6/ffffff?text=Sample+1')">
+                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--blue-500); font-weight: 600;">Sample 1</div>
+                            </div>
+                            <div class="template-item" onclick="addSampleImage('https://via.placeholder.com/400x400/10b981/ffffff?text=Sample+2')">
+                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--green-500); font-weight: 600;">Sample 2</div>
+                            </div>
+                        </div>
+                        
+                        <div class="pagination" id="imagePagination" style="display: none;">
+                            <button onclick="changeImagePage(-1)" id="prevImagePage">‹</button>
+                            <span id="imagePageInfo"></span>
+                            <button onclick="changeImagePage(1)" id="nextImagePage">›</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colors Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-header" onclick="toggleSection(this)">
+                        <div class="sidebar-title">Colors</div>
+                        <i class="fas fa-chevron-down" style="transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="property-group">
+                            <label class="property-label">Color Palette</label>
+                            <div class="color-grid">
+                                <div class="color-item active" style="background: #ffffff; border: 1px solid var(--gray-600);" data-color="#ffffff" onclick="selectColor('#ffffff')"></div>
+                                <div class="color-item" style="background: #000000;" data-color="#000000" onclick="selectColor('#000000')"></div>
+                                <div class="color-item" style="background: #3b82f6;" data-color="#3b82f6" onclick="selectColor('#3b82f6')"></div>
+                                <div class="color-item" style="background: #ef4444;" data-color="#ef4444" onclick="selectColor('#ef4444')"></div>
+                                <div class="color-item" style="background: #10b981;" data-color="#10b981" onclick="selectColor('#10b981')"></div>
+                                <div class="color-item" style="background: #f59e0b;" data-color="#f59e0b" onclick="selectColor('#f59e0b')"></div>
+                                <div class="color-item" style="background: #8b5cf6;" data-color="#8b5cf6" onclick="selectColor('#8b5cf6')"></div>
+                                <div class="color-item" style="background: #ec4899;" data-color="#ec4899" onclick="selectColor('#ec4899')"></div>
+                            </div>
+                            <input type="color" id="customColor" class="property-input" onchange="selectColor(this.value)" style="height: 40px;">
+                        </div>
+                        
+                        <div class="property-group">
+                            <label class="property-label">Gradients</label>
+                            <div style="display: grid; gap: 8px;">
+                                <div style="height: 32px; border-radius: 6px; background: linear-gradient(45deg, #3b82f6, #8b5cf6); cursor: pointer; border: 1px solid var(--gray-600);" onclick="applyGradient('linear-gradient(45deg, #3b82f6, #8b5cf6)')"></div>
+                                <div style="height: 32px; border-radius: 6px; background: linear-gradient(90deg, #ef4444, #f59e0b); cursor: pointer; border: 1px solid var(--gray-600);" onclick="applyGradient('linear-gradient(90deg, #ef4444, #f59e0b)')"></div>
+                                <div style="height: 32px; border-radius: 6px; background: linear-gradient(135deg, #10b981, #06b6d4); cursor: pointer; border: 1px solid var(--gray-600);" onclick="applyGradient('linear-gradient(135deg, #10b981, #06b6d4)')"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Layers Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-header" onclick="toggleSection(this)">
+                        <div class="sidebar-title">Layers</div>
+                        <i class="fas fa-chevron-down" style="transition: transform 0.3s;"></i>
+                    </div>
+                    <div class="sidebar-content">
+                        <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                            <button class="btn-icon" onclick="moveLayerUp()" title="Move Up">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                            <button class="btn-icon" onclick="moveLayerDown()" title="Move Down">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <button class="btn-icon" onclick="duplicateSelected()" title="Duplicate">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon" onclick="deleteSelected()" title="Delete" style="color: var(--red-500);">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div id="layersList" class="layers-list"></div>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Canvas Area -->
+            <main class="canvas-area">
+                <!-- Professional Canvas Toolbar -->
+                <div class="canvas-toolbar">
+                    <div class="toolbar-left">
+                        <div class="file-actions">
+                            <button class="btn-icon" onclick="newDesign()" title="New Design">
+                                <i class="fas fa-file"></i>
+                            </button>
+                            <button class="btn-icon" onclick="openDesign()" title="Open Design">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                            <button class="btn-icon" onclick="saveDesign()" title="Save Design">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="edit-actions">
+                            <button class="btn-icon" onclick="undo()" title="Undo (Ctrl+Z)">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button class="btn-icon" onclick="redo()" title="Redo (Ctrl+Y)">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="design-info">
+                            <span class="side-indicator" id="sideIndicator">Front Design</span>
+                        </div>
+                        
+                        <!-- Front/Back Toggle (only show if product supports it) -->
+                        <div id="frontBackToggle" class="front-back-toggle" style="display: none;">
+                            <button class="btn-icon" onclick="switchToFront()" id="frontBtn" title="Front Design">
+                                <i class="fas fa-file-alt"></i>
+                            </button>
+                            <button class="btn-icon" onclick="switchToBack()" id="backBtn" title="Back Design">
+                                <i class="fas fa-file-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="toolbar-center">
+                        <div class="canvas-controls">
+                            <button class="btn-icon" onclick="toggleGrid()" id="gridToggle" title="Toggle Grid">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="btn-icon active" onclick="toggleVisualGuides()" id="guidesToggle" title="Toggle Visual Guides">
+                                <i class="fas fa-ruler-combined"></i>
+                            </button>
+                            <button class="btn-icon" onclick="duplicateSelected()" title="Duplicate (Ctrl+D)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon" onclick="deleteSelected()" title="Delete (Del)" style="color: var(--red-500);">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="alignment-controls">
+                            <button class="btn-icon" onclick="alignLeft()" title="Align Left">
+                                <i class="fas fa-align-left"></i>
+                            </button>
+                            <button class="btn-icon" onclick="alignCenter()" title="Align Center">
+                                <i class="fas fa-align-center"></i>
+                            </button>
+                            <button class="btn-icon" onclick="alignRight()" title="Align Right">
+                                <i class="fas fa-align-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="toolbar-right">
+                        <div class="preview-actions">
+                            <button class="btn btn-primary" onclick="previewDesign()" title="Preview Design">
+                                <i class="fas fa-eye"></i>
+                                Preview
+                            </button>
+                            <button class="btn-icon" onclick="shareDesign()" title="Share Design">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="btn btn-primary" onclick="processDesign()" title="Process Design">
+                                Process →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ruler Container -->
+                <div class="ruler-container">
+                    <!-- Top Ruler -->
+                    <div class="ruler-top" id="topRuler">
+                        <div class="ruler-scale" id="topRulerScale"></div>
+                    </div>
+                    
+                    <!-- Left Ruler -->
+                    <div class="ruler-left" id="leftRuler">
+                        <div class="ruler-scale" id="leftRulerScale"></div>
+                    </div>
+                    
+                    <!-- Canvas Container -->
+                    <div class="canvas-container" id="canvasContainer">
+                        <div id="konva-container"></div>
+                    </div>
+                </div>
+                
+                <!-- Bottom Controls -->
+                <div class="canvas-bottom">
+                    <div class="bottom-left">
+                        <div class="guide-controls">
+                            <button class="guide-btn" id="bleedBtn" onclick="toggleBleedLine()">
+                                <i class="fas fa-info-circle" style="color: #ff0000;"></i>
+                                Bleed line
+                            </button>
+                            <button class="guide-btn" id="safeBtn" onclick="toggleSafeZone()">
+                                <i class="fas fa-info-circle" style="color: #00ff00;"></i>
+                                Safe zone
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bottom-center">
+                        <div class="canvas-info">
+                            <span id="canvasInfo">Business Card (89 × 54 mm)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bottom-right">
+                        <div class="zoom-controls">
+                            <button class="btn-icon" onclick="fitToScreen()" title="Fit to Screen">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="btn-icon" onclick="zoomOut()" title="Zoom Out">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="zoom-level" id="zoomLevel">100%</span>
+                            <button class="btn-icon" onclick="zoomIn()" title="Zoom In">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Properties Toolbar -->
+                <div id="propertiesToolbar" class="properties-toolbar" style="display: none;">
+                    <div class="properties-section">
+                        <h4 style="font-size: 12px; font-weight: 600; color: var(--gray-700); margin: 0 0 8px 0;">Position & Size</h4>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">X</label>
+                                <input type="number" id="propX" class="property-input-small" onchange="updateSelectedElement()" style="width: 60px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">Y</label>
+                                <input type="number" id="propY" class="property-input-small" onchange="updateSelectedElement()" style="width: 60px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">W</label>
+                                <input type="number" id="propWidth" class="property-input-small" onchange="updateSelectedElement()" style="width: 60px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">H</label>
+                                <input type="number" id="propHeight" class="property-input-small" onchange="updateSelectedElement()" style="width: 60px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="properties-section">
+                        <h4 style="font-size: 12px; font-weight: 600; color: var(--gray-700); margin: 0 0 8px 0;">Transform</h4>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">Rotation</label>
+                                <input type="number" id="propRotation" class="property-input-small" onchange="updateSelectedElement()" style="width: 60px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">Opacity</label>
+                                <input type="range" id="propOpacity" min="0" max="1" step="0.1" value="1" onchange="updateSelectedElement()" class="property-input-small" style="width: 80px;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Text Properties -->
+                    <div id="textPropertiesToolbar" class="properties-section" style="display: none;">
+                        <h4 style="font-size: 12px; font-weight: 600; color: var(--gray-700); margin: 0 0 8px 0;">Typography</h4>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">Font</label>
+                                <select id="propFontFamily" class="property-input-small" onchange="updateSelectedElement()" style="width: 100px;">
+                                    <option value="Inter">Inter</option>
+                                    <option value="Arial">Arial</option>
+                                    <option value="Helvetica">Helvetica</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">Size</label>
+                                <input type="number" id="propFontSize" class="property-input-small" onchange="updateSelectedElement()" style="width: 60px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <label style="font-size: 10px; color: var(--gray-600);">Color</label>
+                                <input type="color" id="propTextColor" onchange="updateSelectedElement()" class="property-input-small" style="width: 40px; height: 28px;">
+                            </div>
+                            <div style="display: flex; gap: 4px; margin-top: 16px;">
+                                <button id="boldBtn" class="btn-icon" onclick="toggleTextStyle('bold')" title="Bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button id="italicBtn" class="btn-icon" onclick="toggleTextStyle('italic')" title="Italic">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button id="underlineBtn" class="btn-icon" onclick="toggleTextStyle('underline')" title="Underline">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <button id="leftAlignBtn" class="btn-icon" onclick="setTextAlign('left')" title="Align Left">
+                                    <i class="fas fa-align-left"></i>
+                                </button>
+                                <button id="centerAlignBtn" class="btn-icon" onclick="setTextAlign('center')" title="Align Center">
+                                    <i class="fas fa-align-center"></i>
+                                </button>
+                                <button id="rightAlignBtn" class="btn-icon" onclick="setTextAlign('right')" title="Align Right">
+                                    <i class="fas fa-align-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Image Properties -->
+                    <div id="imagePropertiesToolbar" class="properties-section" style="display: none;">
+                        <h4 style="font-size: 12px; font-weight: 600; color: var(--gray-700); margin: 0 0 8px 0;">Image Effects</h4>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="btn-icon" onclick="applyImageFilter('none')" title="Original">
+                                <i class="fas fa-image"></i>
+                            </button>
+                            <button class="btn-icon" onclick="applyImageFilter('grayscale')" title="B&W">
+                                <i class="fas fa-adjust"></i>
+                            </button>
+                            <button class="btn-icon" onclick="applyImageFilter('sepia')" title="Sepia">
+                                <i class="fas fa-sun"></i>
+                            </button>
+                            <button class="btn-icon" onclick="applyImageFilter('blur')" title="Blur">
+                                <i class="fas fa-blur"></i>
+                            </button>
+                            <button class="btn-icon" onclick="applyImageFilter('brightness')" title="Bright">
+                                <i class="fas fa-sun"></i>
+                            </button>
+                            <button class="btn-icon" onclick="applyImageFilter('contrast')" title="Contrast">
+                                <i class="fas fa-adjust"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="canvas-container" id="canvasContainer">
+                    <div class="canvas-wrapper">
+                        <div id="konva-container"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="{% static 'js/enhanced_editor.js' %}"></script>
+
+        let canvasConfig = {
+            width: 1050,  // 89mm at 300 DPI
+            height: 638,  // 54mm at 300 DPI
+            category: 'business-cards',
+            name: 'Business Card',
+            bleed: {
+                top: 3.0,    // mm
+                right: 3.0,  // mm
+                bottom: 3.0, // mm
+                left: 3.0    // mm
+            },
+            safeZone: {
+                top: 2.0,    // mm
+                right: 2.0,  // mm
+                bottom: 2.0, // mm
+                left: 2.0    // mm
+            }
+        };
+        
+        // Search pagination
+        let templateCurrentPage = 1;
+        let templateTotalHits = 0;
+        let imageCurrentPage = 1;
+        let imageTotalHits = 0;
+        let elementCurrentPage = 1;
+        let elementTotalHits = 0;
+        const perPage = 12;
+        
+        // Removed Lordicon API configuration
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEditor();
+            loadCanvasConfig();
+            checkFrontBackSupport();
+            loadCategoryTemplates();
+        });
+
+        // Initialize the editor
+        function initializeEditor() {
+            initKonva();
+            setupEventListeners();
+            setupKeyboardShortcuts();
+            updateCanvasInfo();
+        }
+
+        // Load canvas configuration from URL parameters or backend
+        async function loadCanvasConfig() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category') || 'business-cards';
+            const productSlug = urlParams.get('product') || window.location.pathname.split('/').pop();
+            
+            try {
+                // Try to load configuration from backend first
+                const response = await fetch(`/design-tool/api/canvas-config/?category=${encodeURIComponent(category)}`);
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.success) {
+                        canvasConfig = { ...canvasConfig, ...config.data };
+                        resizeCanvas();
+                        updateCanvasInfo();
+                        updateDesignTitle();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('Using default configuration');
+            }
+            
+            // Fallback to default configurations
+            const configs = {
+                'business-cards': { 
+                    width: 1050, 
+                    height: 638, 
+                    name: 'Business Card',
+                    bleed: { top: 3.0, right: 3.0, bottom: 3.0, left: 3.0 },
+                    safeZone: { top: 2.0, right: 2.0, bottom: 2.0, left: 2.0 }
+                },
+                'brochures': { 
+                    width: 2480, 
+                    height: 3508, 
+                    name: 'Brochure',
+                    bleed: { top: 3.0, right: 3.0, bottom: 3.0, left: 3.0 },
+                    safeZone: { top: 2.0, right: 2.0, bottom: 2.0, left: 2.0 }
+                },
+                'flyers': { 
+                    width: 2480, 
+                    height: 3508, 
+                    name: 'Flyer',
+                    bleed: { top: 3.0, right: 3.0, bottom: 3.0, left: 3.0 },
+                    safeZone: { top: 2.0, right: 2.0, bottom: 2.0, left: 2.0 }
+                },
+                'letter-head': { 
+                    width: 2480, 
+                    height: 3508, 
+                    name: 'Letter Head',
+                    bleed: { top: 3.0, right: 3.0, bottom: 3.0, left: 3.0 },
+                    safeZone: { top: 2.0, right: 2.0, bottom: 2.0, left: 2.0 }
+                },
+                'stickers': { 
+                    width: 1181, 
+                    height: 1181, 
+                    name: 'Sticker',
+                    bleed: { top: 3.0, right: 3.0, bottom: 3.0, left: 3.0 },
+                    safeZone: { top: 2.0, right: 2.0, bottom: 2.0, left: 2.0 }
+                },
+                'bill-book': { 
+                    width: 1748, 
+                    height: 2480, 
+                    name: 'Bill Book',
+                    bleed: { top: 3.0, right: 3.0, bottom: 3.0, left: 3.0 },
+                    safeZone: { top: 2.0, right: 2.0, bottom: 2.0, left: 2.0 }
+                }
+            };
+            
+            if (configs[category]) {
+                canvasConfig = { ...canvasConfig, ...configs[category], category };
+                resizeCanvas();
+                updateCanvasInfo();
+                updateDesignTitle();
+            }
+        }
+
+        // Initialize Konva stage
+        function initKonva() {
+            stage = new Konva.Stage({
+                container: 'konva-container',
+                width: canvasConfig.width,
+                height: canvasConfig.height,
+                draggable: false
+            });
+
+            // Create layers
+            backgroundLayer = new Konva.Layer();
+            layer = new Konva.Layer();
+            gridLayer = new Konva.Layer();
+            
+            stage.add(backgroundLayer);
+            stage.add(layer);
+            stage.add(gridLayer);
+
+            // Add background
+            const background = new Konva.Rect({
+                x: 0,
+                y: 0,
+                width: stage.width(),
+                height: stage.height(),
+                fill: 'white',
+                stroke: '#e5e7eb',
+                strokeWidth: 1,
+                name: 'background'
+            });
+            backgroundLayer.add(background);
+
+            // Add grid
+            addGrid();
+            
+            // Add visual guides (bleed lines and safe zones)
+            addVisualGuides();
+            
+            // Stage events
+            stage.on('click tap', function (e) {
+                if (e.target === stage || e.target.name() === 'background') {
+                    if (currentTool === 'text') {
+                        addTextAtPosition(stage.getPointerPosition());
+                    } else {
+                        clearSelection();
+                    }
+                    return;
+                }
+                selectElement(e.target);
+            });
+            
+            stage.draw();
+            saveState();
+            updateLayers();
+        }
+
+        // Add visual guides (bleed lines and safe zones)
+        // Ruler System Functions
+        function createRulers() {
+            createTopRuler();
+            createLeftRuler();
+        }
+        
+        function createTopRuler() {
+            const ruler = document.getElementById('topRulerScale');
+            ruler.innerHTML = '';
+            
+            const canvasWidth = canvasConfig.width;
+            const dpi = 300;
+            const mmPerInch = 25.4;
+            const pixelsPerMm = dpi / mmPerInch;
+            const mmWidth = canvasWidth / pixelsPerMm;
+            
+            // Create ruler marks and labels
+            for (let i = 0; i <= mmWidth; i += 1) {
+                const x = i * pixelsPerMm;
+                
+                if (i % 10 === 0) {
+                    // Major marks every 10mm
+                    const mark = document.createElement('div');
+                    mark.className = 'ruler-mark major';
+                    mark.style.left = x + 'px';
+                    ruler.appendChild(mark);
+                    
+                    const label = document.createElement('div');
+                    label.className = 'ruler-label horizontal';
+                    label.textContent = i + ' cm';
+                    label.style.left = x + 'px';
+                    ruler.appendChild(label);
+                } else if (i % 5 === 0) {
+                    // Minor marks every 5mm
+                    const mark = document.createElement('div');
+                    mark.className = 'ruler-mark minor';
+                    mark.style.left = x + 'px';
+                    ruler.appendChild(mark);
+                } else {
+                    // Micro marks every 1mm
+                    const mark = document.createElement('div');
+                    mark.className = 'ruler-mark micro';
+                    mark.style.left = x + 'px';
+                    ruler.appendChild(mark);
+                }
+            }
+        }
+        
+        function createLeftRuler() {
+            const ruler = document.getElementById('leftRulerScale');
+            ruler.innerHTML = '';
+            
+            const canvasHeight = canvasConfig.height;
+            const dpi = 300;
+            const mmPerInch = 25.4;
+            const pixelsPerMm = dpi / mmPerInch;
+            const mmHeight = canvasHeight / pixelsPerMm;
+            
+            // Create ruler marks and labels
+            for (let i = 0; i <= mmHeight; i += 1) {
+                const y = i * pixelsPerMm;
+                
+                if (i % 10 === 0) {
+                    // Major marks every 10mm
+                    const mark = document.createElement('div');
+                    mark.className = 'ruler-mark major';
+                    mark.style.top = y + 'px';
+                    ruler.appendChild(mark);
+                    
+                    const label = document.createElement('div');
+                    label.className = 'ruler-label vertical';
+                    label.textContent = i + ' cm';
+                    label.style.top = y + 'px';
+                    ruler.appendChild(label);
+                } else if (i % 5 === 0) {
+                    // Minor marks every 5mm
+                    const mark = document.createElement('div');
+                    mark.className = 'ruler-mark minor';
+                    mark.style.top = y + 'px';
+                    ruler.appendChild(mark);
+                } else {
+                    // Micro marks every 1mm
+                    const mark = document.createElement('div');
+                    mark.className = 'ruler-mark micro';
+                    mark.style.top = y + 'px';
+                    ruler.appendChild(mark);
+                }
+            }
+        }
+        
+        function updateRulers() {
+            if (rulersVisible) {
+                createRulers();
+            }
+        }
+        
+        function toggleRulers() {
+            rulersVisible = !rulersVisible;
+            const rulerContainer = document.querySelector('.ruler-container');
+            if (rulersVisible) {
+                rulerContainer.style.display = 'flex';
+                createRulers();
+            } else {
+                rulerContainer.style.display = 'none';
+            }
+        }
+        
+        function addVisualGuides() {
+            if (!stage) return;
+            
+            // Remove existing guides
+            const existingGuides = stage.find('.visual-guide');
+            existingGuides.forEach(guide => guide.destroy());
+            
+            // Load configuration from backend
+            const dpi = 300;
+            const mmToPx = (mm) => (mm * dpi) / 25.4;
+            
+            const canvasWidth = canvasConfig.width;
+            const canvasHeight = canvasConfig.height;
+            
+            // Convert bleed and safe zone from mm to pixels
+            const bleedTop = mmToPx(canvasConfig.bleed.top);
+            const bleedRight = mmToPx(canvasConfig.bleed.right);
+            const bleedBottom = mmToPx(canvasConfig.bleed.bottom);
+            const bleedLeft = mmToPx(canvasConfig.bleed.left);
+            
+            const safeTop = mmToPx(canvasConfig.safeZone.top);
+            const safeRight = mmToPx(canvasConfig.safeZone.right);
+            const safeBottom = mmToPx(canvasConfig.safeZone.bottom);
+            const safeLeft = mmToPx(canvasConfig.safeZone.left);
+            
+            // Add bleed line - only if visible
+            if (bleedLineVisible) {
+                // Create bleed area rectangles for each side
+                const bleedAreas = [
+                    // Top bleed area
+                    {
+                        x: -bleedLeft,
+                        y: -bleedTop,
+                        width: canvasWidth + bleedLeft + bleedRight,
+                        height: bleedTop
+                    },
+                    // Bottom bleed area
+                    {
+                        x: -bleedLeft,
+                        y: canvasHeight,
+                        width: canvasWidth + bleedLeft + bleedRight,
+                        height: bleedBottom
+                    },
+                    // Left bleed area
+                    {
+                        x: -bleedLeft,
+                        y: 0,
+                        width: bleedLeft,
+                        height: canvasHeight
+                    },
+                    // Right bleed area
+                    {
+                        x: canvasWidth,
+                        y: 0,
+                        width: bleedRight,
+                        height: canvasHeight
+                    }
+                ];
+                
+                // Add bleed area backgrounds
+                bleedAreas.forEach((area, index) => {
+                    const bleedArea = new Konva.Rect({
+                        x: area.x,
+                        y: area.y,
+                        width: area.width,
+                        height: area.height,
+                        fill: 'rgba(255, 0, 0, 0.05)',
+                        listening: false,
+                        name: `visual-guide bleed-area-${index}`
+                    });
+                    gridLayer.add(bleedArea);
+                });
+                
+                // Add bleed line border
+                const bleedRect = new Konva.Rect({
+                    x: -bleedLeft,
+                    y: -bleedTop,
+                    width: canvasWidth + bleedLeft + bleedRight,
+                    height: canvasHeight + bleedTop + bleedBottom,
+                    stroke: '#ff0000',
+                    strokeWidth: 1,
+                    dash: [6, 3],
+                    listening: false,
+                    name: 'visual-guide bleed-line'
+                });
+                gridLayer.add(bleedRect);
+                
+                // Add bleed label
+                const bleedLabel = new Konva.Text({
+                    x: 5,
+                    y: -bleedTop + 3,
+                    text: 'Bleed line',
+                    fontSize: 10,
+                    fontFamily: 'Arial',
+                    fill: '#ff0000',
+                    fontStyle: 'normal',
+                    listening: false,
+                    name: 'visual-guide bleed-label'
+                });
+                gridLayer.add(bleedLabel);
+            }
+            
+            // Add safe zone - only if visible
+            if (safeZoneVisible) {
+                const safeRect = new Konva.Rect({
+                    x: safeLeft,
+                    y: safeTop,
+                    width: canvasWidth - safeLeft - safeRight,
+                    height: canvasHeight - safeTop - safeBottom,
+                    stroke: '#00aa00',
+                    strokeWidth: 1,
+                    dash: [4, 2],
+                    listening: false,
+                    name: 'visual-guide safe-zone'
+                });
+                gridLayer.add(safeRect);
+                
+                // Add safe zone label
+                const safeLabel = new Konva.Text({
+                    x: safeLeft + 5,
+                    y: safeTop + 5,
+                    text: 'Safe zone',
+                    fontSize: 10,
+                    fontFamily: 'Arial',
+                    fill: '#00aa00',
+                    fontStyle: 'normal',
+                    listening: false,
+                    name: 'visual-guide safe-label'
+                });
+                gridLayer.add(safeLabel);
+            }
+            
+            gridLayer.batchDraw();
+        }
+        
+        // Toggle functions for bleed line and safe zone
+        function toggleBleedLine() {
+            bleedLineVisible = !bleedLineVisible;
+            const btn = document.getElementById('bleedBtn');
+            if (bleedLineVisible) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+            addVisualGuides();
+        }
+        
+        function toggleSafeZone() {
+            safeZoneVisible = !safeZoneVisible;
+            const btn = document.getElementById('safeBtn');
+            if (safeZoneVisible) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+            addVisualGuides();
+        }
+
+        // Resize canvas based on config
+        function resizeCanvas() {
+            if (stage) {
+                stage.width(canvasConfig.width);
+                stage.height(canvasConfig.height);
+                
+                // Update background
+                const background = backgroundLayer.findOne('Rect');
+                if (background) {
+                    background.width(canvasConfig.width);
+                    background.height(canvasConfig.height);
+                }
+                
+                addGrid();
+                addVisualGuides();
+                updateRulers();
+                stage.draw();
+            }
+        }
+
+        // Update canvas info display
+        function updateCanvasInfo() {
+            const info = document.getElementById('canvasInfo');
+            const mmWidth = Math.round(canvasConfig.width / 11.81); // Convert pixels to mm at 300 DPI
+            const mmHeight = Math.round(canvasConfig.height / 11.81);
+            info.textContent = `${canvasConfig.name} (${mmWidth} × ${mmHeight} mm)`;
+        }
+
+        // Update design title
+        function updateDesignTitle() {
+            const title = document.getElementById('designTitle');
+            title.textContent = `${canvasConfig.name} Design`;
+        }
+        
+        // Update zoom level display
+        function updateZoomLevel() {
+            const zoomLevel = document.getElementById('zoomLevel');
+            zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+        }
+        
+        // Zoom functions
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 5);
+            stage.scale({ x: currentZoom, y: currentZoom });
+            stage.draw();
+            updateZoomLevel();
+            updateRulers();
+        }
+        
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.1);
+            stage.scale({ x: currentZoom, y: currentZoom });
+            stage.draw();
+            updateZoomLevel();
+            updateRulers();
+        }
+        
+        function fitToScreen() {
+            const container = document.getElementById('canvasContainer');
+            const containerWidth = container.clientWidth - 60; // Account for rulers
+            const containerHeight = container.clientHeight - 60;
+            
+            const scaleX = containerWidth / canvasConfig.width;
+            const scaleY = containerHeight / canvasConfig.height;
+            currentZoom = Math.min(scaleX, scaleY, 1);
+            
+            stage.scale({ x: currentZoom, y: currentZoom });
+            stage.position({ x: 0, y: 0 });
+            stage.draw();
+            updateZoomLevel();
+            updateRulers();
+        }
+        
+        // File operations
+        function newDesign() {
+            if (confirm('Create a new design? Unsaved changes will be lost.')) {
+                clearCanvas();
+            }
+        }
+        
+        function openDesign() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            loadDesignData(data);
+                        } catch (error) {
+                            alert('Error loading design file');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+        
+        function saveDesign() {
+            const designData = {
+                canvas: stage.toJSON(),
+                config: canvasConfig,
+                metadata: {
+                    name: canvasConfig.name + ' Design',
+                    category: canvasConfig.category,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(designData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${canvasConfig.name}_design_${Date.now()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function previewDesign() {
+            // Open preview in new window
+            const dataURL = stage.toDataURL({ pixelRatio: 2 });
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(`
+                <html>
+                    <head><title>Design Preview</title></head>
+                    <body style="margin:0; padding:20px; background:#f0f0f0; display:flex; justify-content:center; align-items:center; min-height:100vh;">
+                        <img src="${dataURL}" style="max-width:100%; max-height:100%; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
+                    </body>
+                </html>
+            `);
+        }
+        
+        function shareDesign() {
+            // Copy design data to clipboard
+            const designData = {
+                canvas: stage.toJSON(),
+                config: canvasConfig
+            };
+            navigator.clipboard.writeText(JSON.stringify(designData)).then(() => {
+                alert('Design copied to clipboard!');
+            });
+        }
+        
+        function processDesign() {
+            // Process design for printing
+            const dataURL = stage.toDataURL({ pixelRatio: 2 });
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = `${canvasConfig.name}_${currentDesignSide}_design_${Date.now()}.png`;
+            link.click();
+        }
+        
+        // Front/Back Design Switching Functions
+        function switchToFront() {
+            if (currentDesignSide === 'back') {
+                // Save current back design
+                backDesignData = stage.toJSON();
+                
+                // Switch to front
+                currentDesignSide = 'front';
+                document.getElementById('sideIndicator').textContent = 'Front Design';
+                updateFrontBackButtons();
+                
+                // Load front design or create new
+                if (frontDesignData) {
+                    stage.destroy();
+                    initKonva();
+                    stage.fromJSON(frontDesignData);
+                } else {
+                    // Clear canvas for new front design
+                    layer.destroyChildren();
+                    stage.draw();
+                }
+            }
+        }
+        
+        function switchToBack() {
+            if (currentDesignSide === 'front') {
+                // Save current front design
+                frontDesignData = stage.toJSON();
+                
+                // Switch to back
+                currentDesignSide = 'back';
+                document.getElementById('sideIndicator').textContent = 'Back Design';
+                updateFrontBackButtons();
+                
+                // Load back design or create new
+                if (backDesignData) {
+                    stage.destroy();
+                    initKonva();
+                    stage.fromJSON(backDesignData);
+                } else {
+                    // Clear canvas for new back design
+                    layer.destroyChildren();
+                    stage.draw();
+                }
+            }
+        }
+        
+        function toggleDesignSide() {
+            if (currentDesignSide === 'front') {
+                switchToBack();
+            } else {
+                switchToFront();
+            }
+        }
+        
+        function saveDesignData() {
+            const designData = {
+                canvas: stage.toJSON(),
+                config: canvasConfig,
+                side: currentDesignSide,
+                metadata: {
+                    name: canvasConfig.name + ' Design',
+                    category: canvasConfig.category,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                }
+            };
+            
+            // Save to appropriate side
+            if (currentDesignSide === 'front') {
+                frontDesignData = designData;
+            } else {
+                backDesignData = designData;
+            }
+            
+            return designData;
+        }
+        
+        function loadDesignData(data) {
+            if (data.side) {
+                currentDesignSide = data.side;
+                document.getElementById('sideIndicator').textContent = 
+                    data.side === 'front' ? 'Front Design' : 'Back Design';
+            }
+            
+            if (data.canvas) {
+                stage.destroy();
+                initKonva();
+                stage.fromJSON(data.canvas);
+            }
+        }
+        
+        function checkFrontBackSupport() {
+            // Check URL parameters for front/back support
+            const urlParams = new URLSearchParams(window.location.search);
+            const product = urlParams.get('product');
+            const side = urlParams.get('side');
+            
+            // For now, assume front/back is supported if side parameter exists
+            // In production, this should check the product configuration
+            if (side) {
+                currentDesignSide = side;
+                document.getElementById('sideIndicator').textContent = 
+                    side === 'front' ? 'Front Design' : 'Back Design';
+                
+                // Show front/back toggle
+                document.getElementById('frontBackToggle').style.display = 'flex';
+                
+                // Update button states
+                updateFrontBackButtons();
+            }
+        }
+        
+        function updateFrontBackButtons() {
+            const frontBtn = document.getElementById('frontBtn');
+            const backBtn = document.getElementById('backBtn');
+            
+            if (currentDesignSide === 'front') {
+                frontBtn.classList.add('active');
+                backBtn.classList.remove('active');
+            } else {
+                frontBtn.classList.remove('active');
+                backBtn.classList.add('active');
+            }
+        }
+
+        // Load category-specific templates (from database)
+        async function loadCategoryTemplates() {
+            const grid = document.getElementById('categoryTemplatesGrid');
+            grid.innerHTML = '<div class="loading"><i class="fas fa-spinner spinner"></i>Loading templates...</div>';
+            
+            try {
+                // Try fetching by current category first
+                const category = encodeURIComponent(canvasConfig.category || '');
+                const urlByCategory = `/design-tool/api/database-templates/?per_page=${perPage}&page=1${category ? `&category=${category}` : ''}`;
+                const responseCat = await fetch(urlByCategory);
+                const dataCat = await responseCat.json();
+                
+                if (dataCat.success && dataCat.data.hits.length > 0) {
+                    displayTemplatesInGrid(dataCat.data.hits, grid);
+                    return;
+                }
+                
+                // Fallback: fetch without category to show all active templates
+                const responseAll = await fetch(`/design-tool/api/database-templates/?per_page=${perPage}&page=1`);
+                const dataAll = await responseAll.json();
+                
+                if (dataAll.success && dataAll.data.hits.length > 0) {
+                    displayTemplatesInGrid(dataAll.data.hits, grid);
+                } else {
+                    grid.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 20px;">No templates found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading category templates:', error);
+                grid.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 20px;">Failed to load templates</div>';
+            }
+        }
+
+        // Get template keywords based on category
+        function getTemplateKeywords() {
+            const keywords = {
+                'business-cards': 'business card template professional',
+                'brochures': 'brochure template business tri-fold',
+                'flyers': 'flyer template poster design',
+                'letter-head': 'letterhead template business header',
+                'stickers': 'sticker label design badge',
+                'bill-book': 'invoice template bill receipt'
+            };
+            return keywords[canvasConfig.category] || 'business template';
+        }
+
+        // Search templates with specific keyword
+        async function searchTemplatesWithKeyword(keyword) {
+            const grid = document.getElementById('categoryTemplatesGrid');
+            
+            try {
+                const response = await fetch(`/design-tool/api/database-templates/?q=${encodeURIComponent(keyword)}&per_page=${perPage}&page=1&category=${encodeURIComponent(canvasConfig.category || '')}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.hits.length > 0) {
+                    displayTemplatesInGrid(data.data.hits, grid);
+                } else {
+                    grid.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 20px;">No templates found</div>';
+                }
+            } catch (error) {
+                console.error('Template search error:', error);
+                grid.innerHTML = '<div style="text-align: center; color: var(--red-500); padding: 20px;">Error loading templates</div>';
+            }
+        }
+
+        // Display templates in grid
+        function displayTemplatesInGrid(templates, container) {
+            container.innerHTML = '';
+            
+            templates.forEach(template => {
+                const div = document.createElement('div');
+                div.className = 'template-item';
+                div.title = `${template.tags} - ${template.user}`;
+                
+                const img = document.createElement('img');
+                img.src = template.webformatURL;
+                img.alt = template.tags;
+                img.loading = 'lazy';
+                
+                div.appendChild(img);
+                div.onclick = () => useTemplate(template);
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Tool selection
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+            
+            // Update cursor
+            stage.container().style.cursor = tool === 'text' ? 'text' : 'default';
+        }
+
+        // Add text
+        function addText() {
+            addTextAtPosition({ 
+                x: stage.width() / 2 - 50, 
+                y: stage.height() / 2 - 10 
+            });
+        }
+
+        function addTextAtPosition(pos) {
+            const text = new Konva.Text({
+                x: pos.x,
+                y: pos.y,
+                text: 'Click to edit text',
+                fontSize: currentFontSize,
+                fontFamily: currentFont,
+                fill: currentColor,
+                draggable: true,
+                name: 'text-element'
+            });
+
+            text.on('dblclick', () => editText(text));
+            text.on('dragend', saveState);
+            text.on('transform', saveState);
+
+            layer.add(text);
+            layer.draw();
+            saveState();
+            updateLayers();
+            selectElement(text);
+        }
+
+        // Edit text
+        function editText(textNode) {
+            const textPosition = textNode.absolutePosition();
+            const stageBox = stage.container().getBoundingClientRect();
+            const scale = stage.scaleX();
+
+            const textarea = document.createElement('textarea');
+            document.body.appendChild(textarea);
+
+            textarea.value = textNode.text();
+            textarea.style.position = 'absolute';
+            textarea.style.top = (stageBox.top + textPosition.y * scale) + 'px';
+            textarea.style.left = (stageBox.left + textPosition.x * scale) + 'px';
+            textarea.style.width = Math.max(textNode.width() * scale, 100) + 'px';
+            textarea.style.height = Math.max(textNode.height() * scale, 50) + 'px';
+            textarea.style.fontSize = textNode.fontSize() * scale + 'px';
+            textarea.style.fontFamily = textNode.fontFamily();
+            textarea.style.color = textNode.fill();
+            textarea.style.border = '2px solid var(--blue-500)';
+            textarea.style.borderRadius = '4px';
+            textarea.style.padding = '4px';
+            textarea.style.background = 'white';
+            textarea.style.outline = 'none';
+            textarea.style.resize = 'both';
+            textarea.style.zIndex = '10000';
+
+            textarea.focus();
+            textarea.select();
+
+            function finishEditing() {
+                textNode.text(textarea.value);
+                document.body.removeChild(textarea);
+                layer.draw();
+                saveState();
+                updateProperties();
+            }
+
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    finishEditing();
+                } else if (e.key === 'Escape') {
+                    document.body.removeChild(textarea);
+                }
+            });
+
+            textarea.addEventListener('blur', finishEditing);
+        }
+
+        // Add shapes
+        function addShape(shapeType) {
+            let shape;
+            const centerX = stage.width() / 2;
+            const centerY = stage.height() / 2;
+
+            switch(shapeType) {
+                case 'rect':
+                    shape = new Konva.Rect({
+                        x: centerX - 60,
+                        y: centerY - 40,
+                        width: 120,
+                        height: 80,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'rect-element'
+                    });
+                    break;
+                
+                case 'circle':
+                    shape = new Konva.Circle({
+                        x: centerX,
+                        y: centerY,
+                        radius: 50,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'circle-element'
+                    });
+                    break;
+                
+                case 'triangle':
+                    shape = new Konva.RegularPolygon({
+                        x: centerX,
+                        y: centerY,
+                        sides: 3,
+                        radius: 50,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'triangle-element'
+                    });
+                    break;
+                
+                case 'star':
+                    shape = new Konva.Star({
+                        x: centerX,
+                        y: centerY,
+                        numPoints: 5,
+                        innerRadius: 25,
+                        outerRadius: 50,
+                        fill: currentColor,
+                        stroke: darkenColor(currentColor, 20),
+                        strokeWidth: 2,
+                        draggable: true,
+                        name: 'star-element'
+                    });
+                    break;
+                
+                case 'line':
+                    shape = new Konva.Line({
+                        points: [centerX - 60, centerY, centerX + 60, centerY],
+                        stroke: currentColor,
+                        strokeWidth: 4,
+                        lineCap: 'round',
+                        draggable: true,
+                        name: 'line-element'
+                    });
+                    break;
+            }
+
+            if (shape) {
+                shape.on('dragend', saveState);
+                shape.on('transform', saveState);
+                layer.add(shape);
+                layer.draw();
+                saveState();
+                updateLayers();
+                selectElement(shape);
+            }
+        }
+
+        // Add arrows
+        function addArrow(direction) {
+            const centerX = stage.width() / 2;
+            const centerY = stage.height() / 2;
+            let points;
+
+            switch(direction) {
+                case 'right':
+                    points = [centerX - 50, centerY, centerX + 50, centerY];
+                    break;
+                case 'left':
+                    points = [centerX + 50, centerY, centerX - 50, centerY];
+                    break;
+                case 'up':
+                    points = [centerX, centerY + 50, centerX, centerY - 50];
+                    break;
+                case 'down':
+                    points = [centerX, centerY - 50, centerX, centerY + 50];
+                    break;
+            }
+
+            const arrow = new Konva.Arrow({
+                points: points,
+                pointerLength: 15,
+                pointerWidth: 15,
+                fill: currentColor,
+                stroke: currentColor,
+                strokeWidth: 4,
+                draggable: true,
+                name: 'arrow-element'
+            });
+
+            arrow.on('dragend', saveState);
+            arrow.on('transform', saveState);
+            layer.add(arrow);
+            layer.draw();
+            saveState();
+            updateLayers();
+            selectElement(arrow);
+        }
+
+        // Add icons
+        function addIcon(iconType) {
+            const iconMap = {
+                'phone': '\uf095',
+                'email': '\uf0e0',
+                'location': '\uf041',
+                'globe': '\uf0ac',
+                'linkedin': '\uf0e1',
+                'facebook': '\uf09a'
+            };
+
+            const icon = new Konva.Text({
+                x: stage.width() / 2 - 20,
+                y: stage.height() / 2 - 20,
+                text: iconMap[iconType] || '\uf005',
+                fontSize: 32,
+                fontFamily: 'FontAwesome',
+                fill: currentColor,
+                draggable: true,
+                name: 'icon-element'
+            });
+
+            icon.on('dragend', saveState);
+            icon.on('transform', saveState);
+            layer.add(icon);
+            layer.draw();
+            saveState();
+            updateLayers();
+            selectElement(icon);
+        }
+
+        // Image handling
+        function addSampleImage(imageUrl) {
+            addImageFromUrl(imageUrl);
+        }
+
+        function addImageFromUrl(imageUrl, width = 200, height = 200) {
+            const imageObj = new Image();
+            imageObj.crossOrigin = 'anonymous';
+            
+            imageObj.onload = function() {
+                const aspectRatio = imageObj.width / imageObj.height;
+                let finalWidth = width;
+                let finalHeight = height;
+                
+                if (aspectRatio > 1) {
+                    finalHeight = width / aspectRatio;
+                } else {
+                    finalWidth = height * aspectRatio;
+                }
+
+                const image = new Konva.Image({
+                    x: stage.width() / 2 - finalWidth / 2,
+                    y: stage.height() / 2 - finalHeight / 2,
+                    image: imageObj,
+                    width: finalWidth,
+                    height: finalHeight,
+                    draggable: true,
+                    name: 'image-element'
+                });
+
+                image.on('dragend', saveState);
+                image.on('transform', saveState);
+                layer.add(image);
+                layer.draw();
+                saveState();
+                updateLayers();
+                selectElement(image);
+            };
+            
+            imageObj.onerror = function() {
+                console.error('Failed to load image:', imageUrl);
+                alert('Failed to load image. Please try another image.');
+            };
+            
+            imageObj.src = imageUrl;
+        }
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = e.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addImageFromUrl(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Selection and properties
+        function selectElement(element) {
+            if (!element || element.name() === 'background') return;
+
+            clearSelection();
+            selectedElement = element;
+
+            // Add transformer
+            transformer = new Konva.Transformer({
+                nodes: [element],
+                keepRatio: element.name().includes('image') || element.name().includes('icon'),
+                enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right', 'top-center', 'bottom-center']
+            });
+            
+            layer.add(transformer);
+            layer.draw();
+
+            updateProperties();
+            highlightLayerItem(element);
+        }
+
+        function clearSelection() {
+            selectedElement = null;
+            
+            if (transformer) {
+                transformer.destroy();
+                transformer = null;
+            }
+            
+            layer.draw();
+            clearLayerHighlight();
+            
+            // Hide properties toolbar
+            document.getElementById('propertiesToolbar').style.display = 'none';
+        }
+
+        function updateProperties() {
+            if (!selectedElement) {
+                // Hide properties toolbar when no element is selected
+                document.getElementById('propertiesToolbar').style.display = 'none';
+                return;
+            }
+
+            // Show properties toolbar
+            document.getElementById('propertiesToolbar').style.display = 'flex';
+
+            // Update basic properties
+            document.getElementById('propWidth').value = Math.round(selectedElement.width() || selectedElement.radius() * 2 || 100);
+            document.getElementById('propHeight').value = Math.round(selectedElement.height() || selectedElement.radius() * 2 || 100);
+            document.getElementById('propX').value = Math.round(selectedElement.x());
+            document.getElementById('propY').value = Math.round(selectedElement.y());
+            document.getElementById('propRotation').value = Math.round(selectedElement.rotation());
+            document.getElementById('propOpacity').value = selectedElement.opacity() || 1;
+
+            // Show/hide specific properties
+            const textProps = document.getElementById('textPropertiesToolbar');
+            const imageProps = document.getElementById('imagePropertiesToolbar');
+            
+            textProps.style.display = 'none';
+            imageProps.style.display = 'none';
+
+            if (selectedElement.name().includes('text') || selectedElement.name().includes('icon')) {
+                textProps.style.display = 'block';
+                document.getElementById('propFontSize').value = selectedElement.fontSize() || 16;
+                document.getElementById('propFontFamily').value = selectedElement.fontFamily() || 'Inter';
+                document.getElementById('propTextColor').value = selectedElement.fill() || '#000000';
+                
+                // Update text style buttons
+                updateTextStyleButtons();
+            } else if (selectedElement.name().includes('image')) {
+                imageProps.style.display = 'block';
+            }
+        }
+
+        function updateTextStyleButtons() {
+            if (!selectedElement) return;
+            
+            const fontStyle = selectedElement.fontStyle() || 'normal';
+            const textDecoration = selectedElement.textDecoration() || 'none';
+            const align = selectedElement.align() || 'left';
+            
+            // Update button states
+            document.getElementById('boldBtn').classList.toggle('active', fontStyle.includes('bold'));
+            document.getElementById('italicBtn').classList.toggle('active', fontStyle.includes('italic'));
+            document.getElementById('underlineBtn').classList.toggle('active', textDecoration === 'underline');
+            
+            // Update alignment buttons
+            document.querySelectorAll('[id$="AlignBtn"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(align + 'AlignBtn').classList.add('active');
+        }
+
+        function updateSelectedElement() {
+            if (!selectedElement) return;
+
+            const width = parseFloat(document.getElementById('propWidth').value);
+            const height = parseFloat(document.getElementById('propHeight').value);
+            const x = parseFloat(document.getElementById('propX').value);
+            const y = parseFloat(document.getElementById('propY').value);
+            const rotation = parseFloat(document.getElementById('propRotation').value);
+            const opacity = parseFloat(document.getElementById('propOpacity').value);
+
+            selectedElement.x(x);
+            selectedElement.y(y);
+            selectedElement.rotation(rotation);
+            selectedElement.opacity(opacity);
+
+            if (selectedElement.name().includes('circle')) {
+                selectedElement.radius(width / 2);
+            } else if (selectedElement.width && selectedElement.height) {
+                selectedElement.width(width);
+                selectedElement.height(height);
+            }
+
+            // Update text properties
+            if (selectedElement.name().includes('text') || selectedElement.name().includes('icon')) {
+                const fontSize = parseFloat(document.getElementById('propFontSize').value);
+                const fontFamily = document.getElementById('propFontFamily').value;
+                const textColor = document.getElementById('propTextColor').value;
+
+                selectedElement.fontSize(fontSize);
+                selectedElement.fontFamily(fontFamily);
+                selectedElement.fill(textColor);
+            }
+
+            layer.draw();
+            saveState();
+        }
+
+        // Text styling functions
+        function toggleTextStyle(style) {
+            if (!selectedElement || (!selectedElement.name().includes('text') && !selectedElement.name().includes('icon'))) return;
+
+            switch(style) {
+                case 'bold':
+                    const currentWeight = selectedElement.fontStyle() || 'normal';
+                    selectedElement.fontStyle(currentWeight.includes('bold') ? 'normal' : 'bold');
+                    break;
+                case 'italic':
+                    const currentStyle = selectedElement.fontStyle() || 'normal';
+                    selectedElement.fontStyle(currentStyle.includes('italic') ? 'normal' : 'italic');
+                    break;
+                case 'underline':
+                    const currentDecoration = selectedElement.textDecoration() || 'none';
+                    selectedElement.textDecoration(currentDecoration === 'underline' ? 'none' : 'underline');
+                    break;
+            }
+            
+            layer.draw();
+            saveState();
+            updateTextStyleButtons();
+        }
+
+        function setTextAlign(align) {
+            if (!selectedElement || (!selectedElement.name().includes('text') && !selectedElement.name().includes('icon'))) return;
+            
+            selectedElement.align(align);
+            layer.draw();
+            saveState();
+            updateTextStyleButtons();
+        }
+
+        // Color functions
+        function selectColor(color) {
+            currentColor = color;
+            
+            // Update UI
+            document.querySelectorAll('.color-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-color="${color}"]`)?.classList.add('active');
+
+            // Apply to selected element
+            if (selectedElement) {
+                if (selectedElement.name().includes('text') || selectedElement.name().includes('icon')) {
+                    selectedElement.fill(color);
+                    document.getElementById('propTextColor').value = color;
+                } else {
+                    selectedElement.fill(color);
+                    if (selectedElement.stroke) {
+                        selectedElement.stroke(darkenColor(color, 20));
+                    }
+                }
+                layer.draw();
+                saveState();
+            }
+        }
+
+        function applyGradient(gradient) {
+            // For simplicity, apply the first color of the gradient
+            const colors = gradient.match(/#[a-fA-F0-9]{6}/g);
+            if (colors && colors.length > 0) {
+                selectColor(colors[0]);
+            }
+        }
+
+        // Grid functionality
+        function addGrid() {
+            gridLayer.destroyChildren();
+            
+            if (!gridVisible) return;
+
+            const gridSize = 20;
+            const width = stage.width();
+            const height = stage.height();
+
+            // Vertical lines
+            for (let i = 0; i <= width / gridSize; i++) {
+                const line = new Konva.Line({
+                    points: [i * gridSize, 0, i * gridSize, height],
+                    stroke: '#f1f5f9',
+                    strokeWidth: 1,
+                    listening: false
+                });
+                gridLayer.add(line);
+            }
+
+            // Horizontal lines
+            for (let i = 0; i <= height / gridSize; i++) {
+                const line = new Konva.Line({
+                    points: [0, i * gridSize, width, i * gridSize],
+                    stroke: '#f1f5f9',
+                    strokeWidth: 1,
+                    listening: false
+                });
+                gridLayer.add(line);
+            }
+            
+            gridLayer.draw();
+        }
+
+        function toggleGrid() {
+            gridVisible = !gridVisible;
+            addGrid();
+            document.getElementById('gridToggle').classList.toggle('active', gridVisible);
+        }
+
+        // Visual guides toggle
+        let guidesVisible = true;
+        
+        function toggleVisualGuides() {
+            guidesVisible = !guidesVisible;
+            const guides = stage.find('.visual-guide');
+            guides.forEach(guide => guide.visible(guidesVisible));
+            gridLayer.batchDraw();
+            document.getElementById('guidesToggle').classList.toggle('active', guidesVisible);
+        }
+
+        // Layer management
+        function updateLayers() {
+            const layersList = document.getElementById('layersList');
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            ).reverse();
+            
+            layersList.innerHTML = '';
+
+            objects.forEach((obj, index) => {
+                const layerItem = document.createElement('div');
+                layerItem.className = 'layer-item';
+                layerItem.innerHTML = `
+                    <i class="fas fa-${getObjectIcon(obj.name())} layer-icon"></i>
+                    <span class="layer-name">${getObjectName(obj)}</span>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="btn-icon" style="width: 20px; height: 20px; font-size: 10px;" onclick="toggleObjectVisibility(${objects.length - 1 - index})">
+                            <i class="fas fa-${obj.visible() !== false ? 'eye' : 'eye-slash'}"></i>
+                        </button>
+                        <button class="btn-icon" style="width: 20px; height: 20px; font-size: 10px; color: var(--red-500);" onclick="deleteObject(${objects.length - 1 - index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                layerItem.addEventListener('click', (e) => {
+                    if (!e.target.closest('.btn-icon')) {
+                        selectElement(obj);
+                    }
+                });
+
+                layersList.appendChild(layerItem);
+            });
+        }
+
+        function getObjectIcon(name) {
+            if (name.includes('text')) return 'font';
+            if (name.includes('image')) return 'image';
+            if (name.includes('rect')) return 'square';
+            if (name.includes('circle')) return 'circle';
+            if (name.includes('star')) return 'star';
+            if (name.includes('triangle')) return 'play';
+            if (name.includes('arrow')) return 'arrow-right';
+            if (name.includes('icon')) return 'icons';
+            if (name.includes('line')) return 'minus';
+            return 'square';
+        }
+
+        function getObjectName(obj) {
+            if (obj.name().includes('text')) {
+                const text = obj.text() || 'Text';
+                return text.length > 15 ? text.substring(0, 15) + '...' : text;
+            }
+            return obj.name().replace('-element', '').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
+
+        function highlightLayerItem(element) {
+            clearLayerHighlight();
+            const layers = document.querySelectorAll('.layer-item');
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            ).reverse();
+            const index = objects.indexOf(element);
+            if (layers[index]) {
+                layers[index].classList.add('active');
+            }
+        }
+
+        function clearLayerHighlight() {
+            document.querySelectorAll('.layer-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        function toggleObjectVisibility(index) {
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            );
+            const obj = objects[index];
+            if (obj) {
+                obj.visible(!obj.visible());
+                layer.draw();
+                updateLayers();
+                saveState();
+            }
+        }
+
+        function deleteObject(index) {
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            );
+            const obj = objects[index];
+            if (obj) {
+                if (obj === selectedElement) {
+                    clearSelection();
+                }
+                obj.destroy();
+                layer.draw();
+                updateLayers();
+                saveState();
+            }
+        }
+
+        function moveLayerUp() {
+            if (!selectedElement) return;
+            selectedElement.moveUp();
+            layer.draw();
+            updateLayers();
+            saveState();
+        }
+
+        function moveLayerDown() {
+            if (!selectedElement) return;
+            selectedElement.moveDown();
+            layer.draw();
+            updateLayers();
+            saveState();
+        }
+
+        // History management
+        function saveState() {
+            history = history.slice(0, historyStep + 1);
+            const state = stage.toJSON();
+            history.push(state);
+            historyStep++;
+            
+            if (history.length > 50) {
+                history.shift();
+                historyStep--;
+            }
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                restoreState();
+            }
+        }
+
+        function redo() {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                restoreState();
+            }
+        }
+
+        function restoreState() {
+            clearSelection();
+            stage.destroy();
+            stage = Konva.Node.create(history[historyStep], 'konva-container');
+            backgroundLayer = stage.children[0];
+            layer = stage.children[1];
+            gridLayer = stage.children[2] || new Konva.Layer();
+            if (!stage.children[2]) {
+                stage.add(gridLayer);
+            }
+            addGrid();
+            updateLayers();
+        }
+
+        // Zoom controls
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            stage.scale({ x: currentZoom, y: currentZoom });
+            stage.draw();
+            updateZoomLevel();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.2);
+            stage.scale({ x: currentZoom, y: currentZoom });
+            stage.draw();
+            updateZoomLevel();
+        }
+
+        function fitToScreen() {
+            currentZoom = 1;
+            stage.scale({ x: 1, y: 1 });
+            stage.position({ x: 0, y: 0 });
+            stage.draw();
+            updateZoomLevel();
+        }
+
+        function updateZoomLevel() {
+            document.getElementById('zoomLevel').textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        // Alignment functions
+        function alignLeft() {
+            if (!selectedElement) return;
+            selectedElement.x(20);
+            layer.draw();
+            updateProperties();
+            saveState();
+        }
+
+        function alignCenter() {
+            if (!selectedElement) return;
+            const elementWidth = selectedElement.width() || selectedElement.radius() * 2 || 0;
+            selectedElement.x((stage.width() - elementWidth) / 2);
+            layer.draw();
+            updateProperties();
+            saveState();
+        }
+
+        function alignRight() {
+            if (!selectedElement) return;
+            const elementWidth = selectedElement.width() || selectedElement.radius() * 2 || 0;
+            selectedElement.x(stage.width() - elementWidth - 20);
+            layer.draw();
+            updateProperties();
+            saveState();
+        }
+
+        // Delete and duplicate functions
+        function deleteSelected() {
+            if (selectedElement) {
+                selectedElement.destroy();
+                clearSelection();
+                layer.draw();
+                updateLayers();
+                saveState();
+            }
+        }
+
+        function duplicateSelected() {
+            if (selectedElement) {
+                const clone = selectedElement.clone({
+                    x: selectedElement.x() + 20,
+                    y: selectedElement.y() + 20
+                });
+                
+                // Re-attach event listeners
+                clone.on('dragend', saveState);
+                clone.on('transform', saveState);
+                if (clone.name().includes('text')) {
+                    clone.on('dblclick', () => editText(clone));
+                }
+                
+                layer.add(clone);
+                layer.draw();
+                updateLayers();
+                saveState();
+                selectElement(clone);
+            }
+        }
+
+        // Template functions
+        function searchTemplates() {
+            const query = document.getElementById('templateSearch').value.trim();
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            templateCurrentPage = 1;
+            searchPixabayTemplates(query);
+        }
+
+        async function searchPixabayTemplates(query) {
+            const loading = document.getElementById('templateLoading');
+            const grid = document.getElementById('pixabayTemplatesGrid');
+            const pagination = document.getElementById('templatePagination');
+            
+            try {
+                loading.style.display = 'flex';
+                grid.innerHTML = '';
+                pagination.style.display = 'none';
+                
+                const response = await fetch(`/design-tool/api/database-templates/?q=${encodeURIComponent(query)}&page=${templateCurrentPage}&per_page=${perPage}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.hits.length > 0) {
+                    templateTotalHits = data.data.totalHits;
+                    displayTemplatesInGrid(data.data.hits, grid);
+                    setupTemplatePagination(query);
+                } else {
+                    grid.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 20px;">No templates found</div>';
+                }
+                
+            } catch (error) {
+                console.error('Template search error:', error);
+                grid.innerHTML = '<div style="text-align: center; color: var(--red-500); padding: 20px;">Error searching templates</div>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function setupTemplatePagination(query) {
+            const pagination = document.getElementById('templatePagination');
+            const pageInfo = document.getElementById('templatePageInfo');
+            const prevBtn = document.getElementById('prevTemplatePage');
+            const nextBtn = document.getElementById('nextTemplatePage');
+            
+            const totalPages = Math.ceil(templateTotalHits / perPage);
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `${templateCurrentPage} / ${totalPages}`;
+                
+                prevBtn.disabled = templateCurrentPage <= 1;
+                nextBtn.disabled = templateCurrentPage >= totalPages;
+            }
+        }
+
+        async function changeTemplatePage(direction) {
+            const query = document.getElementById('templateSearch').value.trim();
+            if (!query) return;
+            
+            const newPage = templateCurrentPage + direction;
+            const totalPages = Math.ceil(templateTotalHits / perPage);
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                templateCurrentPage = newPage;
+                await searchPixabayTemplates(query);
+            }
+        }
+
+        function useTemplate(templateData) {
+            if (!confirm('This will replace your current canvas with this template. Continue?')) {
+                return;
+            }
+            clearCanvas();
+            
+            // 1) If structured template data exists, use it for editable elements (fallback to SVG if empty)
+            if (templateData.template_data && Array.isArray(templateData.template_data.objects)) {
+                if (templateData.template_data.objects.length > 0) {
+                    applyTemplateData(templateData.template_data);
+                    return;
+                } else if (templateData.templateFileURL && /\.svg(\?|$)/i.test(templateData.templateFileURL)) {
+                    loadSvgAsEditable(templateData.templateFileURL);
+                    return;
+                }
+            }
+            
+            // 2) If a template file is provided and is SVG, parse as editable vectors
+            if (templateData.templateFileURL && /\.svg(\?|$)/i.test(templateData.templateFileURL)) {
+                loadSvgAsEditable(templateData.templateFileURL);
+                return;
+            }
+            
+            // 3) Fallback: place as background image (non-editable vector)
+            const imageUrl = templateData.largeImageURL || templateData.webformatURL;
+            addTemplateAsBackground(imageUrl, templateData);
+        }
+
+        // Apply structured template data (supports a simple Fabric-like schema)
+        function applyTemplateData(data) {
+            try {
+                const objects = data.objects || [];
+                objects.forEach(obj => {
+                    const node = createKonvaNodeFromObject(obj);
+                    if (node) {
+                        layer.add(node);
+                        attachCommonHandlers(node);
+                    }
+                });
+                layer.draw();
+                updateLayers();
+                saveState();
+            } catch (e) {
+                console.error('Failed to apply template data:', e);
+                alert('Template could not be applied as editable objects. Using image instead.');
+            }
+        }
+
+        function createKonvaNodeFromObject(obj) {
+            const type = (obj.type || obj.className || '').toLowerCase();
+            const common = {
+                x: obj.left ?? obj.x ?? 0,
+                y: obj.top ?? obj.y ?? 0,
+                rotation: obj.angle ?? obj.rotation ?? 0,
+                opacity: obj.opacity ?? 1,
+                draggable: true,
+                name: obj.name || (type === 'text' ? 'text-element' : 'shape-element')
+            };
+            const fill = obj.fill || obj.fillColor;
+            const stroke = obj.stroke || obj.strokeColor;
+            const strokeWidth = obj.strokeWidth ?? 0;
+            
+            switch (type) {
+                case 'rect':
+                    return new Konva.Rect({
+                        ...common,
+                        width: obj.width ?? 100,
+                        height: obj.height ?? 100,
+                        fill: fill || 'transparent',
+                        stroke: stroke || undefined,
+                        strokeWidth
+                    });
+                case 'circle':
+                    return new Konva.Circle({
+                        ...common,
+                        radius: obj.radius ?? obj.r ?? 50,
+                        fill: fill || 'transparent',
+                        stroke: stroke || undefined,
+                        strokeWidth
+                    });
+                case 'ellipse':
+                    return new Konva.Ellipse({
+                        ...common,
+                        radius: {
+                            x: obj.rx ?? (obj.width ? obj.width / 2 : 50),
+                            y: obj.ry ?? (obj.height ? obj.height / 2 : 30)
+                        },
+                        fill: fill || 'transparent',
+                        stroke: stroke || undefined,
+                        strokeWidth
+                    });
+                case 'line':
+                    return new Konva.Line({
+                        ...common,
+                        points: obj.points || [0, 0, 100, 0],
+                        stroke: stroke || '#000',
+                        strokeWidth: strokeWidth || 2
+                    });
+                case 'polygon':
+                case 'polyline': {
+                    const points = (obj.points || []).flat();
+                    return new Konva.Line({
+                        ...common,
+                        points: points.length ? points : [0, 0, 100, 0, 50, 80],
+                        closed: type === 'polygon',
+                        fill: fill || (type === 'polygon' ? '#ccc' : undefined),
+                        stroke: stroke || '#000',
+                        strokeWidth: strokeWidth || 1
+                    });
+                }
+                case 'path':
+                    return new Konva.Path({
+                        ...common,
+                        data: obj.path || obj.d || 'M0 0 L100 0 L100 100 Z',
+                        fill: fill || 'transparent',
+                        stroke: stroke || undefined,
+                        strokeWidth
+                    });
+                case 'text':
+                case 'textbox':
+                    return new Konva.Text({
+                        ...common,
+                        text: obj.text || 'Text',
+                        fontSize: obj.fontSize ?? 18,
+                        fontFamily: obj.fontFamily || 'Inter',
+                        fontStyle: `${obj.fontWeight === 'bold' ? 'bold ' : ''}${obj.fontStyle || ''}`.trim(),
+                        fill: obj.fill || '#000',
+                        width: obj.width ?? undefined,
+                        align: obj.textAlign || 'left'
+                    });
+                default:
+                    return null;
+            }
+        }
+
+        function attachCommonHandlers(node) {
+            node.on('dragend', saveState);
+            node.on('transform', saveState);
+            if (node.className === 'Text' || node.name().includes('text')) {
+                node.on('dblclick', () => editText(node));
+            }
+        }
+
+        // Load an SVG as editable Konva nodes
+        async function loadSvgAsEditable(svgUrl) {
+            try {
+                const res = await fetch(svgUrl);
+                const svgText = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(svgText, 'image/svg+xml');
+                const svgEl = doc.documentElement;
+                currentSvgDocument = doc;
+                
+                // Determine viewBox and scaling to fit canvas
+                const vb = (svgEl.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(parseFloat);
+                let vbX = 0, vbY = 0;
+                let vbW = canvasConfig.width, vbH = canvasConfig.height;
+                if (vb.length === 4 && vb.every(n => !isNaN(n))) {
+                    [vbX, vbY, vbW, vbH] = vb;
+                } else {
+                    const attrW = svgEl.getAttribute('width');
+                    const attrH = svgEl.getAttribute('height');
+                    if (attrW) vbW = parseSvgLength(attrW);
+                    if (attrH) vbH = parseSvgLength(attrH);
+                }
+                const canvasW = canvasConfig.width;
+                const canvasH = canvasConfig.height;
+                let scale = 1;
+                if (templateImportMode === 'fit') {
+                    scale = Math.min(canvasW / vbW, canvasH / vbH) || 1;
+                }
+                // Placement centered; do not resize canvas
+                let offsetX = (canvasW - vbW * scale) / 2 - vbX * scale;
+                let offsetY = (canvasH - vbH * scale) / 2 - vbY * scale;
+                
+                const nodes = [];
+                const imageTasks = [];
+                const templateGroup = new Konva.Group({
+                    name: 'template-group',
+                    x: offsetX - vbX * scale,
+                    y: offsetY - vbY * scale,
+                    scaleX: scale,
+                    scaleY: scale,
+                    draggable: true
+                });
+                currentTemplateGroup = templateGroup;
+                const baseTransform = { x: 0, y: 0, scaleX: 1, scaleY: 1, rotation: 0 };
+                
+                // Strategy A: Use computed styles by mounting temp SVG into DOM (handles <style> and classes)
+                try {
+                    const tempHost = document.createElement('div');
+                    tempHost.style.position = 'absolute';
+                    tempHost.style.left = '-99999px';
+                    tempHost.style.top = '-99999px';
+                    tempHost.style.width = '0';
+                    tempHost.style.height = '0';
+                    document.body.appendChild(tempHost);
+                    const mountedSvg = svgEl.cloneNode(true);
+                    tempHost.appendChild(mountedSvg);
+                    
+                    Array.from(mountedSvg.children || []).forEach(child => buildKonvaFromSvgComputed(child, baseTransform, {}, nodes, imageTasks));
+                    tempHost.remove();
+                } catch (e) {
+                    console.warn('Computed-style SVG parsing failed, falling back to attribute styles:', e);
+                    const baseStyle = {};
+                    Array.from(svgEl.children || []).forEach(child => buildKonvaFromSvg(child, baseTransform, baseStyle, nodes, imageTasks));
+                }
+                
+                if (nodes.length === 0) {
+                    throw new Error('No drawable SVG nodes parsed');
+                }
+                
+                nodes.forEach(node => {
+                    templateGroup.add(node);
+                    attachCommonHandlers(node);
+                });
+                layer.add(templateGroup);
+                // Execute image tasks to load and add <image> elements
+                if (imageTasks.length) {
+                    await Promise.all(imageTasks.map(task => task().catch(() => {})));
+                }
+                layer.draw();
+                updateLayers();
+                saveState();
+                currentSvgDocument = null;
+                currentTemplateGroup = null;
+            } catch (e) {
+                console.error('SVG parse failed, falling back to image:', e);
+                addTemplateAsBackground(svgUrl);
+                currentSvgDocument = null;
+                currentTemplateGroup = null;
+            }
+        }
+
+        function buildKonvaFromSvg(el, parentTransform, parentStyle, out, imageTasks) {
+            const tag = el.tagName.toLowerCase();
+            if (tag === 'defs') return; // ignore defs
+            
+            const t = combineTransforms(parentTransform, parseSvgTransform(el.getAttribute('transform')));
+            const style = combineStyles(parentStyle, parseSvgStyle(el));
+            
+            // Create nodes for supported types
+            let node = null;
+            const fillVal = normalizePaint(style.fill);
+            const strokeVal = normalizePaint(style.stroke);
+            const strokeWidth = style.strokeWidth != null ? parseFloat(style.strokeWidth) : 0;
+            
+            if (tag === 'rect') {
+                const x = parseSvgLength(el.getAttribute('x') || '0');
+                const y = parseSvgLength(el.getAttribute('y') || '0');
+                const w = parseSvgLength(el.getAttribute('width') || '0');
+                const h = parseSvgLength(el.getAttribute('height') || '0');
+                node = new Konva.Rect({ x, y, width: w, height: h, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'circle') {
+                const cx = parseSvgLength(el.getAttribute('cx') || '0');
+                const cy = parseSvgLength(el.getAttribute('cy') || '0');
+                const r = parseSvgLength(el.getAttribute('r') || '0');
+                node = new Konva.Circle({ x: cx, y: cy, radius: r, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'ellipse') {
+                const cx = parseSvgLength(el.getAttribute('cx') || '0');
+                const cy = parseSvgLength(el.getAttribute('cy') || '0');
+                const rx = parseSvgLength(el.getAttribute('rx') || '0');
+                const ry = parseSvgLength(el.getAttribute('ry') || '0');
+                node = new Konva.Ellipse({ x: cx, y: cy, radius: { x: rx, y: ry }, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'line') {
+                const x1 = parseSvgLength(el.getAttribute('x1') || '0');
+                const y1 = parseSvgLength(el.getAttribute('y1') || '0');
+                const x2 = parseSvgLength(el.getAttribute('x2') || '0');
+                const y2 = parseSvgLength(el.getAttribute('y2') || '0');
+                node = new Konva.Line({ points: [x1, y1, x2, y2], stroke: strokeVal || '#000', strokeWidth: strokeWidth || 2, draggable: true, opacity: style.opacity });
+            } else if (tag === 'polyline' || tag === 'polygon') {
+                const pts = (el.getAttribute('points') || '').trim().split(/[\s,]+/).map(parseFloat);
+                node = new Konva.Line({ points: pts, closed: tag === 'polygon', fill: fillVal || (tag === 'polygon' ? '#ccc' : undefined), stroke: strokeVal || '#000', strokeWidth: strokeWidth || 1, draggable: true, opacity: style.opacity });
+            } else if (tag === 'path') {
+                const d = el.getAttribute('d') || '';
+                node = new Konva.Path({ data: d, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'text') {
+                const x = parseSvgLength(el.getAttribute('x') || '0');
+                const y = parseSvgLength(el.getAttribute('y') || '0');
+                const fontSize = parseSvgLength(el.getAttribute('font-size') || '18');
+                const fontFamily = el.getAttribute('font-family') || 'Inter';
+                const textContent = el.textContent || '';
+                node = new Konva.Text({ x, y, text: textContent, fontSize, fontFamily, fill: fillVal || '#000', draggable: true, name: 'text-element', opacity: style.opacity });
+            } else if (tag === 'image') {
+                const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+                if (href) {
+                    const ix = parseSvgLength(el.getAttribute('x') || '0');
+                    const iy = parseSvgLength(el.getAttribute('y') || '0');
+                    const iw = parseSvgLength(el.getAttribute('width') || '0');
+                    const ih = parseSvgLength(el.getAttribute('height') || '0');
+                    const opacity = style.opacity != null ? style.opacity : 1;
+                    imageTasks && imageTasks.push(async () => {
+                        return new Promise(resolve => {
+                            const img = new Image();
+                            img.crossOrigin = 'anonymous';
+                            img.onload = function() {
+                                const konvaImg = new Konva.Image({ x: ix, y: iy, width: iw || img.width, height: ih || img.height, opacity, draggable: true, name: 'image-element' });
+                                applyTransform(konvaImg, t);
+                                layer.add(konvaImg);
+                                konvaImg.image(img);
+                                attachCommonHandlers(konvaImg);
+                                layer.draw();
+                                resolve();
+                            };
+                            img.onerror = function() { resolve(); };
+                            img.src = href;
+                        });
+                    });
+                }
+            } else if (tag === 'use') {
+                const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+                if (href && href.startsWith('#') && el.ownerDocument) {
+                    const refId = href.slice(1);
+                    const refEl = el.ownerDocument.getElementById(refId);
+                    const ux = parseFloat(el.getAttribute('x') || '0');
+                    const uy = parseFloat(el.getAttribute('y') || '0');
+                    const tUse = combineTransforms(t, { x: ux, y: uy, scaleX: 1, scaleY: 1, rotation: 0 });
+                    if (refEl) {
+                        buildKonvaFromSvg(refEl, tUse, style, out, imageTasks);
+                    }
+                }
+            }
+            
+            if (node) {
+                applyTransform(node, t);
+                attachCommonHandlers(node);
+                out.push(node);
+            } else {
+                // No node for this tag, but still traverse children (e.g., groups)
+            }
+            
+            // Recurse children, inherit style
+            Array.from(el.children || []).forEach(child => buildKonvaFromSvg(child, t, style, out, imageTasks));
+        }
+
+        function parseSvgTransform(t) {
+            const tf = { x: 0, y: 0, scaleX: 1, scaleY: 1, rotation: 0 };
+            if (!t) return tf;
+            const translate = /translate\(([^\)]+)\)/.exec(t);
+            if (translate) {
+                const [tx, ty] = translate[1].split(/[ ,]+/).map(parseFloat);
+                tf.x = tx || 0; tf.y = ty || 0;
+            }
+            const scale = /scale\(([^\)]+)\)/.exec(t);
+            if (scale) {
+                const parts = scale[1].split(/[ ,]+/).map(parseFloat);
+                tf.scaleX = parts[0] || 1; tf.scaleY = (parts[1] != null ? parts[1] : parts[0]) || 1;
+            }
+            const rotate = /rotate\(([^\)]+)\)/.exec(t);
+            if (rotate) {
+                const angle = parseFloat(rotate[1].split(/[ ,]+/)[0]);
+                tf.rotation = angle || 0;
+            }
+            const matrix = /matrix\(([^\)]+)\)/.exec(t);
+            if (matrix) {
+                const [a,b,c,d,e,f] = matrix[1].split(/[ ,]+/).map(parseFloat);
+                if (!isNaN(e)) tf.x += e;
+                if (!isNaN(f)) tf.y += f;
+                // Decompose matrix into rotation and scales
+                const scaleX = Math.hypot(a, b) || 1;
+                const scaleY = Math.hypot(c, d) || 1;
+                const rotationRad = Math.atan2(b, a);
+                const rotationDeg = rotationRad * (180 / Math.PI);
+                tf.scaleX *= scaleX;
+                tf.scaleY *= scaleY;
+                tf.rotation += rotationDeg;
+            }
+            return tf;
+        }
+
+        function parseSvgStyle(el) {
+            const style = {};
+            // Presentation attributes
+            if (el.hasAttribute('fill')) style.fill = el.getAttribute('fill');
+            if (el.hasAttribute('stroke')) style.stroke = el.getAttribute('stroke');
+            if (el.hasAttribute('stroke-width')) style.strokeWidth = el.getAttribute('stroke-width');
+            if (el.hasAttribute('opacity')) style.opacity = parseFloat(el.getAttribute('opacity'));
+            if (el.hasAttribute('fill-opacity')) style.fillOpacity = parseFloat(el.getAttribute('fill-opacity'));
+            if (el.hasAttribute('stroke-opacity')) style.strokeOpacity = parseFloat(el.getAttribute('stroke-opacity'));
+            
+            // Inline style attribute
+            const styleAttr = el.getAttribute('style');
+            if (styleAttr) {
+                styleAttr.split(';').forEach(rule => {
+                    const [k, v] = rule.split(':').map(s => s && s.trim());
+                    if (!k) return;
+                    if (k === 'fill') style.fill = v;
+                    else if (k === 'stroke') style.stroke = v;
+                    else if (k === 'stroke-width') style.strokeWidth = v;
+                    else if (k === 'opacity') style.opacity = parseFloat(v);
+                    else if (k === 'fill-opacity') style.fillOpacity = parseFloat(v);
+                    else if (k === 'stroke-opacity') style.strokeOpacity = parseFloat(v);
+                });
+            }
+            return style;
+        }
+
+        function combineStyles(parent, child) {
+            const s = { ...(parent || {}) };
+            Object.keys(child || {}).forEach(k => {
+                if (child[k] != null && child[k] !== '') s[k] = child[k];
+            });
+            return s;
+        }
+
+        function normalizePaint(val) {
+            if (!val || val === 'none') return undefined;
+            return val;
+        }
+
+        // Convert SVG length (supports px, mm, cm, in, pt, pc). Percentages are left as-is to avoid incorrect scaling.
+        function parseSvgLength(val) {
+            if (val == null) return 0;
+            if (typeof val === 'number') return val;
+            const s = String(val).trim();
+            if (s === '') return 0;
+            const m = s.match(/^(-?\d*\.?\d+)([a-z%]*)$/i);
+            if (!m) return parseFloat(s) || 0;
+            const n = parseFloat(m[1]);
+            const u = m[2].toLowerCase();
+            switch (u) {
+                case '':
+                case 'px': return n;
+                case 'mm': return n * 3.7795275591; // 96 dpi
+                case 'cm': return n * 37.795275591;
+                case 'in': return n * 96;
+                case 'pt': return n * (96 / 72);
+                case 'pc': return n * 16; // 12pt
+                case '%':
+                    // Percentage requires reference dimension. Without context, best effort is 0.
+                    return 0;
+                default:
+                    return n; // fallback
+            }
+        }
+
+        // Build using computed CSS styles (supports <style> blocks and classes)
+        function buildKonvaFromSvgComputed(el, parentTransform, parentStyle, out, imageTasks) {
+            const tag = el.tagName && el.tagName.toLowerCase();
+            if (!tag || tag === 'defs' || tag === 'clipPath' || tag === 'mask' || tag === 'title' || tag === 'desc') return;
+            
+            const t = combineTransforms(parentTransform, parseSvgTransform(el.getAttribute('transform')));
+            const cs = window.getComputedStyle(el);
+            const curStyle = {
+                fill: cs.fill,
+                stroke: cs.stroke,
+                strokeWidth: cs.strokeWidth,
+                opacity: parseFloat(cs.opacity || '1'),
+                fillOpacity: parseFloat(cs.fillOpacity || '1'),
+                strokeOpacity: parseFloat(cs.strokeOpacity || '1')
+            };
+            const style = combineStyles(parentStyle, curStyle);
+            
+            let node = null;
+            const fillVal = normalizePaint(style.fill);
+            const strokeVal = normalizePaint(style.stroke);
+            const strokeWidth = style.strokeWidth != null ? parseSvgLength(style.strokeWidth) : 0;
+            const visibility = cs.visibility;
+            const display = cs.display;
+            if (display === 'none' || visibility === 'hidden') {
+                // Skip invisible elements
+            } else if (tag === 'rect') {
+                const x = parseSvgLength(el.getAttribute('x') || '0');
+                const y = parseSvgLength(el.getAttribute('y') || '0');
+                const w = parseSvgLength(el.getAttribute('width') || '0');
+                const h = parseSvgLength(el.getAttribute('height') || '0');
+                node = new Konva.Rect({ x, y, width: w, height: h, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'circle') {
+                const cx = parseSvgLength(el.getAttribute('cx') || '0');
+                const cy = parseSvgLength(el.getAttribute('cy') || '0');
+                const r = parseSvgLength(el.getAttribute('r') || '0');
+                node = new Konva.Circle({ x: cx, y: cy, radius: r, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'ellipse') {
+                const cx = parseSvgLength(el.getAttribute('cx') || '0');
+                const cy = parseSvgLength(el.getAttribute('cy') || '0');
+                const rx = parseSvgLength(el.getAttribute('rx') || '0');
+                const ry = parseSvgLength(el.getAttribute('ry') || '0');
+                node = new Konva.Ellipse({ x: cx, y: cy, radius: { x: rx, y: ry }, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'line') {
+                const x1 = parseSvgLength(el.getAttribute('x1') || '0');
+                const y1 = parseSvgLength(el.getAttribute('y1') || '0');
+                const x2 = parseSvgLength(el.getAttribute('x2') || '0');
+                const y2 = parseSvgLength(el.getAttribute('y2') || '0');
+                node = new Konva.Line({ points: [x1, y1, x2, y2], stroke: strokeVal || '#000', strokeWidth: strokeWidth || 2, draggable: true, opacity: style.opacity });
+            } else if (tag === 'polyline' || tag === 'polygon') {
+                const pts = (el.getAttribute('points') || '').trim().split(/[\s,]+/).map(parseFloat);
+                node = new Konva.Line({ points: pts, closed: tag === 'polygon', fill: fillVal || (tag === 'polygon' ? '#ccc' : undefined), stroke: strokeVal || '#000', strokeWidth: strokeWidth || 1, draggable: true, opacity: style.opacity });
+            } else if (tag === 'path') {
+                const d = el.getAttribute('d') || '';
+                node = new Konva.Path({ data: d, fill: fillVal, stroke: strokeVal, strokeWidth, draggable: true, opacity: style.opacity });
+            } else if (tag === 'text') {
+                const x = parseSvgLength(el.getAttribute('x') || '0');
+                const y = parseSvgLength(el.getAttribute('y') || '0');
+                const fontSize = parseSvgLength(el.getAttribute('font-size') || cs.fontSize || '18');
+                const fontFamily = el.getAttribute('font-family') || cs.fontFamily || 'Inter';
+                const textContent = el.textContent || '';
+                node = new Konva.Text({ x, y, text: textContent, fontSize, fontFamily, fill: fillVal || '#000', draggable: true, name: 'text-element', opacity: style.opacity });
+            } else if (tag === 'image') {
+                const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+                if (href) {
+                    const ix = parseSvgLength(el.getAttribute('x') || '0');
+                    const iy = parseSvgLength(el.getAttribute('y') || '0');
+                    const iw = parseSvgLength(el.getAttribute('width') || '0');
+                    const ih = parseSvgLength(el.getAttribute('height') || '0');
+                    const opacity = style.opacity != null ? style.opacity : 1;
+                    imageTasks && imageTasks.push(async () => {
+                        return new Promise(resolve => {
+                            const img = new Image();
+                            img.crossOrigin = 'anonymous';
+                            img.onload = function() {
+                                const konvaImg = new Konva.Image({ x: ix, y: iy, width: iw || img.width, height: ih || img.height, opacity, draggable: true, name: 'image-element' });
+                                applyTransform(konvaImg, t);
+                                layer.add(konvaImg);
+                                konvaImg.image(img);
+                                attachCommonHandlers(konvaImg);
+                                layer.draw();
+                                resolve();
+                            };
+                            img.onerror = function() { resolve(); };
+                            img.src = href;
+                        });
+                    });
+                }
+            } else if (tag === 'use') {
+                const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+                if (href && href.startsWith('#') && el.ownerDocument) {
+                    const refId = href.slice(1);
+                    const refEl = el.ownerDocument.getElementById(refId);
+                    const ux = parseFloat(el.getAttribute('x') || '0');
+                    const uy = parseFloat(el.getAttribute('y') || '0');
+                    const tUse = combineTransforms(t, { x: ux, y: uy, scaleX: 1, scaleY: 1, rotation: 0 });
+                    if (refEl) {
+                        buildKonvaFromSvgComputed(refEl, tUse, style, out, imageTasks);
+                    }
+                }
+            }
+            
+            if (node) {
+                applyTransform(node, t);
+                attachCommonHandlers(node);
+                out.push(node);
+            }
+            
+            Array.from(el.children || []).forEach(child => buildKonvaFromSvgComputed(child, t, style, out, imageTasks));
+        }
+
+        function combineTransforms(a, b) {
+            // Compose using matrix multiplication for accurate results
+            const ma = transformObjectToMatrix(a);
+            const mb = transformObjectToMatrix(b);
+            const m = mMultiply(ma, mb);
+            return decomposeMatrixToObject(m);
+        }
+
+        function applyTransform(node, t) {
+            node.x((node.x() || 0) + t.x);
+            node.y((node.y() || 0) + t.y);
+            node.scaleX((node.scaleX ? node.scaleX() : 1) * t.scaleX);
+            node.scaleY((node.scaleY ? node.scaleY() : 1) * t.scaleY);
+            node.rotation((node.rotation ? node.rotation() : 0) + t.rotation);
+        }
+
+        // Matrix utilities for transform composition
+        function mIdentity() { return [1, 0, 0, 1, 0, 0]; }
+        function mTranslate(tx, ty) { return [1, 0, 0, 1, tx, ty]; }
+        function mScale(sx, sy) { return [sx, 0, 0, sy, 0, 0]; }
+        function mRotate(deg) {
+            const rad = deg * Math.PI / 180;
+            const cos = Math.cos(rad), sin = Math.sin(rad);
+            return [cos, sin, -sin, cos, 0, 0];
+        }
+        function mMultiply(a, b) {
+            const [a0,a1,a2,a3,a4,a5] = a;
+            const [b0,b1,b2,b3,b4,b5] = b;
+            return [
+                a0*b0 + a2*b1,
+                a1*b0 + a3*b1,
+                a0*b2 + a2*b3,
+                a1*b2 + a3*b3,
+                a0*b4 + a2*b5 + a4,
+                a1*b4 + a3*b5 + a5
+            ];
+        }
+        function transformObjectToMatrix(t) {
+            if (!t) return mIdentity();
+            const mt = mTranslate(t.x || 0, t.y || 0);
+            const mr = mRotate(t.rotation || 0);
+            const ms = mScale(t.scaleX || 1, t.scaleY || 1);
+            return mMultiply(mMultiply(mt, mr), ms);
+        }
+        function decomposeMatrixToObject(m) {
+            const [a,b,c,d,e,f] = m;
+            const x = e, y = f;
+            const scaleX = Math.hypot(a, b) || 1;
+            const rotation = Math.atan2(b, a) * 180 / Math.PI;
+            // Remove rotation from matrix to compute scaleY
+            const denom = a*a + b*b || 1;
+            const a2 = (a * a + b * b) ? (a * a + b * b) : 1;
+            const scaleY = (a*d - b*c) / scaleX;
+            return { x, y, scaleX, scaleY, rotation };
+        }
+
+        function clearCanvas() {
+            const objects = layer.children.filter(obj => 
+                obj.name() !== 'background' && 
+                obj.className !== 'Transformer'
+            );
+            objects.forEach(obj => obj.destroy());
+            
+            clearSelection();
+            layer.draw();
+            updateLayers();
+            saveState();
+        }
+
+        function addTemplateAsBackground(imageUrl, templateData) {
+            const imageObj = new Image();
+            imageObj.crossOrigin = 'anonymous';
+            
+            imageObj.onload = function() {
+                const canvasWidth = stage.width();
+                const canvasHeight = stage.height();
+                const imageAspect = imageObj.width / imageObj.height;
+                const canvasAspect = canvasWidth / canvasHeight;
+                
+                let finalWidth, finalHeight;
+                
+                if (imageAspect > canvasAspect) {
+                    finalWidth = canvasWidth;
+                    finalHeight = canvasWidth / imageAspect;
+                } else {
+                    finalHeight = canvasHeight;
+                    finalWidth = canvasHeight * imageAspect;
+                }
+                
+                const x = (canvasWidth - finalWidth) / 2;
+                const y = (canvasHeight - finalHeight) / 2;
+                
+                const templateImage = new Konva.Image({
+                    x: x,
+                    y: y,
+                    image: imageObj,
+                    width: finalWidth,
+                    height: finalHeight,
+                    draggable: true,
+                    name: 'template-background'
+                });
+
+                templateImage.on('dragend', saveState);
+                templateImage.on('transform', saveState);
+                
+                layer.add(templateImage);
+                layer.draw();
+                saveState();
+                updateLayers();
+                selectElement(templateImage);
+            };
+            
+            imageObj.onerror = function() {
+                console.error('Failed to load template:', imageUrl);
+                alert('Failed to load template. Please try another one.');
+            };
+            
+            imageObj.src = imageUrl;
+        }
+
+        // Image search functions
+        async function searchImages() {
+            const query = document.getElementById('imageSearch').value.trim();
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            imageCurrentPage = 1;
+            await fetchImages(query);
+        }
+
+        async function fetchImages(query) {
+            const loading = document.getElementById('imageLoading');
+            const grid = document.getElementById('imagesGrid');
+            const pagination = document.getElementById('imagePagination');
+            
+            try {
+                loading.style.display = 'flex';
+                grid.innerHTML = '';
+                pagination.style.display = 'none';
+                
+                const response = await fetch(`/design-tool/api/search/pixabay/?q=${encodeURIComponent(query)}&page=${imageCurrentPage}&per_page=${perPage}&image_type=photo`);
+                const data = await response.json();
+                
+                if (data.success && data.data.hits.length > 0) {
+                    imageTotalHits = data.data.totalHits;
+                    displayImagesInGrid(data.data.hits, grid);
+                    setupImagePagination(query);
+                } else {
+                    grid.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 20px;">No images found</div>';
+                }
+                
+            } catch (error) {
+                console.error('Image search error:', error);
+                grid.innerHTML = '<div style="text-align: center; color: var(--red-500); padding: 20px;">Error searching images</div>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayImagesInGrid(images, container) {
+            images.forEach(image => {
+                const div = document.createElement('div');
+                div.className = 'template-item';
+                div.title = `${image.tags} - ${image.user}`;
+                
+                const img = document.createElement('img');
+                img.src = image.webformatURL;
+                img.alt = image.tags;
+                img.loading = 'lazy';
+                
+                div.appendChild(img);
+                div.onclick = () => addImageFromUrl(image.largeImageURL || image.webformatURL, 300, 300);
+                
+                container.appendChild(div);
+            });
+        }
+
+        function setupImagePagination(query) {
+            const pagination = document.getElementById('imagePagination');
+            const pageInfo = document.getElementById('imagePageInfo');
+            const prevBtn = document.getElementById('prevImagePage');
+            const nextBtn = document.getElementById('nextImagePage');
+            
+            const totalPages = Math.ceil(imageTotalHits / perPage);
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `${imageCurrentPage} / ${totalPages}`;
+                
+                prevBtn.disabled = imageCurrentPage <= 1;
+                nextBtn.disabled = imageCurrentPage >= totalPages;
+            }
+        }
+
+        async function changeImagePage(direction) {
+            const query = document.getElementById('imageSearch').value.trim();
+            if (!query) return;
+            
+            const newPage = imageCurrentPage + direction;
+            const totalPages = Math.ceil(imageTotalHits / perPage);
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                imageCurrentPage = newPage;
+                await fetchImages(query);
+            }
+        }
+
+        // Element search functions
+        async function searchElements() {
+            const query = document.getElementById('elementSearch').value.trim();
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            elementCurrentPage = 1;
+            await fetchElements(query);
+        }
+
+        async function fetchElements(query) {
+            const loading = document.getElementById('elementLoading');
+            const grid = document.getElementById('elementsGrid');
+            const pagination = document.getElementById('elementPagination');
+            
+            try {
+                loading.style.display = 'flex';
+                grid.innerHTML = '';
+                pagination.style.display = 'none';
+                
+                const response = await fetch(`/design-tool/api/search/pixabay/?q=${encodeURIComponent(query + ' icon element')}&page=${elementCurrentPage}&per_page=${perPage}&image_type=vector`);
+                const data = await response.json();
+                
+                if (data.success && data.data.hits.length > 0) {
+                    elementTotalHits = data.data.totalHits;
+                    displayImagesInGrid(data.data.hits, grid);
+                    setupElementPagination(query);
+                } else {
+                    grid.innerHTML = '<div style="text-align: center; color: var(--gray-500); padding: 20px;">No elements found</div>';
+                }
+                
+            } catch (error) {
+                console.error('Element search error:', error);
+                grid.innerHTML = '<div style="text-align: center; color: var(--red-500); padding: 20px;">Error searching elements</div>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function setupElementPagination(query) {
+            const pagination = document.getElementById('elementPagination');
+            const pageInfo = document.getElementById('elementPageInfo');
+            const prevBtn = document.getElementById('prevElementPage');
+            const nextBtn = document.getElementById('nextElementPage');
+            
+            const totalPages = Math.ceil(elementTotalHits / perPage);
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `${elementCurrentPage} / ${totalPages}`;
+                
+                prevBtn.disabled = elementCurrentPage <= 1;
+                nextBtn.disabled = elementCurrentPage >= totalPages;
+            }
+        }
+
+        async function changeElementPage(direction) {
+            const query = document.getElementById('elementSearch').value.trim();
+            if (!query) return;
+            
+            const newPage = elementCurrentPage + direction;
+            const totalPages = Math.ceil(elementTotalHits / perPage);
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                elementCurrentPage = newPage;
+                await fetchElements(query);
+            }
+        }
+
+        // Image filter functions
+        function applyImageFilter(filterType) {
+            if (!selectedElement || !selectedElement.name().includes('image')) {
+                alert('Please select an image first');
+                return;
+            }
+
+            selectedElement.filters([]);
+            
+            switch(filterType) {
+                case 'none':
+                    break;
+                case 'grayscale':
+                    selectedElement.filters([Konva.Filters.Grayscale]);
+                    break;
+                case 'sepia':
+                    selectedElement.filters([Konva.Filters.Sepia]);
+                    break;
+                case 'blur':
+                    selectedElement.filters([Konva.Filters.Blur]);
+                    selectedElement.blurRadius(5);
+                    break;
+                case 'brightness':
+                    selectedElement.filters([Konva.Filters.Brighten]);
+                    selectedElement.brightness(0.3);
+                    break;
+                case 'contrast':
+                    selectedElement.filters([Konva.Filters.Contrast]);
+                    selectedElement.contrast(30);
+                    break;
+            }
+            
+            selectedElement.cache();
+            layer.draw();
+            saveState();
+        }
+
+        // Removed Lordicon integration functions
+
+        // Utility functions
+        function darkenColor(color, percent) {
+            const R = parseInt(color.substring(1, 3), 16);
+            const G = parseInt(color.substring(3, 5), 16);
+            const B = parseInt(color.substring(5, 7), 16);
+
+            const newR = Math.max(0, Math.floor(R * (100 - percent) / 100));
+            const newG = Math.max(0, Math.floor(G * (100 - percent) / 100));
+            const newB = Math.max(0, Math.floor(B * (100 - percent) / 100));
+
+            return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+        }
+
+        // Event listeners setup
+        function setupEventListeners() {
+            // Window resize
+            window.addEventListener('resize', () => {
+                // Adjust canvas container size if needed
+                stage.draw();
+            });
+
+            // File drag and drop
+            const canvasContainer = document.getElementById('canvasContainer');
+            canvasContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                canvasContainer.style.background = 'var(--blue-50)';
+            });
+
+            canvasContainer.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                canvasContainer.style.background = 'var(--gray-100)';
+            });
+
+            canvasContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                canvasContainer.style.background = 'var(--gray-100)';
+                
+                const files = e.dataTransfer.files;
+                for (let file of files) {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            addImageFromUrl(event.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+
+            // Context menu prevention
+            stage.on('contextmenu', (e) => {
+                e.evt.preventDefault();
+            });
+        }
+
+        // Keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Check if we're in a text input
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+
+                // Prevent default for handled shortcuts
+                const shortcuts = ['z', 'y', 'd', 't', 's'];
+                if ((e.ctrlKey || e.metaKey) && shortcuts.includes(e.key.toLowerCase())) {
+                    e.preventDefault();
+                }
+
+                switch(e.key.toLowerCase()) {
+                    case 'delete':
+                    case 'backspace':
+                        deleteSelected();
+                        break;
+                    case 'escape':
+                        clearSelection();
+                        break;
+                    case 't':
+                        if (e.ctrlKey || e.metaKey) {
+                            addText();
+                        } else {
+                            setTool('text');
+                        }
+                        break;
+                    case 's':
+                        if (e.ctrlKey || e.metaKey) {
+                            saveDesign();
+                        } else {
+                            setTool('select');
+                        }
+                        break;
+                    case 'd':
+                        if (e.ctrlKey || e.metaKey) {
+                            duplicateSelected();
+                        }
+                        break;
+                    case 'z':
+                        if (e.ctrlKey || e.metaKey) {
+                            if (e.shiftKey) {
+                                redo();
+                            } else {
+                                undo();
+                            }
+                        }
+                        break;
+                    case 'y':
+                        if (e.ctrlKey || e.metaKey) {
+                            redo();
+                        }
+                        break;
+                    case '+':
+                    case '=':
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            zoomIn();
+                        }
+                        break;
+                    case '-':
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            zoomOut();
+                        }
+                        break;
+                    case '0':
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            fitToScreen();
+                        }
+                        break;
+                }
+            });
+        }
+
+        // Sidebar toggle functionality
+        function toggleSection(header) {
+            const section = header.parentElement;
+            const icon = header.querySelector('i');
+            
+            section.classList.toggle('collapsed');
+            
+            if (section.classList.contains('collapsed')) {
+                icon.style.transform = 'rotate(-90deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Tab switching
+        function switchTab(button, tabId) {
+            const tabContainer = button.closest('.sidebar-content');
+            const tabs = tabContainer.querySelectorAll('.tab-btn');
+            const contents = tabContainer.querySelectorAll('.tab-content');
+            
+            // Update buttons
+            tabs.forEach(tab => tab.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update content
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Design management functions
+        async function saveDesign() {
+            try {
+                const designData = {
+                    canvas: stage.toJSON(),
+                    config: canvasConfig,
+                    metadata: {
+                        name: canvasConfig.name + ' Design',
+                        category: canvasConfig.category,
+                        created: new Date().toISOString(),
+                        modified: new Date().toISOString()
+                    }
+                };
+
+                const response = await fetch('/design-tool/api/save-design/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(designData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification('Design saved successfully!', 'success');
+                    return result;
+                } else {
+                    throw new Error('Failed to save design');
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                showNotification('Failed to save design. Please try again.', 'error');
+            }
+        }
+
+        async function exportDesign() {
+            try {
+                // Hide selection transformer before export
+                if (transformer) {
+                    transformer.hide();
+                    layer.draw();
+                }
+
+                const dataURL = stage.toDataURL({
+                    mimeType: 'image/png',
+                    quality: 1,
+                    pixelRatio: 2
+                });
+
+                // Show transformer again
+                if (transformer) {
+                    transformer.show();
+                    layer.draw();
+                }
+
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `${canvasConfig.name}_design_${Date.now()}.png`;
+                link.href = dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showNotification('Design exported successfully!', 'success');
+            } catch (error) {
+                console.error('Export error:', error);
+                showNotification('Failed to export design. Please try again.', 'error');
+            }
+        }
+
+        function previewDesign() {
+            // Hide selection transformer for preview
+            if (transformer) {
+                transformer.hide();
+                layer.draw();
+            }
+
+            const dataURL = stage.toDataURL({
+                mimeType: 'image/png',
+                quality: 1
+            });
+
+            // Show transformer again
+            if (transformer) {
+                transformer.show();
+                layer.draw();
+            }
+
+            // Create modal for preview
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                cursor: pointer;
+            `;
+
+            const img = document.createElement('img');
+            img.src = dataURL;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 8px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            `;
+
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+
+            modal.onclick = () => document.body.removeChild(modal);
+
+            // Close with escape key
+            const closeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', closeHandler);
+                }
+            };
+            document.addEventListener('keydown', closeHandler);
+        }
+
+        // Utility functions
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 6px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                max-width: 300px;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                warning: '#f59e0b',
+                info: '#3b82f6'
+            };
+
+            notification.style.background = colors[type] || colors.info;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+
+            // Remove after delay
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize context menu for elements (right-click options)
+        function initContextMenu() {
+            stage.on('contextmenu', function (e) {
+                e.evt.preventDefault();
+                
+                if (e.target === stage || e.target.name() === 'background') {
+                    return;
+                }
+
+                const menuHtml = `
+                    <div style="position: fixed; background: white; border: 1px solid var(--gray-300); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10000; font-size: 14px;">
+                        <div onclick="duplicateSelected(); closeContextMenu();" style="padding: 8px 16px; cursor: pointer; hover:background: var(--gray-50);">
+                            <i class="fas fa-copy" style="width: 16px; margin-right: 8px;"></i>Duplicate
+                        </div>
+                        <div onclick="deleteSelected(); closeContextMenu();" style="padding: 8px 16px; cursor: pointer; color: var(--red-500); hover:background: var(--gray-50);">
+                            <i class="fas fa-trash" style="width: 16px; margin-right: 8px;"></i>Delete
+                        </div>
+                        <hr style="margin: 4px 0; border: none; border-top: 1px solid var(--gray-200);">
+                        <div onclick="moveLayerUp(); closeContextMenu();" style="padding: 8px 16px; cursor: pointer; hover:background: var(--gray-50);">
+                            <i class="fas fa-arrow-up" style="width: 16px; margin-right: 8px;"></i>Bring Forward
+                        </div>
+                        <div onclick="moveLayerDown(); closeContextMenu();" style="padding: 8px 16px; cursor: pointer; hover:background: var(--gray-50);">
+                            <i class="fas fa-arrow-down" style="width: 16px; margin-right: 8px;"></i>Send Backward
+                        </div>
+                    </div>
+                `;
+
+                const existingMenu = document.getElementById('contextMenu');
+                if (existingMenu) {
+                    document.body.removeChild(existingMenu);
+                }
+
+                const menu = document.createElement('div');
+                menu.id = 'contextMenu';
+                menu.innerHTML = menuHtml.trim();
+                menu.style.left = e.evt.clientX + 'px';
+                menu.style.top = e.evt.clientY + 'px';
+
+                document.body.appendChild(menu);
+
+                // Close menu when clicking elsewhere
+                setTimeout(() => {
+                    document.addEventListener('click', closeContextMenu, { once: true });
+                }, 10);
+            });
+        }
+
+        function closeContextMenu() {
+            const menu = document.getElementById('contextMenu');
+            if (menu) {
+                document.body.removeChild(menu);
+            }
+        }
+
+        // Add this to initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEditor();
+            loadCanvasConfig();
+            loadCategoryTemplates();
+            initContextMenu();
+        });
+    </script>
+</body>
+</html>

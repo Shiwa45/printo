@@ -121,12 +121,13 @@ class Cart(models.Model):
 class CartItem(models.Model):
     """Shopping cart items"""
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
-    # product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey('products.Product', on_delete=models.CASCADE, null=True, blank=True)
     
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
     product_options = models.JSONField(default=dict, help_text="Selected size, paper, etc.")
     # design = models.ForeignKey(UserDesign, on_delete=models.SET_NULL, null=True, blank=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    design_files = models.JSONField(default=list, help_text="Uploaded design file URLs")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

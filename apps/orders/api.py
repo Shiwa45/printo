@@ -26,6 +26,7 @@ class CartViewSet(viewsets.ModelViewSet):
         product_id = request.data.get('product_id')
         quantity = int(request.data.get('quantity', 1))
         product_options = request.data.get('options', {})
+        design_files = request.data.get('design_files', [])
         
         product = get_object_or_404(Product, id=product_id, status='active')
         
@@ -35,12 +36,17 @@ class CartViewSet(viewsets.ModelViewSet):
             product_options=product_options,
             defaults={
                 'quantity': quantity,
-                'unit_price': product.base_price
+                'unit_price': product.base_price,
+                'design_files': design_files
             }
         )
         
         if not created:
             cart_item.quantity += quantity
+            # merge design files if provided
+            if design_files:
+                existing = cart_item.design_files or []
+                cart_item.design_files = list({*existing, *design_files})
             cart_item.save()
         
         serializer = CartItemSerializer(cart_item)

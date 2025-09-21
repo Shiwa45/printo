@@ -1,0 +1,394 @@
+/* Price Calculator Styles */
+.price-calculator {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.calculator-section {
+    margin-bottom: 24px;
+}
+
+.calculator-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title i {
+    color: #3b82f6;
+}
+
+/* Specification Selectors */
+.spec-group {
+    margin-bottom: 16px;
+}
+
+.spec-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+
+.spec-selector {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.spec-selector:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.spec-selector:hover {
+    border-color: #d1d5db;
+}
+
+/* Quantity Input */
+.quantity-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.quantity-btn {
+    background: #f9fafb;
+    border: none;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.quantity-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.quantity-btn:active {
+    background: #e5e7eb;
+}
+
+#quantity-input {
+    border: none;
+    padding: 10px 12px;
+    text-align: center;
+    width: 80px;
+    font-weight: 600;
+}
+
+#quantity-input:focus {
+    outline: none;
+}
+
+/* Customization Options */
+.customization-options {
+    display: grid;
+    gap: 12px;
+}
+
+.customization-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.customization-item:hover {
+    background: #f3f4f6;
+}
+
+.customization-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #3b82f6;
+}
+
+.customization-label {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #374151;
+    cursor: pointer;
+}
+
+.customization-price {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Specification Summary */
+#specification-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.spec-tag {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Price Display */
+#price-display {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+#price-display.calculating {
+    opacity: 0.7;
+    position: relative;
+}
+
+#price-display.calculating::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+#price-display.error {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Pricing Breakdown */
+.pricing-breakdown {
+    margin-bottom: 20px;
+}
+
+.breakdown-items {
+    margin-bottom: 16px;
+}
+
+.price-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.price-line:last-child {
+    border-bottom: none;
+}
+
+.price-line.subtotal {
+    font-weight: 500;
+    color: #374151;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+.price-line.discount {
+    color: #059669;
+    font-weight: 500;
+}
+
+.price-line.discount .item-cost {
+    color: #059669;
+}
+
+.price-line.total {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+    border-top: 2px solid #3b82f6;
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+.price-line.per-unit {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.item-description {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.item-cost {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Pricing Actions */
+.pricing-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.pricing-actions .btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+    background: white;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.btn-outline:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+/* Error Display */
+.pricing-error {
+    text-align: center;
+    padding: 20px;
+}
+
+.error-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+.error-message {
+    color: #dc2626;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.error-actions {
+    margin-top: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .price-calculator {
+        padding: 16px;
+    }
+    
+    .pricing-actions {
+        flex-direction: column;
+    }
+    
+    .quantity-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .customization-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .price-line {
+        font-size: 0.9rem;
+    }
+    
+    .price-line.total {
+        font-size: 1rem;
+    }
+}
+
+/* Loading States */
+.calculating .spec-selector,
+.calculating .customization-checkbox {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* Animation for price updates */
+.pricing-breakdown {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

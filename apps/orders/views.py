@@ -274,3 +274,24 @@ class CheckoutView(LoginRequiredMixin, TemplateView):
 
 class OrderHistoryView(LoginRequiredMixin, TemplateView):
     template_name = 'orders/history.html'
+
+class CreateOrderView(TemplateView):
+    template_name = 'orders/create_order.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get product if specified
+        product_id = self.request.GET.get('product_id')
+        if product_id:
+            try:
+                product = Product.objects.get(id=product_id, status='active')
+                context['product'] = product
+            except Product.DoesNotExist:
+                pass
+        
+        # Get quantity if specified
+        quantity = self.request.GET.get('quantity', 1)
+        context['quantity'] = quantity
+        
+        return context

@@ -1,6 +1,7 @@
 # apps/services/views.py
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from apps.products.models import Product, ProductCategory
 
 class ServicesDirectoryView(TemplateView):
     template_name = 'services/services_directory.html'
@@ -24,6 +25,47 @@ class ServiceDetailView(TemplateView):
             'features': [],
             'specifications': {}
         })
+        
+        # Try to get related product data to enhance the service page
+        try:
+            # Map service slugs to product categories/names
+            product_mapping = {
+                'business-cards': 'business-cards',
+                'letter-head': 'letterheads',
+                'brochures': 'brochures',
+                'flyers': 'flyers',
+                'poster': 'posters',
+                'sticker': 'stickers',
+                'envelopes': 'envelopes',
+                'childrens-book-printing': 'book-printing',
+                'comic-book-printing': 'book-printing',
+                'coffee-table-book-printing': 'book-printing',
+            }
+            
+            product_category_slug = product_mapping.get(service_slug)
+            if product_category_slug:
+                # Get products from this category
+                try:
+                    category = ProductCategory.objects.get(slug=product_category_slug)
+                    related_products = Product.objects.filter(
+                        category=category,
+                        status='active'
+                    ).select_related('category').prefetch_related('images')[:4]
+                    context['related_products'] = related_products
+                    context['product_category'] = category
+                    
+                    # Get the main product for this service to check design tool support
+                    main_product = related_products.first()
+                    if main_product:
+                        context['main_product'] = main_product
+                        context['supports_design_tool'] = main_product.design_tool_enabled
+                        context['supports_front_back'] = main_product.front_back_design_enabled
+                        context['supports_upload'] = main_product.supports_upload
+                        
+                except ProductCategory.DoesNotExist:
+                    pass
+        except Exception:
+            pass
         
         context.update(service_data)
         context['service_slug'] = service_slug

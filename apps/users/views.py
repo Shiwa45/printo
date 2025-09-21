@@ -14,6 +14,7 @@ import json
 
 from .models import User, UserAddress
 from .forms import UserRegistrationForm, UserProfileForm, AddressForm
+from apps.design_tool.models import UserDesign
 
 def login_view(request):
     if request.method == 'POST':
@@ -169,6 +170,9 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         # Get user's recent orders
         from apps.orders.models import Order
         context['recent_orders'] = Order.objects.filter(user=self.request.user).order_by('-created_at')[:5]
+        
+        # Get user's designs
+        context['my_designs'] = UserDesign.objects.filter(user=self.request.user).order_by('-last_modified')[:8]
         
         return context
     

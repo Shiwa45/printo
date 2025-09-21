@@ -1,0 +1,53 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Order Update - #{{ order.order_number }}{% endblock %}
+
+{% block header %}Order Status Update{% endblock %}
+
+{% block content %}
+    <h2>Your order status has been updated</h2>
+    
+    <p>Hi {% if order.user %}{{ order.user.first_name|default:order.user.username }}{% else %}Customer{% endif %},</p>
+    
+    <p>We have an update on your order:</p>
+    
+    <div class="order-details">
+        <h3>Order #{{ order.order_number }}</h3>
+        <p><strong>New Status:</strong> <span class="status-badge">{{ order.get_status_display }}</span></p>
+        <p><strong>Update:</strong> {{ status_message }}</p>
+        
+        {% if new_status == 'shipped' and order.tracking_number %}
+        <p><strong>Tracking Number:</strong> {{ order.tracking_number }}</p>
+        {% endif %}
+        
+        {% if order.estimated_delivery %}
+        <p><strong>Estimated Delivery:</strong> {{ order.estimated_delivery|date:"F d, Y" }}</p>
+        {% endif %}
+    </div>
+    
+    {% if new_status == 'ready' %}
+    <div class="contact-info">
+        <h4>Ready for Pickup/Shipping</h4>
+        <p>Your order is now ready! Please contact us to arrange pickup or confirm shipping details.</p>
+    </div>
+    {% elif new_status == 'shipped' %}
+    <div class="contact-info">
+        <h4>Your Order is On Its Way!</h4>
+        <p>Your order has been shipped and should arrive by {{ order.estimated_delivery|date:"F d, Y"|default:"the estimated delivery date" }}.</p>
+    </div>
+    {% elif new_status == 'delivered' %}
+    <div class="contact-info">
+        <h4>Order Delivered!</h4>
+        <p>Your order has been successfully delivered. We hope you're happy with your purchase!</p>
+        <p>Please let us know if you have any feedback or if there are any issues with your order.</p>
+    </div>
+    {% endif %}
+    
+    <p style="text-align: center;">
+        <a href="{{ site_url }}/orders/{{ order.order_number }}/" class="btn">View Order Details</a>
+    </p>
+    
+    <p>If you have any questions, please contact us at {{ support_email }}.</p>
+    
+    <p>Thank you for choosing {{ site_name }}!</p>
+{% endblock %}

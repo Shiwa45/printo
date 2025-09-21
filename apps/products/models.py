@@ -36,6 +36,29 @@ class ProductCategory(models.Model):
     def __str__(self):
         return self.name
 
+class ProductSubcategory(models.Model):
+    """Product subcategories for hierarchical organization"""
+    parent_product = models.ForeignKey('Product', related_name='subcategories', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='subcategories/', blank=True)
+    base_price = models.DecimalField(max_digits=8, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    sort_order = models.IntegerField(default=0)
+    
+    # Specifications specific to this subcategory
+    size_options = models.JSONField(default=list, help_text="Available sizes for this subcategory")
+    paper_options = models.JSONField(default=list, help_text="Paper types for this subcategory")
+    
+    class Meta:
+        verbose_name_plural = "Product Subcategories"
+        ordering = ['sort_order', 'name']
+        unique_together = ['parent_product', 'slug']
+    
+    def __str__(self):
+        return f"{self.parent_product.name} - {self.name}"
+
 class Product(models.Model):
     """Products with flexible pricing structure"""
     PRODUCT_TYPES = [
@@ -67,8 +90,13 @@ class Product(models.Model):
     
     # Design tool integration
     design_tool_enabled = models.BooleanField(default=False)
-    design_templates = models.JSONField(default=list, help_text="Available templates")
+    front_back_design_enabled = models.BooleanField(default=False, help_text="Enable front and back design options")
+    design_templates = models.JSONField(default=list, help_text="Available templates", blank=True,)
     custom_size_allowed = models.BooleanField(default=False)
+    
+    # Subcategory support
+    has_subcategories = models.BooleanField(default=False, help_text="Enable subcategories for this product")
+    supports_upload = models.BooleanField(default=True, help_text="Allow users to upload their own designs")
     
     # Quantity limits
     min_quantity = models.IntegerField(default=1)
@@ -109,6 +137,38 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def has_front_template(self):
+        """Check if product has front templates available"""
+        from apps.design_tool.models import DesignTemplate
+        return DesignTemplate.objects.filter(
+            category=self.category,
+            side='front',
+            status='active'
+        ).exists()
+    
+    def has_back_template(self):
+        """Check if product has back templates available"""
+        from apps.design_tool.models import DesignTemplate
+        return DesignTemplate.objects.filter(
+            category=self.category,
+            side='back',
+            status='active'
+        ).exists()
+    
+    def get_subcategories(self):
+        """Get active subcategories for this product"""
+        return self.subcategories.filter(is_active=True).order_by('sort_order')
+    
+    def clean(self):
+        """Validate product configuration"""
+        from django.core.exceptions import ValidationError
+        super().clean()
+        
+        if self.front_back_design_enabled and not self.design_tool_enabled:
+            raise ValidationError({
+                'front_back_design_enabled': 'Design tool must be enabled to use front/back design feature.'
+            })
 
 class ProductImage(models.Model):
     """Product images"""
@@ -310,6 +370,24 @@ class PricingCalculator(models.Model):
                     'min_quantity': tier['min']
                 }
         return {'percentage': 0, 'label': 'No Discount', 'min_quantity': 0}
+
+class DesignOption(models.Model):
+    """Design options configuration for products"""
+    product = models.OneToOneField('Product', on_delete=models.CASCADE, related_name='design_option')
+    supports_front_back = models.BooleanField(default=False, help_text="Enable front and back design options")
+    template_required = models.BooleanField(default=True, help_text="Require template selection")
+    accepted_formats = models.JSONField(default=list, help_text="Accepted file formats for uploads")
+    max_file_size_mb = models.PositiveIntegerField(default=50, help_text="Maximum file size in MB")
+    min_resolution_dpi = models.PositiveIntegerField(default=300, help_text="Minimum resolution in DPI")
+    
+    def __str__(self):
+        return f"Design Options - {self.product.name}"
+    
+    def get_accepted_formats_display(self):
+        """Get formatted list of accepted formats"""
+        if not self.accepted_formats:
+            return "PDF, PNG, JPG, AI, PSD"
+        return ", ".join(self.accepted_formats).upper()
 
 class DesignTemplate(models.Model):
     """Design templates for the design tool"""

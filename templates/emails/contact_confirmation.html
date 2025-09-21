@@ -1,0 +1,52 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Thank you for contacting {{ site_name }}{% endblock %}
+
+{% block header %}Message Received{% endblock %}
+
+{% block content %}
+    <h2>Thank you for contacting us!</h2>
+    
+    <p>Hi {{ submission.name }},</p>
+    
+    <p>We've received your message and will get back to you as soon as possible. Here's a copy of what you sent:</p>
+    
+    <div class="contact-info">
+        <h4>Your Message:</h4>
+        <p><strong>Subject:</strong> {{ submission.subject }}</p>
+        <p><strong>Message:</strong></p>
+        <p>{{ submission.message|linebreaks }}</p>
+        
+        {% if submission.interested_services %}
+        <p><strong>Services of Interest:</strong> {{ submission.interested_services|join:", " }}</p>
+        {% endif %}
+        
+        {% if submission.budget_range %}
+        <p><strong>Budget Range:</strong> {{ submission.budget_range }}</p>
+        {% endif %}
+        
+        {% if submission.timeline %}
+        <p><strong>Timeline:</strong> {{ submission.timeline }}</p>
+        {% endif %}
+    </div>
+    
+    <p>
+        <strong>What happens next?</strong><br>
+        • Our team will review your inquiry<br>
+        • We'll respond within 24 hours<br>
+        • If you requested a quote, we'll prepare a detailed proposal
+    </p>
+    
+    <p>In the meantime, feel free to:</p>
+    <ul>
+        <li>Browse our <a href="{{ site_url }}/products/">product catalog</a></li>
+        <li>Try our <a href="{{ site_url }}/design-tool/">online design tool</a></li>
+        <li>Read our <a href="{{ site_url }}/blog/">latest blog posts</a></li>
+    </ul>
+    
+    <p>If you have any urgent questions, please call us directly or send another message.</p>
+    
+    <p>Thank you for considering {{ site_name }} for your printing needs!</p>
+    
+    <p>Best regards,<br>The {{ site_name }} Team</p>
+{% endblock %}

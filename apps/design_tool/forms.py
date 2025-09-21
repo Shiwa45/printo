@@ -119,6 +119,7 @@ class DesignTemplateAdminForm(forms.ModelForm):
         model = DesignTemplate
         fields = '__all__'
         widgets = {
+            'side': forms.Select(attrs={'class': 'form-control'}),
             'width': forms.NumberInput(attrs={'step': '0.1', 'min': '0'}),
             'height': forms.NumberInput(attrs={'step': '0.1', 'min': '0'}),
             'dpi': forms.NumberInput(attrs={'min': '72', 'max': '600'}),
@@ -209,7 +210,7 @@ class UserFriendlyDesignTemplateForm(forms.ModelForm):
     class Meta:
         model = DesignTemplate
         fields = [
-            'name', 'category', 'description', 'template_file', 'width', 'height', 
+            'name', 'category', 'side', 'description', 'template_file', 'width', 'height', 
             'bleed_mm', 'safe_area_mm', 'is_premium', 'is_featured', 'status'
         ]
         widgets = {
@@ -253,6 +254,7 @@ class UserFriendlyDesignTemplateForm(forms.ModelForm):
                 'accept': '.svg,.json'
             }),
             'category': forms.Select(attrs={'class': 'form-control'}),
+            'side': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
     

@@ -14,6 +14,14 @@ class DesignTemplate(models.Model):
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, related_name='design_templates')
     product_types = models.JSONField(default=list, help_text="Which products can use this template")
     
+    # Side specification for front/back design
+    SIDE_CHOICES = [
+        ('front', 'Front'),
+        ('back', 'Back'),
+        ('single', 'Single Side'),  # For backward compatibility
+    ]
+    side = models.CharField(max_length=10, choices=SIDE_CHOICES, default='single', help_text="Which side this template is for")
+    
     
     # Template files - Support SVG
 # In apps/design_tool/models.py, change this line:
@@ -69,6 +77,7 @@ class DesignTemplate(models.Model):
     
     class Meta:
         ordering = ['-is_featured', '-usage_count', 'name']
+        unique_together = ['category', 'side', 'name']
     
     def __str__(self):
         return f"{self.name} - {self.category.name}"
@@ -99,8 +108,26 @@ class UserDesign(models.Model):
     template = models.ForeignKey(DesignTemplate, on_delete=models.SET_NULL, null=True, blank=True)
     
     name = models.CharField(max_length=255)
-    design_data = models.JSONField(help_text="Fabric.js canvas data")
+    
+    # Design type and data for front/back support
+    DESIGN_TYPE_CHOICES = [
+        ('single', 'Single Side'),
+        ('front_only', 'Front Only'),
+        ('back_only', 'Back Only'),
+        ('both_sides', 'Both Sides'),
+    ]
+    design_type = models.CharField(max_length=15, choices=DESIGN_TYPE_CHOICES, default='single')
+    
+    # Legacy field for backward compatibility
+    design_data = models.JSONField(help_text="Legacy canvas data for single-sided designs", null=True, blank=True)
+    
+    # New fields for front/back design data
+    front_design_data = models.JSONField(help_text="Front side canvas data", null=True, blank=True)
+    back_design_data = models.JSONField(help_text="Back side canvas data", null=True, blank=True)
+    
     preview_image = models.ImageField(upload_to='user_designs/previews/', blank=True)
+    front_preview_image = models.ImageField(upload_to='user_designs/previews/front/', blank=True)
+    back_preview_image = models.ImageField(upload_to='user_designs/previews/back/', blank=True)
     
     # Design specifications
     final_width_mm = models.FloatField(null=True, blank=True)
@@ -122,6 +149,51 @@ class UserDesign(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.name}"
+    
+    def get_design_data(self):
+        """Get design data in appropriate format based on design type"""
+        # Handle legacy designs that don't have design_type set
+        if not self.design_type or self.design_type == 'single':
+            return self.design_data
+        return {
+            'type': self.design_type,
+            'front': self.front_design_data,
+            'back': self.back_design_data
+        }
+    
+    def set_design_data(self, data):
+        """Set design data from various formats"""
+        if isinstance(data, dict) and 'type' in data:
+            # New format with front/back data
+            self.design_type = data.get('type', 'single')
+            self.front_design_data = data.get('front')
+            self.back_design_data = data.get('back')
+        else:
+            # Legacy single-sided format
+            self.design_type = 'single'
+            self.design_data = data
+    
+    def clean(self):
+        """Validate design data based on type"""
+        from django.core.exceptions import ValidationError
+        super().clean()
+        
+        # Handle legacy designs
+        if not self.design_type:
+            if self.design_data:
+                self.design_type = 'single'
+            else:
+                raise ValidationError('Design must have either design_type or legacy design_data.')
+        
+        # Validate based on design type
+        if self.design_type == 'single' and not self.design_data:
+            raise ValidationError({'design_data': 'Single-sided designs must have design data.'})
+        elif self.design_type == 'front_only' and not self.front_design_data:
+            raise ValidationError({'front_design_data': 'Front-only designs must have front design data.'})
+        elif self.design_type == 'back_only' and not self.back_design_data:
+            raise ValidationError({'back_design_data': 'Back-only designs must have back design data.'})
+        elif self.design_type == 'both_sides' and (not self.front_design_data or not self.back_design_data):
+            raise ValidationError('Both-sides designs must have both front and back design data.')
 
 
 class DesignAsset(models.Model):
@@ -129,7 +201,7 @@ class DesignAsset(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='design_assets')
     name = models.CharField(max_length=255)
-    asset_file = models.FileField(upload_to='design_assets/')
+    asset_file = models.FileField(upload_to='design_assets/', db_column='file')
     
     ASSET_TYPES = [
         ('image', 'Image'),
@@ -140,7 +212,7 @@ class DesignAsset(models.Model):
     asset_type = models.CharField(max_length=10, choices=ASSET_TYPES)
     file_size = models.IntegerField(help_text="File size in bytes")
     
-    upload_date = models.DateTimeField(auto_now_add=True)
+    upload_date = models.DateTimeField(auto_now_add=True, db_column='created_at')
     is_public = models.BooleanField(default=False)
     usage_count = models.IntegerField(default=0)
     
@@ -155,7 +227,7 @@ class DesignHistory(models.Model):
     """Track design changes and versions"""
     design = models.ForeignKey(UserDesign, on_delete=models.CASCADE, related_name='history')
     version_number = models.IntegerField(default=1)
-    design_data = models.JSONField(help_text="Snapshot of design data")
+    design_data = models.JSONField(default=dict, help_text="Snapshot of design data")
     change_description = models.TextField(blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -171,7 +243,7 @@ class DesignHistory(models.Model):
 class StockImage(models.Model):
     """Stock images from external APIs"""
     external_id = models.CharField(max_length=255, unique=True)
-    source = models.CharField(max_length=50, help_text="API source like 'pixabay', 'unsplash'")
+    source = models.CharField(max_length=50, default='pixabay', help_text="API source like 'pixabay', 'unsplash'")
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     
@@ -182,8 +254,8 @@ class StockImage(models.Model):
     
     # Metadata
     tags = models.JSONField(default=list)
-    width = models.IntegerField()
-    height = models.IntegerField()
+    width = models.IntegerField(default=800)
+    height = models.IntegerField(default=600)
     
     # Usage tracking
     usage_count = models.IntegerField(default=0)
@@ -199,7 +271,7 @@ class DesignShare(models.Model):
     """Share designs with others"""
     design = models.ForeignKey(UserDesign, on_delete=models.CASCADE, related_name='shares')
     shared_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shared_designs')
-    share_token = models.UUIDField(default=uuid.uuid4, unique=True)
+    share_token = models.UUIDField(default=uuid.uuid4, editable=False)
     
     # Share settings
     is_public = models.BooleanField(default=False)

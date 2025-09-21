@@ -139,13 +139,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Upload Your Design</label>
                             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
-                                <input type="file" id="designUpload" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.ai,.psd">
+                                <input type="file" id="designUpload" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.ai,.psd" multiple>
                                 <label for="designUpload" class="cursor-pointer">
                                     <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
                                     <p class="text-sm text-gray-600">Click to upload or drag and drop</p>
                                     <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG, AI, PSD up to 50MB</p>
                                 </label>
                             </div>
+                            <div id="designFilesList" class="mt-2 text-sm text-gray-600"></div>
                             <p class="text-xs text-purple-600 mt-2">
                                 <i class="fas fa-info-circle mr-1"></i>
                                 Don't have a design? Our team can help you create one for free!
@@ -159,8 +160,8 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Price Breakdown</h3>
                     <div id="priceBreakdown">
                         <div class="flex justify-between items-center py-2">
-                            <span class="text-gray-600">Base Price (50 pieces)</span>
-                            <span class="font-semibold">₹{{ product.base_price }}</span>
+                            <span class="text-gray-600">Current Selection</span>
+                            <span class="font-semibold" id="calcBase">₹{{ product.base_price }}</span>
                         </div>
                         <div class="border-t border-gray-200 pt-2">
                             <div class="flex justify-between items-center">
@@ -174,11 +175,11 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4">
-                    {% if 'business' in product.name|lower or 'letter' in product.name|lower or 'bill' in product.name|lower or 'sticker' in product.name|lower or 'brochure' in product.name|lower or 'flyer' in product.name|lower %}
-                        <a href="{% url 'design_tool:editor' product.slug %}" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition duration-300 flex items-center justify-center flex-1">
+                    {% if product.design_tool_enabled %}
+                        <button type="button" id="designNowBtn" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition duration-300 flex items-center justify-center flex-1">
                             <i class="fas fa-palette mr-2"></i>
                             Design Now
-                        </a>
+                        </button>
                         <button class="btn-primary flex items-center justify-center" id="addToCartBtn">
                             <i class="fas fa-shopping-cart mr-2"></i>
                             Add to Cart
@@ -194,6 +195,159 @@
                         Get Quote
                     </button>
                 </div>
+
+                {% if product.front_back_design_enabled %}
+                <!-- Front/Back Selection Modal -->
+                <div id="designModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50">
+                    <div class="bg-white rounded-xl p-6 w-full max-w-md">
+                        <h3 class="text-lg font-semibold mb-4">Select sides to design</h3>
+                        <div class="space-y-2">
+                            <button data-mode="front_only" class="w-full px-4 py-2 rounded-lg border hover:bg-gray-50">Front Only</button>
+                            <button data-mode="back_only" class="w-full px-4 py-2 rounded-lg border hover:bg-gray-50">Back Only</button>
+                            <button data-mode="both_sides" class="w-full px-4 py-2 rounded-lg border hover:bg-gray-50">Both Sides</button>
+                        </div>
+                        <div class="mt-4 text-right">
+                            <button id="closeDesignModal" class="text-gray-600">Close</button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            
+                {% block extra_js %}
+                <script>
+                (function(){
+                  const designBtn = document.getElementById('designNowBtn');
+                  const modal = document.getElementById('designModal');
+                  const closeBtn = document.getElementById('closeDesignModal');
+                  const productSlug = '{{ product.slug }}';
+                  const frontBackEnabled = {{ product.front_back_design_enabled|yesno:'true,false' }};
+
+                  function goToEditor(mode){
+                    const url = `{% url 'design_tool:editor' product.slug %}` + (mode ? `?mode=${mode}` : '');
+                    window.location.href = url;
+                  }
+
+                  if (designBtn) {
+                    designBtn.addEventListener('click', function(){
+                      if (frontBackEnabled && modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                      } else {
+                        goToEditor(null);
+                      }
+                    });
+                  }
+
+                  if (closeBtn && modal) {
+                    closeBtn.addEventListener('click', function(){
+                      modal.classList.add('hidden');
+                      modal.classList.remove('flex');
+                    });
+                  }
+
+                  if (modal) {
+                    modal.querySelectorAll('button[data-mode]').forEach(function(btn){
+                      btn.addEventListener('click', function(){
+                        const mode = this.getAttribute('data-mode');
+                        goToEditor(mode);
+                      });
+                    });
+                  }
+
+                  // Upload-to-cart wiring (client-side collect only; server expects URLs or handle uploads elsewhere)
+                  const uploadInput = document.getElementById('designUpload');
+                  const filesList = document.getElementById('designFilesList');
+                  const addToCartBtn = document.getElementById('addToCartBtn');
+                  let selectedFiles = [];
+
+                  if (uploadInput) {
+                    uploadInput.addEventListener('change', function(){
+                      selectedFiles = Array.from(uploadInput.files);
+                      filesList.innerHTML = selectedFiles.map(f => `• ${f.name}`).join('<br>');
+                    });
+                  }
+
+                  if (addToCartBtn) {
+                    addToCartBtn.addEventListener('click', async function(){
+                      // Collect options
+                      const quantity = parseInt(document.getElementById('quantity')?.value || '1', 10);
+                      const options = {};
+                      const paperSel = document.getElementById('paperType');
+                      if (paperSel) options.paper = paperSel.value;
+                      const sizeRadio = document.querySelector('input[name="size"]:checked');
+                      if (sizeRadio) options.size = sizeRadio.value;
+
+                      // NOTE: This demo sends file names only. Real upload should store files and pass URLs.
+                      const design_files = selectedFiles.map(f => f.name);
+
+                      try {
+                        const resp = await fetch('/api/orders/cart/add_item/', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': (document.querySelector('input[name=csrfmiddlewaretoken]')||{}).value || ''
+                          },
+                          body: JSON.stringify({
+                            product_id: {{ product.id }},
+                            quantity: quantity,
+                            options: options,
+                            design_files: design_files
+                          })
+                        });
+                        if (resp.ok) {
+                          window.location.href = '{% url 'orders:cart' %}';
+                        } else {
+                          alert('Failed to add to cart. Please login and try again.');
+                        }
+                      } catch (e) {
+                        alert('Error adding to cart');
+                      }
+                    });
+                  }
+                  // Pricing calculator bindings
+                  async function fetchQuote() {
+                    const qtyEl = document.getElementById('quantity');
+                    const quantity = parseInt(qtyEl?.value || '1', 10);
+                    const options = {};
+                    const paperSel = document.getElementById('paperType');
+                    if (paperSel) options.paper = paperSel.value;
+                    const sizeRadio = document.querySelector('input[name="size"]:checked');
+                    if (sizeRadio) options.size = sizeRadio.value;
+                    try {
+                      const resp = await fetch('/api/pricing/quote/', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFToken': (document.querySelector('input[name=csrfmiddlewaretoken]')||{}).value || ''
+                        },
+                        body: JSON.stringify({
+                          product_id: {{ product.id }},
+                          quantity: quantity,
+                          options: options
+                        })
+                      });
+                      if (!resp.ok) return;
+                      const data = await resp.json();
+                      document.getElementById('totalPrice').textContent = `₹${data.total}`;
+                      document.getElementById('perPiecePrice').textContent = `${data.per_piece}`;
+                      document.getElementById('calcBase').textContent = `₹${data.total}`;
+                    } catch(e) {
+                      // noop
+                    }
+                  }
+
+                  ['change','input'].forEach(evt => {
+                    const qtyEl = document.getElementById('quantity');
+                    if (qtyEl) qtyEl.addEventListener(evt, fetchQuote);
+                    const paperSel = document.getElementById('paperType');
+                    if (paperSel) paperSel.addEventListener(evt, fetchQuote);
+                    document.querySelectorAll('input[name="size"]').forEach(r => r.addEventListener('change', fetchQuote));
+                  });
+
+                  fetchQuote();
+                })();
+                </script>
+                {% endblock %}
 
                 <!-- Additional Info -->
                 <div class="mt-8 space-y-4">
