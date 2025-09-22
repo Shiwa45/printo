@@ -42,6 +42,7 @@ urlpatterns = [
     # Design tool specific endpoints
     path('design/', include([
         path('search/images/', core_views.ImageSearchAPIView.as_view(), name='image_search'),
+        path('proxy-image/', core_views.ImageProxyAPIView.as_view(), name='image_proxy'),
         path('save/', core_views.SaveDesignAPIView.as_view(), name='save_design'),
         path('export/', core_views.ExportDesignAPIView.as_view(), name='export_design'),
         path('assets/', core_views.UserAssetsAPIView.as_view(), name='user_assets'),

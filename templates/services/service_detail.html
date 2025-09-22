@@ -5,1049 +5,1284 @@
 
 {% block extra_css %}
 <style>
-/* Clean Professional Styling */
-:root {
-    --primary-blue: #0ea5e9;
-    --primary-dark: #0284c7;
-    --text-dark: #1f2937;
-    --text-medium: #4b5563;
-    --text-light: #6b7280;
-    --border-color: #e5e7eb;
-    --bg-light: #f9fafb;
-    --bg-section: #ffffff;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--text-dark);
-    line-height: 1.6;
-}
-
-/* Hero Section */
-.hero-section {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    padding: 8rem 0 4rem;
-    position: relative;
-}
-
-.hero-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-}
-
-.hero-text h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
-
-.hero-text p {
-    font-size: 1.2rem;
-    color: var(--text-medium);
-    margin-bottom: 2rem;
-    line-height: 1.6;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.btn-primary {
-    background: var(--primary-blue);
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-    color: white;
-    text-decoration: none;
-}
-
-.btn-secondary {
-    background: white;
-    color: var(--primary-blue);
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    border: 2px solid var(--primary-blue);
-    transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-    background: var(--primary-blue);
-    color: white;
-    text-decoration: none;
-}
-
-.hero-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.stat-item {
-    text-align: center;
-    padding: 1.5rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.stat-number {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--primary-blue);
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Quote Calculator Section */
-.calculator-section {
-    background: #f8f9fa;
-    padding: 4rem 0;
-}
-
-.calculator-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.calculator-header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.calculator-header h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 1rem;
-}
-
-.calculator-header p {
-    font-size: 1.1rem;
-    color: var(--text-medium);
-}
-
-.quote-calculator-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.quote-form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.quote-card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid #e1e5e9;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.quote-field-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.quote-field {
-    display: flex;
-    flex-direction: column;
-}
-
-.quote-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.quote-info-icon {
-    color: var(--primary-blue);
-    font-size: 0.8rem;
-    cursor: help;
-}
-
-.quote-input-wrapper {
-    position: relative;
-    margin-bottom: 0.5rem;
-}
-
-.quote-select {
-    width: 100%;
-    padding: 0.75rem 2.5rem 0.75rem 0.75rem;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    background: white;
-    appearance: none;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.quote-select:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
-
-.quote-dropdown-icon {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-    pointer-events: none;
-    font-size: 0.8rem;
-}
-
-.quote-field-note {
-    font-size: 0.8rem;
-    color: #6c757d;
-    margin-top: 0.25rem;
-}
-
-.size-options {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.5rem;
-}
-
-.custom-size-link {
-    font-size: 0.8rem;
-    color: #dc3545;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.paper-note {
-    font-size: 0.8rem;
-    color: #6c757d;
-    font-weight: 400;
-}
-
-.checkbox-field {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e1e5e9;
-}
-
-.quote-checkbox {
-    width: 18px;
-    height: 18px;
-    margin-right: 0.75rem;
-    accent-color: var(--primary-blue);
-}
-
-.checkbox-label {
-    font-size: 0.9rem;
-    color: var(--text-dark);
-    cursor: pointer;
-}
-
-.binding-options,
-.corner-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.binding-option,
-.corner-option {
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.binding-option:hover,
-.corner-option:hover {
-    border-color: var(--primary-blue);
-}
-
-.binding-option.active,
-.corner-option.active {
-    border-color: var(--primary-blue);
-    background: rgba(14, 165, 233, 0.05);
-}
-
-.binding-image,
-.corner-preview {
-    font-size: 1.5rem;
-    color: var(--primary-blue);
-    margin-bottom: 0.5rem;
-}
-
-.binding-name,
-.corner-name {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-dark);
-}
-
-.corner-card {
-    width: 40px;
-    height: 25px;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    color: #6c757d;
-}
-
-.rounded-corner {
-    border-radius: 4px;
-}
-
-.square-corner {
-    border-radius: 0;
-}
-
-/* Quote Price Section */
-.quote-price-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    position: sticky;
-    top: 2rem;
-    height: fit-content;
-}
-
-.price-card {
-    background: #1a4c68;
-    color: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.price-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100px;
-    height: 100px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-    transform: translate(30px, -30px);
-}
-
-.price-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.price-location {
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.8);
-}
-
-.price-discount {
-    background: #ff6b35;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.price-main {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    margin-bottom: 1rem;
-}
-
-.price-currency {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-right: 0.25rem;
-    margin-top: 0.5rem;
-}
-
-.price-amount {
-    font-size: 4rem;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.price-details {
-    margin-bottom: 1.5rem;
-}
-
-.unit-price {
-    font-size: 1rem;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 0.5rem;
-}
-
-.price-note {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 0.75rem;
-}
-
-.estimated-weight {
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.8);
-}
-
-.save-quote-btn {
-    width: 100%;
-    background: #17a2b8;
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.save-quote-btn:hover {
-    background: #138496;
-    transform: translateY(-1px);
-}
-
-.shipping-btn {
-    width: 100%;
-    background: #ff6b35;
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 1rem;
-}
-
-.shipping-btn:hover {
-    background: #e55a2b;
-    transform: translateY(-1px);
-}
-
-.template-card {
-    background: #1a4c68;
-    color: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.template-card:hover {
-    background: #2a5c78;
-    transform: translateY(-1px);
-}
-
-.template-icon {
-    font-size: 1.5rem;
-    color: white;
-}
-
-.template-text {
-    flex: 1;
-}
-
-.template-title {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.template-subtitle {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.7);
-}
-
-/* Smooth Scroll */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .quote-calculator-wrapper {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+    /* Clean Professional Styling */
+    :root {
+        --primary-blue: #0ea5e9;
+        --primary-dark: #0284c7;
+        --text-dark: #1f2937;
+        --text-medium: #4b5563;
+        --text-light: #6b7280;
+        --border-color: #e5e7eb;
+        --bg-light: #f9fafb;
+        --bg-section: #ffffff;
     }
-    
-    .quote-price-section {
-        position: static;
-        order: -1;
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--text-dark);
+        line-height: 1.6;
     }
-    
-    .quote-field-group {
-        grid-template-columns: 1fr;
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        padding: 8rem 0 4rem;
+        position: relative;
     }
-    
-    .binding-options,
-    .corner-options {
-        grid-template-columns: 1fr;
+
+    .hero-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
     }
-}
 
-@media (max-width: 768px) {
-    .calculator-container {
-        padding: 0 0.5rem;
-    }
-    
-    .quote-card {
-        padding: 1rem;
-    }
-    
-    .calculator-header h2 {
-        font-size: 2rem;
-    }
-    
-    .price-amount {
-        font-size: 3rem;
-    }
-}
-
-/* Features Section */
-.features-section {
-    background: var(--bg-light);
-    padding: 4rem 0;
-}
-
-.section-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.section-header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.section-header h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 1rem;
-}
-
-.section-header p {
-    font-size: 1.1rem;
-    color: var(--text-medium);
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.feature-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    text-align: center;
-    transition: all 0.3s;
-}
-
-.feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-
-.feature-icon {
-    width: 60px;
-    height: 60px;
-    background: var(--bg-light);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    color: var(--primary-blue);
-    font-size: 1.5rem;
-    border: 1px solid var(--border-color);
-}
-
-.feature-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.75rem;
-}
-
-.feature-description {
-    color: var(--text-medium);
-    font-size: 0.95rem;
-}
-
-/* Specifications Section */
-.specs-section {
-    background: white;
-    padding: 4rem 0;
-}
-
-.specs-table {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-}
-
-.spec-row {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.spec-row:last-child {
-    border-bottom: none;
-}
-
-.spec-label {
-    background: var(--bg-light);
-    padding: 1.25rem 1.5rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    border-right: 1px solid var(--border-color);
-}
-
-.spec-value {
-    padding: 1.25rem 1.5rem;
-    color: var(--text-medium);
-}
-
-/* Process Section */
-.process-section {
-    background: var(--bg-light);
-    padding: 4rem 0;
-}
-
-.process-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
-.process-step {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    text-align: center;
-    transition: all 0.3s;
-}
-
-.process-step:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.step-number {
-    width: 50px;
-    height: 50px;
-    background: var(--primary-blue);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 1.2rem;
-    margin: 0 auto 1rem;
-}
-
-.step-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.75rem;
-}
-
-.step-description {
-    color: var(--text-medium);
-    font-size: 0.9rem;
-}
-
-/* CTA Section */
-.cta-section {
-    background: var(--primary-blue);
-    padding: 4rem 0;
-    text-align: center;
-}
-
-.cta-section h2 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 1rem;
-}
-
-.cta-section p {
-    font-size: 1.1rem;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 2rem;
-}
-
-.cta-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.btn-white {
-    background: white;
-    color: var(--primary-blue);
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.btn-white:hover {
-    background: #f8fafc;
-    transform: translateY(-1px);
-    color: var(--primary-blue);
-    text-decoration: none;
-}
-
-.btn-outline-white {
-    background: transparent;
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    border: 2px solid white;
-    transition: all 0.2s;
-}
-
-.btn-outline-white:hover {
-    background: white;
-    color: var(--primary-blue);
-    text-decoration: none;
-}
-
-/* Related Services */
-.related-section {
-    background: white;
-    padding: 4rem 0;
-}
-
-.related-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.related-card {
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s;
-    text-decoration: none;
-    color: inherit;
-}
-
-.related-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    text-decoration: none;
-    color: inherit;
-}
-
-.related-icon {
-    width: 50px;
-    height: 50px;
-    background: var(--bg-light);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    color: var(--primary-blue);
-    font-size: 1.25rem;
-}
-
-.related-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
-}
-
-.related-price {
-    color: var(--text-light);
-    font-size: 0.9rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .hero-grid,
-    .calculator-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-    
-    .hero-text h1 {
-        font-size: 2rem;
-    }
-    
-    .hero-stats {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .price-display {
-        position: static;
-        margin-top: 2rem;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
+    .hero-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
         align-items: center;
     }
-    
-    .spec-row {
-        grid-template-columns: 1fr;
+
+    .hero-text h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1.2;
+        margin-bottom: 1rem;
     }
-    
-    .spec-label {
-        border-right: none;
+
+    .hero-text p {
+        font-size: 1.2rem;
+        color: var(--text-medium);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+        background: var(--primary-blue);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--primary-blue);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid var(--primary-blue);
+        transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary-blue);
+        color: white;
+        text-decoration: none;
+    }
+
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-number {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Quote Calculator Section */
+    .calculator-section {
+        background: #f8f9fa;
+        padding: 4rem 0;
+    }
+
+    .calculator-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .calculator-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .calculator-header h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+
+    .calculator-header p {
+        font-size: 1.1rem;
+        color: var(--text-medium);
+    }
+
+    .quote-calculator-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .quote-form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .quote-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #e1e5e9;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .quote-field-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .quote-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .quote-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quote-info-icon {
+        color: var(--primary-blue);
+        font-size: 0.8rem;
+        cursor: help;
+    }
+
+    .quote-input-wrapper {
+        position: relative;
+        margin-bottom: 0.5rem;
+    }
+
+    .quote-select {
+        width: 100%;
+        padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: white;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quote-select:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .quote-dropdown-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+        font-size: 0.8rem;
+    }
+
+    .quote-field-note {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    .size-options {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 0.5rem;
+    }
+
+    .custom-size-link {
+        font-size: 0.8rem;
+        color: #dc3545;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .paper-note {
+        font-size: 0.8rem;
+        color: #6c757d;
+        font-weight: 400;
+    }
+
+    .checkbox-field {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e1e5e9;
+    }
+
+    .quote-checkbox {
+        width: 18px;
+        height: 18px;
+        margin-right: 0.75rem;
+        accent-color: var(--primary-blue);
+    }
+
+    .checkbox-label {
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        cursor: pointer;
+    }
+
+    .binding-options,
+    .corner-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .binding-option,
+    .corner-option {
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .binding-option:hover,
+    .corner-option:hover {
+        border-color: var(--primary-blue);
+    }
+
+    .binding-option.active,
+    .corner-option.active {
+        border-color: var(--primary-blue);
+        background: rgba(14, 165, 233, 0.05);
+    }
+
+    .binding-image,
+    .corner-preview {
+        font-size: 1.5rem;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    .binding-name,
+    .corner-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .corner-card {
+        width: 40px;
+        height: 25px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: #6c757d;
+    }
+
+    .rounded-corner {
+        border-radius: 4px;
+    }
+
+    .square-corner {
+        border-radius: 0;
+    }
+
+    /* Quote Price Section */
+    .quote-price-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .price-card {
+        background: #1a4c68;
+        color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .price-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(30px, -30px);
+    }
+
+    .price-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .price-location {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .price-discount {
+        background: #ff6b35;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .price-main {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .price-currency {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-right: 0.25rem;
+        margin-top: 0.5rem;
+    }
+
+    .price-amount {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .price-details {
+        margin-bottom: 1.5rem;
+    }
+
+    .unit-price {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0.5rem;
+    }
+
+    .price-note {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0.75rem;
+    }
+
+    .estimated-weight {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .save-quote-btn {
+        width: 100%;
+        background: #17a2b8;
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .save-quote-btn:hover {
+        background: #138496;
+        transform: translateY(-1px);
+    }
+
+    .shipping-btn {
+        width: 100%;
+        background: #ff6b35;
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+    }
+
+    .shipping-btn:hover {
+        background: #e55a2b;
+        transform: translateY(-1px);
+    }
+
+    .template-card {
+        background: #1a4c68;
+        color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .template-card:hover {
+        background: #2a5c78;
+        transform: translateY(-1px);
+    }
+
+    .template-icon {
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .template-text {
+        flex: 1;
+    }
+
+    .template-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .template-subtitle {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Smooth Scroll */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .quote-calculator-wrapper {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .quote-price-section {
+            position: static;
+            order: -1;
+        }
+
+        .quote-field-group {
+            grid-template-columns: 1fr;
+        }
+
+        .binding-options,
+        .corner-options {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .calculator-container {
+            padding: 0 0.5rem;
+        }
+
+        .quote-card {
+            padding: 1rem;
+        }
+
+        .calculator-header h2 {
+            font-size: 2rem;
+        }
+
+        .price-amount {
+            font-size: 3rem;
+        }
+    }
+
+    /* Features Section */
+    .features-section {
+        background: var(--bg-light);
+        padding: 4rem 0;
+    }
+
+    .section-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+
+    .section-header p {
+        font-size: 1.1rem;
+        color: var(--text-medium);
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--bg-light);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .feature-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-description {
+        color: var(--text-medium);
+        font-size: 0.95rem;
+    }
+
+    /* Specifications Section */
+    .specs-section {
+        background: white;
+        padding: 4rem 0;
+    }
+
+    .specs-table {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .spec-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
         border-bottom: 1px solid var(--border-color);
     }
-}
 
-.hidden {
-    display: none;
-}
+    .spec-row:last-child {
+        border-bottom: none;
+    }
 
-.animate-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
+    .spec-label {
+        background: var(--bg-light);
+        padding: 1.25rem 1.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        border-right: 1px solid var(--border-color);
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    .spec-value {
+        padding: 1.25rem 1.5rem;
+        color: var(--text-medium);
+    }
 
-/* Modal Styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
+    /* Process Section */
+    .process-section {
+        background: var(--bg-light);
+        padding: 4rem 0;
+    }
 
-.modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
+    .process-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
 
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    transform: translateY(-20px);
-    transition: transform 0.3s ease;
-}
+    .process-step {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+        transition: all 0.3s;
+    }
 
-.modal-overlay.active .modal-content {
-    transform: translateY(0);
-}
+    .process-step:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
-}
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: var(--primary-blue);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin: 0 auto 1rem;
+    }
 
-.modal-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-dark);
-}
+    .step-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.75rem;
+    }
 
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-light);
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.2s;
-}
+    .step-description {
+        color: var(--text-medium);
+        font-size: 0.9rem;
+    }
 
-.modal-close:hover {
-    background: var(--bg-light);
-    color: var(--text-dark);
-}
+    /* CTA Section */
+    .cta-section {
+        background: var(--primary-blue);
+        padding: 4rem 0;
+        text-align: center;
+    }
 
-.design-option {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
+    .cta-section h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+    }
 
-.design-option:hover {
-    border-color: var(--primary-blue);
-    background: rgba(14, 165, 233, 0.05);
-}
+    .cta-section p {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+    }
 
-.design-option.selected {
-    border-color: var(--primary-blue);
-    background: rgba(14, 165, 233, 0.1);
-}
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
 
-.design-option-icon {
-    width: 50px;
-    height: 50px;
-    background: var(--primary-blue);
-    color: white;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    font-size: 1.2rem;
-}
+    .btn-white {
+        background: white;
+        color: var(--primary-blue);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
 
-.design-option-content h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.25rem;
-}
+    .btn-white:hover {
+        background: #f8fafc;
+        transform: translateY(-1px);
+        color: var(--primary-blue);
+        text-decoration: none;
+    }
 
-.design-option-content p {
-    font-size: 0.9rem;
-    color: var(--text-medium);
-}
+    .btn-outline-white {
+        background: transparent;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid white;
+        transition: all 0.2s;
+    }
 
-.modal-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-}
+    .btn-outline-white:hover {
+        background: white;
+        color: var(--primary-blue);
+        text-decoration: none;
+    }
 
-.btn-modal {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-    border: none;
-    cursor: pointer;
-}
+    /* Related Services */
+    .related-section {
+        background: white;
+        padding: 4rem 0;
+    }
 
-.btn-modal-primary {
-    background: var(--primary-blue);
-    color: white;
-}
+    .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
 
-.btn-modal-primary:hover {
-    background: var(--primary-dark);
-}
+    .related-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s;
+        text-decoration: none;
+        color: inherit;
+    }
 
-.btn-modal-secondary {
-    background: var(--bg-light);
-    color: var(--text-dark);
-    border: 1px solid var(--border-color);
-}
+    .related-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-decoration: none;
+        color: inherit;
+    }
 
-.btn-modal-secondary:hover {
-    background: var(--border-color);
-}
+    .related-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--bg-light);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: var(--primary-blue);
+        font-size: 1.25rem;
+    }
+
+    .related-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .related-price {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+
+        .hero-grid,
+        .calculator-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .hero-text h1 {
+            font-size: 2rem;
+        }
+
+        .hero-stats {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .price-display {
+            position: static;
+            margin-top: 2rem;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .spec-row {
+            grid-template-columns: 1fr;
+        }
+
+        .spec-label {
+            border-right: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Paper Selection Grid */
+    .paper-selection-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .paper-option {
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+        position: relative;
+    }
+
+    .paper-option:hover {
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
+    }
+
+    .paper-option:hover .paper-image::before {
+        opacity: 0.8;
+    }
+
+    .paper-option:hover .paper-price {
+        background: var(--primary-blue);
+        transform: scale(1.05);
+    }
+
+    .paper-option.selected {
+        border-color: var(--primary-blue);
+        background: rgba(14, 165, 233, 0.02);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+    }
+
+    .paper-option input[type="radio"] {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary-blue);
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .paper-image {
+        width: 100%;
+        height: 160px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .paper-image::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    }
+
+    /* Paper type specific backgrounds */
+    .paper-bw-standard {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background-image:
+            url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        position: relative;
+    }
+
+    .paper-bw-standard::after {
+        content: '📄';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        opacity: 0.3;
+    }
+
+    .paper-bw-premium {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        background-image:
+            url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.02' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+        position: relative;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .paper-bw-premium::after {
+        content: '📋';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        opacity: 0.3;
+    }
+
+    .paper-color-premium {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-image:
+            url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3Ccircle cx='10' cy='10' r='4'/%3E%3Ccircle cx='50' cy='10' r='4'/%3E%3Ccircle cx='10' cy='50' r='4'/%3E%3Ccircle cx='50' cy='50' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        position: relative;
+        overflow: hidden;
+    }
+
+    .paper-color-premium::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .paper-color-premium::after {
+        content: '🎨';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        opacity: 0.4;
+        z-index: 1;
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+
+        100% {
+            transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+    }
+
+    @keyframes gradientShift {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .paper-info {
+        padding: 1rem;
+        text-align: left;
+    }
+
+    .paper-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+
+    .paper-description {
+        font-size: 0.85rem;
+        color: var(--text-medium);
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+    }
+
+    .paper-specs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .paper-spec {
+        background: var(--bg-light);
+        color: var(--text-medium);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .paper-price {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        z-index: 2;
+    }
+
+    /* Responsive paper grid */
+    @media (max-width: 768px) {
+        .paper-selection-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .paper-image {
+            height: 120px;
+        }
+
+        .paper-info {
+            padding: 0.75rem;
+        }
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        transform: translateY(-20px);
+        transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-light);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+        background: var(--bg-light);
+        color: var(--text-dark);
+    }
+
+    .design-option {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .design-option:hover {
+        border-color: var(--primary-blue);
+        background: rgba(14, 165, 233, 0.05);
+    }
+
+    .design-option.selected {
+        border-color: var(--primary-blue);
+        background: rgba(14, 165, 233, 0.1);
+    }
+
+    .design-option-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--primary-blue);
+        color: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .design-option-content h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .design-option-content p {
+        font-size: 0.9rem;
+        color: var(--text-medium);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-modal {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-modal-primary {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .btn-modal-primary:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-modal-secondary {
+        background: var(--bg-light);
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-modal-secondary:hover {
+        background: var(--border-color);
+    }
 </style>
 {% endblock %}
 
@@ -1059,41 +1294,21 @@ html {
             <div class="hero-text">
                 <h1>{{ hero_title }}</h1>
                 <p>{{ hero_description }}</p>
-                
-                <div class="hero-buttons">
-                    <a href="#calculator" class="btn-primary">
-                        <i class="fas fa-calculator"></i> Get Instant Quote
-                    </a>
-                    <a href="#specifications" class="btn-secondary">
-                        <i class="fas fa-info-circle"></i> View Details
-                    </a>
-                </div>
-                
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-number">24-48hrs</div>
-                        <div class="stat-label">Turnaround</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Quality</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">Free</div>
-                        <div class="stat-label">Design Help</div>
-                    </div>
-                </div>
+
             </div>
-            
+
             <div class="hero-image">
                 {% if 'business' in title|lower %}
-                    <img src="{% static 'images/business-cards.svg' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                <img src="{% static 'images/business-cards.svg' %}" alt="{{ title }}"
+                    style="width: 100%; max-width: 500px;">
                 {% elif 'brochure' in title|lower %}
-                    <img src="{% static 'images/brochure-design.svg' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                <img src="{% static 'images/brochure-design.svg' %}" alt="{{ title }}"
+                    style="width: 100%; max-width: 500px;">
                 {% elif 'book' in title|lower %}
-                    <img src="{% static 'images/hero-book.png' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                <img src="{% static 'images/hero-book.png' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
                 {% else %}
-                    <img src="{% static 'images/service-design-services.svg' %}" alt="{{ title }}" style="width: 100%; max-width: 500px;">
+                <img src="{% static 'images/service-design-services.svg' %}" alt="{{ title }}"
+                    style="width: 100%; max-width: 500px;">
                 {% endif %}
             </div>
         </div>
@@ -1107,7 +1322,7 @@ html {
             <h2>{{ title }} Instant Quote</h2>
             <p>Get an instant quote by customizing your specifications</p>
         </div>
-        
+
         <div class="quote-calculator-wrapper">
             <div class="quote-form-section">
                 {% if 'book' in title|lower %}
@@ -1129,7 +1344,7 @@ html {
                             </div>
                             <div class="quote-field-note">MOQ: 25 books</div>
                         </div>
-                        
+
                         <div class="quote-field">
                             <label class="quote-label">Number of Pages</label>
                             <div class="quote-input-wrapper">
@@ -1146,17 +1361,19 @@ html {
                             <div class="quote-field-note">Min: 8 pages per book</div>
                         </div>
                     </div>
-                    
+
                     <div class="checkbox-field">
                         <input type="checkbox" id="sameDesign" class="quote-checkbox" checked>
-                        <label for="sameDesign" class="checkbox-label">Every book has the same content and design</label>
+                        <label for="sameDesign" class="checkbox-label">Every book has the same content and
+                            design</label>
                     </div>
                 </div>
 
                 <div class="quote-card">
                     <div class="quote-field-group">
                         <div class="quote-field">
-                            <label class="quote-label">Size (width x height) <i class="fas fa-info-circle quote-info-icon"></i></label>
+                            <label class="quote-label">Size (width x height) <i
+                                    class="fas fa-info-circle quote-info-icon"></i></label>
                             <div class="size-options">
                                 <span class="custom-size-link">CUSTOM SIZE</span>
                             </div>
@@ -1174,29 +1391,62 @@ html {
                 </div>
 
                 <div class="quote-card">
-                    <div class="quote-field-group">
-                        <div class="quote-field">
-                            <label class="quote-label">Paper <span class="paper-note">(Full color printing)</span></label>
-                            <div class="quote-input-wrapper">
-                                <select id="paperType" class="quote-select">
-                                    <option value="75gsm">Standard paper</option>
-                                    <option value="100gsm" selected>Premium paper</option>
-                                    <option value="100gsm_art">Art paper 100gsm</option>
-                                    <option value="130gsm_art">Art paper 130gsm</option>
-                                </select>
-                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                    <label class="quote-label">Paper Selection <span class="paper-note">(Choose your preferred paper
+                            type)</span></label>
+                    <div class="paper-selection-grid">
+                        <div class="paper-option" onclick="selectPaper(this, 'bw_standard')">
+                            <input type="radio" name="paperType" value="bw_standard" id="paper_bw_standard">
+                            <div class="paper-image paper-bw-standard">
+                                <div class="paper-price">+$0</div>
                             </div>
-                            <div class="quote-input-wrapper">
-                                <select id="printType" class="quote-select">
-                                    <option value="bw_standard">Black & White</option>
-                                    <option value="color_standard" selected>Full Color</option>
-                                    <option value="color_premium">Premium Color</option>
-                                </select>
-                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            <div class="paper-info">
+                                <div class="paper-title">Black & White Standard</div>
+                                <div class="paper-description">High-quality black and white printing on standard paper
+                                </div>
+                                <div class="paper-specs">
+                                    <span class="paper-spec">75gsm</span>
+                                    <span class="paper-spec">B&W</span>
+                                    <span class="paper-spec">Standard</span>
+                                </div>
                             </div>
-                            <div class="quote-field-note">If you need other paper, please contact us.</div>
+                        </div>
+
+                        <div class="paper-option selected" onclick="selectPaper(this, 'bw_premium')">
+                            <input type="radio" name="paperType" value="bw_premium" id="paper_bw_premium" checked>
+                            <div class="paper-image paper-bw-premium">
+                                <div class="paper-price">+$5</div>
+                            </div>
+                            <div class="paper-info">
+                                <div class="paper-title">Black & White Premium</div>
+                                <div class="paper-description">Premium black and white printing with enhanced clarity
+                                </div>
+                                <div class="paper-specs">
+                                    <span class="paper-spec">100gsm</span>
+                                    <span class="paper-spec">B&W</span>
+                                    <span class="paper-spec">Premium</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="paper-option" onclick="selectPaper(this, 'color_premium')">
+                            <input type="radio" name="paperType" value="color_premium" id="paper_color_premium">
+                            <div class="paper-image paper-color-premium">
+                                <div class="paper-price">+$15</div>
+                            </div>
+                            <div class="paper-info">
+                                <div class="paper-title">Color Premium</div>
+                                <div class="paper-description">Full-color printing with vibrant colors and premium
+                                    finish</div>
+                                <div class="paper-specs">
+                                    <span class="paper-spec">130gsm</span>
+                                    <span class="paper-spec">Full Color</span>
+                                    <span class="paper-spec">Art Paper</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <div class="quote-field-note" style="margin-top: 1rem;">If you need other paper types, please
+                        contact us for custom options.</div>
                 </div>
 
                 <div class="quote-card">
@@ -1236,7 +1486,7 @@ html {
                             </div>
                             <div class="quote-field-note">MOQ: 50 pieces</div>
                         </div>
-                        
+
                         <div class="quote-field">
                             <label class="quote-label">Card Count per Pack</label>
                             <div class="quote-input-wrapper">
@@ -1251,17 +1501,19 @@ html {
                             <div class="quote-field-note">Min: 1 card per pack</div>
                         </div>
                     </div>
-                    
+
                     <div class="checkbox-field">
                         <input type="checkbox" id="sameDesign" class="quote-checkbox" checked>
-                        <label for="sameDesign" class="checkbox-label">Every card has the same design on the back</label>
+                        <label for="sameDesign" class="checkbox-label">Every card has the same design on the
+                            back</label>
                     </div>
                 </div>
 
                 <div class="quote-card">
                     <div class="quote-field-group">
                         <div class="quote-field">
-                            <label class="quote-label">Size (width x height) <i class="fas fa-info-circle quote-info-icon"></i></label>
+                            <label class="quote-label">Size (width x height) <i
+                                    class="fas fa-info-circle quote-info-icon"></i></label>
                             <div class="size-options">
                                 <span class="custom-size-link">CUSTOM SIZE</span>
                             </div>
@@ -1280,24 +1532,62 @@ html {
                 <div class="quote-card">
                     <div class="quote-field-group">
                         <div class="quote-field">
-                            <label class="quote-label">Paper <span class="paper-note">(Full color printing)</span></label>
-                            <div class="quote-input-wrapper">
-                                <select id="standardPaper" class="quote-select">
-                                    <option value="standard">Premium cardstock</option>
-                                    <option value="premium" selected>Premium cardstock</option>
-                                    <option value="luxury">Luxury cardstock</option>
-                                </select>
-                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
+                            <label class="quote-label">Paper Selection <span class="paper-note">(Choose your preferred
+                                    cardstock)</span></label>
+                            <div class="paper-selection-grid">
+                                <div class="paper-option" onclick="selectPaper(this, 'standard_300')">
+                                    <input type="radio" name="standardPaper" value="standard_300" id="standard_300">
+                                    <div class="paper-image paper-bw-standard">
+                                        <div class="paper-price">Base Price</div>
+                                    </div>
+                                    <div class="paper-info">
+                                        <div class="paper-title">Standard Cardstock</div>
+                                        <div class="paper-description">High-quality standard cardstock perfect for
+                                            everyday use</div>
+                                        <div class="paper-specs">
+                                            <span class="paper-spec">300gsm</span>
+                                            <span class="paper-spec">Matte</span>
+                                            <span class="paper-spec">Standard</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="paper-option selected" onclick="selectPaper(this, 'premium_350')">
+                                    <input type="radio" name="standardPaper" value="premium_350" id="premium_350"
+                                        checked>
+                                    <div class="paper-image paper-bw-premium">
+                                        <div class="paper-price">+$8</div>
+                                    </div>
+                                    <div class="paper-info">
+                                        <div class="paper-title">Premium Cardstock</div>
+                                        <div class="paper-description">Premium quality cardstock with enhanced
+                                            durability</div>
+                                        <div class="paper-specs">
+                                            <span class="paper-spec">350gsm</span>
+                                            <span class="paper-spec">Gloss</span>
+                                            <span class="paper-spec">Premium</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="paper-option" onclick="selectPaper(this, 'luxury_400')">
+                                    <input type="radio" name="standardPaper" value="luxury_400" id="luxury_400">
+                                    <div class="paper-image paper-color-premium">
+                                        <div class="paper-price">+$20</div>
+                                    </div>
+                                    <div class="paper-info">
+                                        <div class="paper-title">Luxury Cardstock</div>
+                                        <div class="paper-description">Ultra-premium cardstock with spot UV finish</div>
+                                        <div class="paper-specs">
+                                            <span class="paper-spec">400gsm</span>
+                                            <span class="paper-spec">Spot UV</span>
+                                            <span class="paper-spec">Luxury</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="quote-input-wrapper">
-                                <select id="finish" class="quote-select">
-                                    <option value="matte">300 gsm</option>
-                                    <option value="gloss" selected>350 gsm</option>
-                                    <option value="spot_uv">400 gsm</option>
-                                </select>
-                                <i class="fas fa-chevron-down quote-dropdown-icon"></i>
-                            </div>
-                            <div class="quote-field-note">If you need other paper, please contact us.</div>
+                            <div class="quote-field-note" style="margin-top: 1rem;">If you need other paper types,
+                                please contact us for custom options.</div>
                         </div>
                     </div>
                 </div>
@@ -1325,7 +1615,7 @@ html {
                 </div>
                 {% endif %}
             </div>
-            
+
             <!-- Price Display Section -->
             <div class="quote-price-section">
                 <div class="price-card">
@@ -1338,32 +1628,36 @@ html {
                         <div class="price-amount" id="totalPrice">{{ starting_price }}</div>
                     </div>
                     <div class="price-details">
-                        <div class="unit-price">Unit Price: ₹<span id="unitPrice">{{ starting_price|floatformat:2 }}</span></div>
+                        <div class="unit-price">Unit Price: ₹<span id="unitPrice">{{ starting_price|floatformat:2
+                                }}</span></div>
                         <div class="price-note">The price doesn't include shipping costs and duty.</div>
                         <div class="estimated-weight">Estimated weight: <span id="estimatedWeight">2 kg</span></div>
                     </div>
                     <button class="save-quote-btn">SAVE QUOTE</button>
                 </div>
-                
+
                 <button class="shipping-btn">GET SHIPPING COST / ANY QUESTION?</button>
-                
+
                 {% if supports_design_tool %}
                 <div style="margin: 1rem 0;">
-                    <button class="save-quote-btn" onclick="showDesignOptions()" style="background: #28a745; margin-bottom: 0.5rem;">
+                    <button class="save-quote-btn" onclick="showDesignOptions()"
+                        style="background: #28a745; margin-bottom: 0.5rem;">
                         <i class="fas fa-palette"></i> DESIGN NOW
                     </button>
                     {% if supports_upload %}
-                    <button class="save-quote-btn" onclick="showUploadOptions()" style="background: #6c757d; margin-bottom: 0.5rem;">
+                    <button class="save-quote-btn" onclick="showUploadOptions()"
+                        style="background: #6c757d; margin-bottom: 0.5rem;">
                         <i class="fas fa-upload"></i> UPLOAD DESIGN
                     </button>
                     {% endif %}
                 </div>
                 {% endif %}
-                
-                <button class="save-quote-btn" onclick="showOrderOptions()" style="background: #dc3545; margin-bottom: 1rem;">
+
+                <button class="save-quote-btn" onclick="showOrderOptions()"
+                    style="background: #dc3545; margin-bottom: 1rem;">
                     <i class="fas fa-shopping-cart"></i> ORDER NOW
                 </button>
-                
+
                 <div class="template-card">
                     <div class="template-icon">
                         <i class="fas fa-download"></i>
@@ -1385,7 +1679,7 @@ html {
             <h2>Why Choose Our {{ title }}?</h2>
             <p>Professional quality printing services with attention to every detail</p>
         </div>
-        
+
         <div class="features-grid">
             {% for feature in features %}
             <div class="feature-card">
@@ -1407,18 +1701,18 @@ html {
             <h2>Technical Specifications</h2>
             <p>Detailed specifications for {{ title }}</p>
         </div>
-        
+
         <div class="specs-table">
             {% for spec_key, spec_value in specifications.items %}
             <div class="spec-row">
                 <div class="spec-label">{{ spec_key }}</div>
                 <div class="spec-value">
                     {% if spec_value|length > 1 %}
-                        {% for item in spec_value %}
-                            {{ item }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
+                    {% for item in spec_value %}
+                    {{ item }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                     {% else %}
-                        {{ spec_value.0 }}
+                    {{ spec_value.0 }}
                     {% endif %}
                 </div>
             </div>
@@ -1435,7 +1729,7 @@ html {
             <h2>Our Simple Process</h2>
             <p>From order to delivery in just a few easy steps</p>
         </div>
-        
+
         <div class="process-grid">
             {% for step in process_steps %}
             <div class="process-step">
@@ -1454,7 +1748,7 @@ html {
     <div class="section-container">
         <h2>Ready to Get Started?</h2>
         <p>Get an instant quote for {{ title }} or speak with our printing experts</p>
-        
+
         <div class="cta-buttons">
             <a href="{% url 'home:contact' %}" class="btn-white">
                 <i class="fas fa-envelope"></i> Get Free Quote
@@ -1473,7 +1767,7 @@ html {
             <h2>Related Services</h2>
             <p>Explore our other printing services</p>
         </div>
-        
+
         <div class="related-grid">
             <a href="{% url 'services:business_cards' %}" class="related-card">
                 <div class="related-icon">
@@ -1482,7 +1776,7 @@ html {
                 <h3 class="related-title">Business Cards</h3>
                 <p class="related-price">Starting from ₹299</p>
             </a>
-            
+
             <a href="{% url 'services:brochures' %}" class="related-card">
                 <div class="related-icon">
                     <i class="fas fa-file-alt"></i>
@@ -1490,7 +1784,7 @@ html {
                 <h3 class="related-title">Brochures</h3>
                 <p class="related-price">Starting from ₹599</p>
             </a>
-            
+
             <a href="{% url 'services:childrens_book_printing' %}" class="related-card">
                 <div class="related-icon">
                     <i class="fas fa-book"></i>
@@ -1498,7 +1792,7 @@ html {
                 <h3 class="related-title">Book Printing</h3>
                 <p class="related-price">Starting from ₹299</p>
             </a>
-            
+
             <a href="{% url 'services:flyers' %}" class="related-card">
                 <div class="related-icon">
                     <i class="fas fa-paper-plane"></i>
@@ -1511,167 +1805,225 @@ html {
 </section>
 
 <script>
-// Enhanced Pricing Calculator with Real-time Updates
-let selectedBinding = 'spiral_binding';
-let selectedCorner = 'rounded';
+    // Enhanced Pricing Calculator with Real-time Updates
+    let selectedBinding = 'spiral_binding';
+    let selectedPaper = 'bw_premium'; // Default selected paper
 
-// Initialize calculator
-document.addEventListener('DOMContentLoaded', function() {
-    initializeCalculator();
-    setupSmoothScroll();
-    setupRealTimeUpdates();
-    setupInteractiveOptions();
-});
+    // Paper Selection Function
+    function selectPaper(element, paperType) {
+        // Remove selected class from all paper options in the same group
+        const paperGrid = element.closest('.paper-selection-grid');
+        const allOptions = paperGrid.querySelectorAll('.paper-option');
 
-function initializeCalculator() {
-    // Set initial values
-    calculatePrice();
-    
-    // Setup binding options
-    document.querySelectorAll('.binding-option').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.binding-option').forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
-            selectedBinding = this.dataset.binding;
-            calculatePrice();
+        allOptions.forEach(option => {
+            option.classList.remove('selected');
         });
+
+        // Add selected class to clicked option
+        element.classList.add('selected');
+
+        // Check the radio button
+        const radioButton = element.querySelector('input[type="radio"]');
+        if (radioButton) {
+            radioButton.checked = true;
+        }
+
+        // Update selected paper
+        selectedPaper = paperType;
+
+        // Update pricing
+        calculatePrice();
+
+        // Add visual feedback
+        element.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            element.style.transform = '';
+        }, 150);
+    }
+    let selectedCorner = 'rounded';
+
+    // Initialize calculator
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeCalculator();
+        setupSmoothScroll();
+        setupRealTimeUpdates();
+        setupInteractiveOptions();
     });
-    
-    // Setup corner options
-    document.querySelectorAll('.corner-option').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
-            selectedCorner = this.dataset.corner;
-            calculatePrice();
+
+    function initializeCalculator() {
+        // Set initial values
+        calculatePrice();
+
+        // Setup binding options
+        document.querySelectorAll('.binding-option').forEach(option => {
+            option.addEventListener('click', function () {
+                document.querySelectorAll('.binding-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedBinding = this.dataset.binding;
+                calculatePrice();
+            });
         });
-    });
-}
 
-function setupSmoothScroll() {
-    // Enhanced smooth scrolling
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                const headerOffset = 100;
-                const elementPosition = target.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        // Setup corner options
+        document.querySelectorAll('.corner-option').forEach(option => {
+            option.addEventListener('click', function () {
+                document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedCorner = this.dataset.corner;
+                calculatePrice();
+            });
+        });
+    }
 
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
+    function setupSmoothScroll() {
+        // Enhanced smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 100;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    }
+
+    function setupRealTimeUpdates() {
+        // Real-time price updates as user changes options
+        const inputs = document.querySelectorAll('select, input[type="checkbox"], input[type="number"]');
+        inputs.forEach(input => {
+            input.addEventListener('change', function () {
+                calculatePrice();
+            });
+
+            // Also update on input for number fields
+            if (input.type === 'number') {
+                input.addEventListener('input', function () {
+                    calculatePrice();
                 });
             }
         });
-    });
-}
+    }
 
-function setupRealTimeUpdates() {
-    // Real-time price updates as user changes options
-    const inputs = document.querySelectorAll('select, input[type="checkbox"], input[type="number"]');
-    inputs.forEach(input => {
-        input.addEventListener('change', function() {
-            calculatePrice();
-        });
-        
-        // Also update on input for number fields
-        if (input.type === 'number') {
-            input.addEventListener('input', function() {
-                calculatePrice();
+    function setupInteractiveOptions() {
+        // Add visual feedback for selects
+        document.querySelectorAll('.quote-select').forEach(select => {
+            select.addEventListener('focus', function () {
+                this.parentElement.style.borderColor = '#0ea5e9';
             });
-        }
-    });
-}
 
-function setupInteractiveOptions() {
-    // Add visual feedback for selects
-    document.querySelectorAll('.quote-select').forEach(select => {
-        select.addEventListener('focus', function() {
-            this.parentElement.style.borderColor = '#0ea5e9';
+            select.addEventListener('blur', function () {
+                this.parentElement.style.borderColor = '#e1e5e9';
+            });
         });
-        
-        select.addEventListener('blur', function() {
-            this.parentElement.style.borderColor = '#e1e5e9';
-        });
-    });
-}
+    }
 
-function calculatePrice() {
-    const isBookPrinting = '{{ title|lower }}'.includes('book');
-    let total = 0;
-    let quantity = 0;
-    let unitPrice = 0;
-    let estimatedWeight = 0;
+    function calculatePrice() {
+        const isBookPrinting = '{{ title|lower }}'.includes('book');
+        let total = 0;
+        let quantity = 0;
+        let unitPrice = 0;
+        let estimatedWeight = 0;
 
-    if (isBookPrinting) {
-        // Book printing calculation
-        const size = document.getElementById('bookSize')?.value || 'A4';
-        const pages = parseInt(document.getElementById('pages')?.value || 100);
-        const paperType = document.getElementById('paperType')?.value || '100gsm';
-        const printType = document.getElementById('printType')?.value || 'color_standard';
-        quantity = parseInt(document.getElementById('quantity')?.value || 50);
+        if (isBookPrinting) {
+            // Book printing calculation
+            const size = document.getElementById('bookSize')?.value || 'A4';
+            const pages = parseInt(document.getElementById('pages')?.value || 100);
+            // Get selected paper from radio buttons
+            const selectedPaperRadio = document.querySelector('input[name="paperType"]:checked');
+            const paperSelection = selectedPaperRadio ? selectedPaperRadio.value : 'bw_premium';
 
-        // Simplified rates for real-time calculation
-        const rates = {
-            'A4': {
-                'bw_standard': {'75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1},
-                'color_standard': {'75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15},
-                'color_premium': {'75gsm': 2.7, '100gsm': 2.9, '100gsm_art': 3.1, '130gsm_art': 3.3}
-            },
-            'A5': {
-                'bw_standard': {'75gsm': 0.6, '100gsm': 0.75, '100gsm_art': 0.9, '130gsm_art': 1.1},
-                'color_standard': {'75gsm': 1.25, '100gsm': 1.35, '100gsm_art': 1.45, '130gsm_art': 1.58},
-                'color_premium': {'75gsm': 1.35, '100gsm': 1.45, '100gsm_art': 1.6, '130gsm_art': 1.75}
-            },
-            'Letter': {
-                'bw_standard': {'75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1},
-                'color_standard': {'75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15}
-            },
-            'Executive': {
-                'bw_standard': {'75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1},
-                'color_standard': {'75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15}
+            // Map paper selection to paper type and print type
+            let paperType = '100gsm';
+            let printType = 'bw_standard';
+
+            switch (paperSelection) {
+                case 'bw_standard':
+                    paperType = '75gsm';
+                    printType = 'bw_standard';
+                    break;
+                case 'bw_premium':
+                    paperType = '100gsm';
+                    printType = 'bw_standard';
+                    break;
+                case 'color_premium':
+                    paperType = '130gsm';
+                    printType = 'color_premium';
+                    break;
+                default:
+                    paperType = '100gsm';
+                    printType = 'bw_standard';
             }
+            quantity = parseInt(document.getElementById('quantity')?.value || 50);
+
+            // Simplified rates for real-time calculation
+            const rates = {
+                'A4': {
+                    'bw_standard': { '75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1 },
+                    'color_standard': { '75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15 },
+                    'color_premium': { '75gsm': 2.7, '100gsm': 2.9, '100gsm_art': 3.1, '130gsm_art': 3.3 }
+                },
+                'A5': {
+                    'bw_standard': { '75gsm': 0.6, '100gsm': 0.75, '100gsm_art': 0.9, '130gsm_art': 1.1 },
+                    'color_standard': { '75gsm': 1.25, '100gsm': 1.35, '100gsm_art': 1.45, '130gsm_art': 1.58 },
+                    'color_premium': { '75gsm': 1.35, '100gsm': 1.45, '100gsm_art': 1.6, '130gsm_art': 1.75 }
+                },
+                'Letter': {
+                    'bw_standard': { '75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1 },
+                    'color_standard': { '75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15 }
+                },
+                'Executive': {
+                    'bw_standard': { '75gsm': 1.1, '100gsm': 1.35, '100gsm_art': 1.8, '130gsm_art': 2.1 },
+                    'color_standard': { '75gsm': 2.5, '100gsm': 2.7, '100gsm_art': 2.9, '130gsm_art': 3.15 }
+                }
+            };
+
+            const bindingCosts = {
+                'paperback_perfect': 40,
+                'spiral_binding': 40,
+                'hardcover': 150,
+                'saddle_stitch': 25
+            };
+
+            // Calculate costs
+            const rate = rates[size] && rates[size][printType] ? rates[size][printType][paperType] || 1.5 : 1.5;
+            const printingCost = pages * rate * quantity;
+            const bindingCost = bindingCosts[selectedBinding] * quantity;
+            const shippingCost = pages * (printType.includes('color') ? 0.13 : 0.1) * quantity;
+
+            total = printingCost + bindingCost + shippingCost;
+
+            // Quantity discount
+            let discount = 0;
+            if (quantity >= 300) discount = 0.16;
+            else if (quantity >= 200) discount = 0.12;
+            else if (quantity >= 100) discount = 0.08;
+            else if (quantity >= 50) discount = 0.04;
+
+            if (discount > 0) {
+                total = total * (1 - discount);
+            }
+
+            unitPrice = total / quantity;
+            estimatedWeight = Math.ceil((pages * quantity * 0.005) + (quantity * 0.1)); // Rough estimate
+
+        } else {
+            // Standard product calculation
+            const basePrice = {{ starting_price }
         };
-
-        const bindingCosts = {
-            'paperback_perfect': 40,
-            'spiral_binding': 40,
-            'hardcover': 150,
-            'saddle_stitch': 25
-        };
-
-        // Calculate costs
-        const rate = rates[size] && rates[size][printType] ? rates[size][printType][paperType] || 1.5 : 1.5;
-        const printingCost = pages * rate * quantity;
-        const bindingCost = bindingCosts[selectedBinding] * quantity;
-        const shippingCost = pages * (printType.includes('color') ? 0.13 : 0.1) * quantity;
-
-        total = printingCost + bindingCost + shippingCost;
-
-        // Quantity discount
-        let discount = 0;
-        if (quantity >= 300) discount = 0.16;
-        else if (quantity >= 200) discount = 0.12;
-        else if (quantity >= 100) discount = 0.08;
-        else if (quantity >= 50) discount = 0.04;
-
-        if (discount > 0) {
-            total = total * (1 - discount);
-        }
-
-        unitPrice = total / quantity;
-        estimatedWeight = Math.ceil((pages * quantity * 0.005) + (quantity * 0.1)); // Rough estimate
-
-    } else {
-        // Standard product calculation
-        const basePrice = {{ starting_price }};
         quantity = parseInt(document.getElementById('standardQuantity')?.value || 100);
         const cardCount = parseInt(document.getElementById('cardCount')?.value || 50);
         const size = document.getElementById('productSize')?.value || 'standard';
-        const paper = document.getElementById('standardPaper')?.value || 'premium';
-        const finish = document.getElementById('finish')?.value || 'gloss';
+        // Get selected paper from radio buttons
+        const selectedStandardPaperRadio = document.querySelector('input[name="standardPaper"]:checked');
+        const paperSelection = selectedStandardPaperRadio ? selectedStandardPaperRadio.value : 'premium_350';
 
         unitPrice = basePrice / 100; // Convert to per piece
 
@@ -1679,13 +2031,20 @@ function calculatePrice() {
         if (size === 'large') unitPrice += 0.50;
         if (size === 'custom') unitPrice += 1.00;
 
-        // Paper adjustments
-        if (paper === 'premium') unitPrice += 0.30;
-        if (paper === 'luxury') unitPrice += 0.60;
-
-        // Finish adjustments
-        if (finish === 'gloss') unitPrice += 0.15;
-        if (finish === 'spot_uv') unitPrice += 0.50;
+        // Paper adjustments based on new selection system
+        switch (paperSelection) {
+            case 'standard_300':
+                // Base price, no additional cost
+                break;
+            case 'premium_350':
+                unitPrice += 0.30;
+                break;
+            case 'luxury_400':
+                unitPrice += 0.80;
+                break;
+            default:
+                unitPrice += 0.30; // Default to premium
+        }
 
         total = unitPrice * quantity;
         estimatedWeight = Math.ceil(quantity * 0.02); // Rough estimate for cards
@@ -1694,7 +2053,7 @@ function calculatePrice() {
     // Update display with smooth number animation
     animateNumber('totalPrice', total);
     animateNumber('unitPrice', unitPrice);
-    
+
     // Update estimated weight
     const weightElement = document.getElementById('estimatedWeight');
     if (weightElement) {
@@ -1711,214 +2070,214 @@ function calculatePrice() {
     }
 }
 
-function animateNumber(elementId, targetValue) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
+    function animateNumber(elementId, targetValue) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
 
-    const startValue = parseFloat(element.textContent.replace(/[₹,]/g, '')) || 0;
-    const difference = targetValue - startValue;
-    const duration = 300;
-    const steps = 20;
-    const stepValue = difference / steps;
-    const stepDuration = duration / steps;
+        const startValue = parseFloat(element.textContent.replace(/[₹,]/g, '')) || 0;
+        const difference = targetValue - startValue;
+        const duration = 300;
+        const steps = 20;
+        const stepValue = difference / steps;
+        const stepDuration = duration / steps;
 
-    let currentStep = 0;
-    const timer = setInterval(() => {
-        currentStep++;
-        const currentValue = startValue + (stepValue * currentStep);
-        
-        if (elementId === 'totalPrice') {
-            element.textContent = Math.round(currentValue).toLocaleString('en-IN');
-        } else {
-            element.textContent = currentValue.toFixed(2);
-        }
+        let currentStep = 0;
+        const timer = setInterval(() => {
+            currentStep++;
+            const currentValue = startValue + (stepValue * currentStep);
 
-        if (currentStep >= steps) {
-            clearInterval(timer);
-            // Final value to ensure accuracy
             if (elementId === 'totalPrice') {
-                element.textContent = Math.round(targetValue).toLocaleString('en-IN');
+                element.textContent = Math.round(currentValue).toLocaleString('en-IN');
             } else {
-                element.textContent = targetValue.toFixed(2);
+                element.textContent = currentValue.toFixed(2);
             }
+
+            if (currentStep >= steps) {
+                clearInterval(timer);
+                // Final value to ensure accuracy
+                if (elementId === 'totalPrice') {
+                    element.textContent = Math.round(targetValue).toLocaleString('en-IN');
+                } else {
+                    element.textContent = targetValue.toFixed(2);
+                }
+            }
+        }, stepDuration);
+    }
+
+    // Save Quote functionality
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('save-quote-btn')) {
+            saveQuote();
         }
-    }, stepDuration);
-}
 
-// Save Quote functionality
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('save-quote-btn')) {
-        saveQuote();
-    }
-    
-    if (e.target.classList.contains('shipping-btn')) {
-        window.location.href = '{% url "home:contact" %}';
-    }
-    
-    if (e.target.closest('.template-card')) {
-        downloadTemplate();
-    }
-});
+        if (e.target.classList.contains('shipping-btn')) {
+            window.location.href = '{% url "home:contact" %}';
+        }
 
-function saveQuote() {
-    const quoteData = {
-        product: '{{ title }}',
-        totalPrice: document.getElementById('totalPrice').textContent,
-        unitPrice: document.getElementById('unitPrice').textContent,
-        timestamp: new Date().toISOString(),
-        specifications: gatherSpecifications()
+        if (e.target.closest('.template-card')) {
+            downloadTemplate();
+        }
+    });
+
+    function saveQuote() {
+        const quoteData = {
+            product: '{{ title }}',
+            totalPrice: document.getElementById('totalPrice').textContent,
+            unitPrice: document.getElementById('unitPrice').textContent,
+            timestamp: new Date().toISOString(),
+            specifications: gatherSpecifications()
+        };
+
+        // Store in localStorage for now
+        localStorage.setItem('savedQuote', JSON.stringify(quoteData));
+
+        // Visual feedback
+        const btn = document.querySelector('.save-quote-btn');
+        const originalText = btn.textContent;
+        btn.textContent = 'QUOTE SAVED!';
+        btn.style.background = '#28a745';
+
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '#17a2b8';
+        }, 2000);
+    }
+
+    function gatherSpecifications() {
+        const specs = {};
+        const selects = document.querySelectorAll('.quote-select');
+        selects.forEach(select => {
+            if (select.value) {
+                specs[select.id] = select.value;
+            }
+        });
+        return specs;
+    }
+
+    function downloadTemplate() {
+        // Simulate template download
+        const link = document.createElement('a');
+        link.href = '#';
+        link.download = '{{ title|slugify }}-template.pdf';
+
+        // Visual feedback
+        const templateCard = document.querySelector('.template-card');
+        templateCard.style.background = '#28a745';
+        setTimeout(() => {
+            templateCard.style.background = '#1a4c68';
+        }, 1000);
+
+        alert('Template download will be available soon!');
+    }
+
+    // Intersection Observer for smooth animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
     };
-    
-    // Store in localStorage for now
-    localStorage.setItem('savedQuote', JSON.stringify(quoteData));
-    
-    // Visual feedback
-    const btn = document.querySelector('.save-quote-btn');
-    const originalText = btn.textContent;
-    btn.textContent = 'QUOTE SAVED!';
-    btn.style.background = '#28a745';
-    
-    setTimeout(() => {
-        btn.textContent = originalText;
-        btn.style.background = '#17a2b8';
-    }, 2000);
-}
 
-function gatherSpecifications() {
-    const specs = {};
-    const selects = document.querySelectorAll('.quote-select');
-    selects.forEach(select => {
-        if (select.value) {
-            specs[select.id] = select.value;
-        }
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe quote cards for entrance animations
+    document.querySelectorAll('.quote-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe(card);
     });
-    return specs;
-}
 
-function downloadTemplate() {
-    // Simulate template download
-    const link = document.createElement('a');
-    link.href = '#';
-    link.download = '{{ title|slugify }}-template.pdf';
-    
-    // Visual feedback
-    const templateCard = document.querySelector('.template-card');
-    templateCard.style.background = '#28a745';
-    setTimeout(() => {
-        templateCard.style.background = '#1a4c68';
-    }, 1000);
-    
-    alert('Template download will be available soon!');
-}
-
-// Intersection Observer for smooth animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver(function(entries) {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Observe quote cards for entrance animations
-document.querySelectorAll('.quote-card').forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = 'all 0.6s ease';
-    observer.observe(card);
-});
-
-// Design Options Modal Functions
-function showDesignOptions() {
-    {% if supports_front_back %}
+    // Design Options Modal Functions
+    function showDesignOptions() {
+        {% if supports_front_back %}
         document.getElementById('designOptionsModal').classList.add('active');
-    {% else %}
+        {% else %}
         // Direct redirect to design tool
         {% if main_product %}
-            window.location.href = '{% url "design_tool:editor" main_product.slug %}';
+        window.location.href = '{% url "design_tool:editor" main_product.slug %}';
         {% else %}
-            alert('Please select a product first');
+        alert('Please select a product first');
         {% endif %}
-    {% endif %}
-}
+        {% endif %}
+    }
 
-function showUploadOptions() {
-    {% if supports_front_back %}
+    function showUploadOptions() {
+        {% if supports_front_back %}
         document.getElementById('uploadOptionsModal').classList.add('active');
-    {% else %}
+        {% else %}
         // Direct redirect to upload page
         window.location.href = '{% url "design_tool:admin_template_upload" %}';
-    {% endif %}
-}
+        {% endif %}
+    }
 
-function showOrderOptions() {
-    document.getElementById('orderOptionsModal').classList.add('active');
-}
+    function showOrderOptions() {
+        document.getElementById('orderOptionsModal').classList.add('active');
+    }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
-}
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
 
-function selectDesignOption(option) {
-    // Remove selected class from all options
-    document.querySelectorAll('.design-option').forEach(el => el.classList.remove('selected'));
-    // Add selected class to clicked option
-    event.currentTarget.classList.add('selected');
-    
-    // Enable proceed button
-    document.getElementById('proceedDesignBtn').disabled = false;
-}
+    function selectDesignOption(option) {
+        // Remove selected class from all options
+        document.querySelectorAll('.design-option').forEach(el => el.classList.remove('selected'));
+        // Add selected class to clicked option
+        event.currentTarget.classList.add('selected');
 
-function proceedWithDesign() {
-    const selectedOption = document.querySelector('.design-option.selected');
-    if (!selectedOption) return;
-    
-    const designType = selectedOption.dataset.type;
-    {% if main_product %}
+        // Enable proceed button
+        document.getElementById('proceedDesignBtn').disabled = false;
+    }
+
+    function proceedWithDesign() {
+        const selectedOption = document.querySelector('.design-option.selected');
+        if (!selectedOption) return;
+
+        const designType = selectedOption.dataset.type;
+        {% if main_product %}
         let url = '{% url "design_tool:editor" main_product.slug %}';
         if (designType) {
             url += '?design_type=' + designType;
         }
         window.location.href = url;
-    {% else %}
+        {% else %}
         alert('Please select a product first');
-    {% endif %}
-}
-
-function proceedWithUpload() {
-    const selectedOption = document.querySelector('.design-option.selected');
-    if (!selectedOption) return;
-    
-    const designType = selectedOption.dataset.type;
-    let url = '{% url "design_tool:admin_template_upload" %}';
-    if (designType) {
-        url += '?design_type=' + designType;
+        {% endif %}
     }
-    
-    window.location.href = url;
-}
 
-function proceedWithOrder() {
-    // Redirect to order page with calculator data
-    const quantity = document.getElementById('quantity')?.value || document.getElementById('standardQuantity')?.value || 50;
-    let url = '{% url "orders:create" %}{% if main_product %}?product_id={{ main_product.id }}{% endif %}';
-    url += '{% if main_product %}&{% else %}?{% endif %}quantity=' + quantity;
-    
-    window.location.href = url;
-}
+    function proceedWithUpload() {
+        const selectedOption = document.querySelector('.design-option.selected');
+        if (!selectedOption) return;
 
-// Close modal when clicking outside
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal-overlay')) {
-        e.target.classList.remove('active');
+        const designType = selectedOption.dataset.type;
+        let url = '{% url "design_tool:admin_template_upload" %}';
+        if (designType) {
+            url += '?design_type=' + designType;
+        }
+
+        window.location.href = url;
     }
-});
+
+    function proceedWithOrder() {
+        // Redirect to order page with calculator data
+        const quantity = document.getElementById('quantity')?.value || document.getElementById('standardQuantity')?.value || 50;
+        let url = '{% url "orders:create" %}{% if main_product %}?product_id={{ main_product.id }}{% endif %}';
+        url += '{% if main_product %}&{% else %}?{% endif %}quantity=' + quantity;
+
+        window.location.href = url;
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('modal-overlay')) {
+            e.target.classList.remove('active');
+        }
+    });
 </script>
 
 <!-- Design Options Modal -->
@@ -1929,7 +2288,7 @@ document.addEventListener('click', function(e) {
             <h2 class="modal-title">Choose Design Option</h2>
             <button class="modal-close" onclick="closeModal('designOptionsModal')">&times;</button>
         </div>
-        
+
         <div class="design-option" data-type="front" onclick="selectDesignOption('front')">
             <div class="design-option-icon">
                 <i class="fas fa-file-alt"></i>
@@ -1939,7 +2298,7 @@ document.addEventListener('click', function(e) {
                 <p>Design only the front side of your {{ title|lower }}</p>
             </div>
         </div>
-        
+
         <div class="design-option" data-type="back" onclick="selectDesignOption('back')">
             <div class="design-option-icon">
                 <i class="fas fa-file"></i>
@@ -1949,7 +2308,7 @@ document.addEventListener('click', function(e) {
                 <p>Design only the back side of your {{ title|lower }}</p>
             </div>
         </div>
-        
+
         <div class="design-option" data-type="both" onclick="selectDesignOption('both')">
             <div class="design-option-icon">
                 <i class="fas fa-copy"></i>
@@ -1959,10 +2318,11 @@ document.addEventListener('click', function(e) {
                 <p>Design both sides of your {{ title|lower }}</p>
             </div>
         </div>
-        
+
         <div class="modal-actions">
             <button class="btn-modal btn-modal-secondary" onclick="closeModal('designOptionsModal')">Cancel</button>
-            <button id="proceedDesignBtn" class="btn-modal btn-modal-primary" onclick="proceedWithDesign()" disabled>Start Designing</button>
+            <button id="proceedDesignBtn" class="btn-modal btn-modal-primary" onclick="proceedWithDesign()"
+                disabled>Start Designing</button>
         </div>
     </div>
 </div>
@@ -1976,7 +2336,7 @@ document.addEventListener('click', function(e) {
             <h2 class="modal-title">Upload Design</h2>
             <button class="modal-close" onclick="closeModal('uploadOptionsModal')">&times;</button>
         </div>
-        
+
         <div class="design-option" data-type="front" onclick="selectDesignOption('front')">
             <div class="design-option-icon">
                 <i class="fas fa-upload"></i>
@@ -1986,7 +2346,7 @@ document.addEventListener('click', function(e) {
                 <p>Upload design for the front side only</p>
             </div>
         </div>
-        
+
         <div class="design-option" data-type="back" onclick="selectDesignOption('back')">
             <div class="design-option-icon">
                 <i class="fas fa-upload"></i>
@@ -1996,7 +2356,7 @@ document.addEventListener('click', function(e) {
                 <p>Upload design for the back side only</p>
             </div>
         </div>
-        
+
         <div class="design-option" data-type="both" onclick="selectDesignOption('both')">
             <div class="design-option-icon">
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -2006,10 +2366,11 @@ document.addEventListener('click', function(e) {
                 <p>Upload designs for both sides</p>
             </div>
         </div>
-        
+
         <div class="modal-actions">
             <button class="btn-modal btn-modal-secondary" onclick="closeModal('uploadOptionsModal')">Cancel</button>
-            <button id="proceedUploadBtn" class="btn-modal btn-modal-primary" onclick="proceedWithUpload()" disabled>Upload Design</button>
+            <button id="proceedUploadBtn" class="btn-modal btn-modal-primary" onclick="proceedWithUpload()"
+                disabled>Upload Design</button>
         </div>
     </div>
 </div>
@@ -2022,7 +2383,7 @@ document.addEventListener('click', function(e) {
             <h2 class="modal-title">Place Your Order</h2>
             <button class="modal-close" onclick="closeModal('orderOptionsModal')">&times;</button>
         </div>
-        
+
         <div class="design-option" onclick="proceedWithOrder()">
             <div class="design-option-icon">
                 <i class="fas fa-shopping-cart"></i>
@@ -2032,7 +2393,7 @@ document.addEventListener('click', function(e) {
                 <p>Place order with the specifications you've configured above</p>
             </div>
         </div>
-        
+
         {% if supports_design_tool %}
         <div class="design-option" onclick="showDesignOptions()">
             <div class="design-option-icon">
@@ -2044,7 +2405,7 @@ document.addEventListener('click', function(e) {
             </div>
         </div>
         {% endif %}
-        
+
         <div class="modal-actions">
             <button class="btn-modal btn-modal-secondary" onclick="closeModal('orderOptionsModal')">Cancel</button>
         </div>

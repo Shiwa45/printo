@@ -17,14 +17,16 @@ urlpatterns = [
     path('design-tool/', include('apps.design_tool.urls')),
     path('api/pricing/', include('apps.pricing.urls')),
 
-    
+
     # API endpoints (v1)
-    
+    path('api/', include('apps.api.urls')),
+
+    # DRF Auth Token endpoint
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+
     # Legacy Django MVT URLs (keep during transition)
     
-    ]
-    
-    # DRF Auth Token endpoint
+]
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

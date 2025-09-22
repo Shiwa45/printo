@@ -1,0 +1,1136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Drishthi Printing{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Enhanced Product Configuration Styles */
+:root {
+    --primary-blue: #0ea5e9;
+    --primary-dark: #0284c7;
+    --text-dark: #1f2937;
+    --text-medium: #4b5563;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+    --bg-section: #ffffff;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --error-color: #ef4444;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+/* Enhanced Product Header */
+.product-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    opacity: 0.3;
+}
+
+.product-header .product-container {
+    position: relative;
+    z-index: 1;
+}
+
+.product-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+/* Product Images */
+.product-images {
+    position: sticky;
+    top: 2rem;
+}
+
+.main-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbnail-images {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+    border-color: var(--primary-blue);
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Product Info */
+.product-info {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.product-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.product-category {
+    color: var(--primary-blue);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.product-description {
+    color: var(--text-medium);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+.product-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-featured {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-bestseller {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-new {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Configuration Section */
+.configuration-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.config-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+}
+
+.config-option {
+    margin-bottom: 2rem;
+}
+
+.option-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.option-required {
+    color: var(--error-color);
+    font-size: 0.75rem;
+}
+
+.option-description {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+    margin-bottom: 1rem;
+}
+
+/* Visual Option Grid */
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.option-item {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    position: relative;
+}
+
+.option-item:hover {
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.15);
+}
+
+.option-item.selected {
+    border-color: var(--primary-blue);
+    background: rgba(14, 165, 233, 0.02);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
+}
+
+.option-item input[type="radio"] {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-blue);
+    cursor: pointer;
+    z-index: 2;
+}
+
+.option-image {
+    width: 100%;
+    height: 120px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.option-price {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.option-content {
+    padding: 1rem;
+}
+
+.option-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.option-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.spec-tag {
+    background: var(--bg-light);
+    color: var(--text-medium);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.option-desc {
+    font-size: 0.8rem;
+    color: var(--text-medium);
+    line-height: 1.4;
+}
+
+/* Quantity Selector */
+.quantity-section {
+    margin-bottom: 2rem;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.quantity-input {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.qty-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--bg-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.qty-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.qty-input {
+    width: 80px;
+    height: 40px;
+    border: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.quantity-note {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .product-images {
+        position: static;
+    }
+}
+
+/* Service Options */
+.service-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.service-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.service-option:hover {
+    border-color: var(--primary-blue);
+    background: rgba(14, 165, 233, 0.02);
+}
+
+.service-option input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-blue);
+}
+
+.service-info {
+    flex: 1;
+}
+
+.service-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.service-desc {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+}
+
+.service-price {
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+/* Pricing Section */
+.pricing-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.pricing-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.pricing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.pricing-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.pricing-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.pricing-status.calculating {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.pricing-status.ready {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.pricing-breakdown {
+    margin-bottom: 1.5rem;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.breakdown-item:last-child {
+    border-bottom: none;
+}
+
+.breakdown-label {
+    color: var(--text-medium);
+    font-size: 0.875rem;
+}
+
+.breakdown-value {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.pricing-total {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.total-label {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+    margin-bottom: 0.5rem;
+}
+
+.total-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 0.25rem;
+}
+
+.unit-price {
+    font-size: 0.875rem;
+    color: var(--text-medium);
+}
+
+.pricing-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    flex: 1;
+}
+
+/* Quantity Price Breaks */
+.price-breaks {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+}
+
+.price-breaks-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.price-break-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-medium);
+    margin-bottom: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .option-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-title {
+        font-size: 1.5rem;
+    }
+    
+    .pricing-actions {
+        flex-direction: column;
+    }
+    
+    .service-options {
+        gap: 0.75rem;
+    }
+    
+    .service-option {
+        padding: 0.75rem;
+    }
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification-success {
+    background: #dcfce7;
+    border: 1px solid #16a34a;
+    color: #166534;
+}
+
+.notification-error {
+    background: #fef2f2;
+    border: 1px solid #dc2626;
+    color: #991b1b;
+}
+
+.notification-info {
+    background: #dbeafe;
+    border: 1px solid #2563eb;
+    color: #1d4ed8;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+.notification-message {
+    font-weight: 500;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    margin-left: 1rem;
+}
+
+.notification-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-header">
+    <div class="product-container">
+        <nav class="breadcrumb" style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">
+            <a href="/" style="color: rgba(255,255,255,0.8); text-decoration: none;">Home</a> 
+            <span style="margin: 0 0.5rem;">></span>
+            <a href="/products/" style="color: rgba(255,255,255,0.8); text-decoration: none;">Products</a> 
+            <span style="margin: 0 0.5rem;">></span>
+            <a href="/products/category/{{ product.category.slug }}/" style="color: rgba(255,255,255,0.8); text-decoration: none;">{{ product.category.name }}</a> 
+            <span style="margin: 0 0.5rem;">></span>
+            <span style="color: white; font-weight: 500;">{{ product.name }}</span>
+        </nav>
+    </div>
+</div>
+
+<div class="product-container">
+    <div class="product-grid">
+        <!-- Product Images -->
+        <div class="product-images">
+            <div class="main-image">
+                <img id="mainImage" src="{% if product.images.all %}{{ product.images.first.image.url }}{% else %}{% static 'images/placeholder-product.jpg' %}{% endif %}" alt="{{ product.name }}">
+            </div>
+            {% if product.images.all %}
+            <div class="thumbnail-images">
+                {% for image in product.images.all %}
+                <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="changeMainImage('{{ image.image.url }}', this)">
+                    <img src="{{ image.image.url }}" alt="{{ image.alt_text }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Configuration -->
+        <div class="product-info">
+            <div class="product-category">{{ product.category.name }}</div>
+            <h1 class="product-title">{{ product.name }}</h1>
+            
+            <div class="product-badges">
+                {% if product.featured %}<span class="badge badge-featured">Featured</span>{% endif %}
+                {% if product.bestseller %}<span class="badge badge-bestseller">Bestseller</span>{% endif %}
+                {% if product.new_product %}<span class="badge badge-new">New</span>{% endif %}
+            </div>
+            
+            <p class="product-description">{{ product.description }}</p>
+
+            <div class="configuration-section">
+                <h2 class="config-title">Configure Your Product</h2>
+                
+                <form id="productConfigForm">
+                    <input type="hidden" id="productId" value="{{ product.id }}">
+                    
+                    <!-- Dynamic Options -->
+                    <div id="dynamicOptions">
+                        <!-- Options will be loaded here via JavaScript -->
+                    </div>
+
+                    <!-- Quantity Selection -->
+                    <div class="config-option quantity-section">
+                        <div class="option-label">Quantity</div>
+                        <div class="quantity-controls">
+                            <div class="quantity-input">
+                                <button type="button" class="qty-btn" onclick="changeQuantity(-1)">-</button>
+                                <input type="number" id="quantity" class="qty-input" value="{{ product.minimum_quantity }}" min="{{ product.minimum_quantity }}" onchange="updatePricing()">
+                                <button type="button" class="qty-btn" onclick="changeQuantity(1)">+</button>
+                            </div>
+                        </div>
+                        <div class="quantity-note">Minimum quantity: {{ product.minimum_quantity }}</div>
+                    </div>
+
+                    <!-- Additional Services -->
+                    <div class="config-option">
+                        <div class="option-label">Additional Services</div>
+                        <div class="service-options">
+                            <label class="service-option">
+                                <input type="checkbox" id="rushDelivery" onchange="updatePricing()">
+                                <span class="checkmark"></span>
+                                <div class="service-info">
+                                    <div class="service-name">Rush Delivery</div>
+                                    <div class="service-desc">Get your order in {{ product.rush_time_days }} days</div>
+                                </div>
+                                <div class="service-price">+{{ product.rush_fee_percent }}%</div>
+                            </label>
+                            <label class="service-option">
+                                <input type="checkbox" id="designService" onchange="updatePricing()">
+                                <span class="checkmark"></span>
+                                <div class="service-info">
+                                    <div class="service-name">Professional Design Service</div>
+                                    <div class="service-desc">Let our designers create your artwork</div>
+                                </div>
+                                <div class="service-price">+₹500</div>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Real-time Pricing Display -->
+                <div class="pricing-section">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Your Quote</h3>
+                            <div class="pricing-status" id="pricingStatus">Calculating...</div>
+                        </div>
+                        <div class="pricing-breakdown" id="pricingBreakdown">
+                            <!-- Pricing details will be loaded here -->
+                        </div>
+                        <div class="pricing-total">
+                            <div class="total-label">Total Price</div>
+                            <div class="total-amount" id="totalAmount">₹0.00</div>
+                            <div class="unit-price" id="unitPrice">₹0.00 per unit</div>
+                        </div>
+                        <div class="pricing-actions">
+                            <button type="button" class="btn btn-primary btn-large" onclick="addToCart()">
+                                <i class="fas fa-shopping-cart"></i>
+                                Add to Cart
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="requestQuote()">
+                                <i class="fas fa-file-alt"></i>
+                                Request Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentProduct = {{ product.id }};
+let currentConfiguration = {
+    variant_id: null,
+    options: {},
+    quantity: {{ product.minimum_quantity }},
+    rush_delivery: false,
+    design_service: false
+};
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadProductOptions();
+    updatePricing();
+});
+
+// Load product options dynamically
+function loadProductOptions() {
+    fetch(`/products/api/product/${currentProduct}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderOptions(data.options);
+            }
+        })
+        .catch(error => console.error('Error loading options:', error));
+}
+
+// Render options dynamically
+function renderOptions(options) {
+    const container = document.getElementById('dynamicOptions');
+    
+    options.forEach(option => {
+        if (option.values.length === 0) return;
+        
+        const optionHtml = `
+            <div class="config-option">
+                <div class="option-label">
+                    ${option.name}
+                    ${option.is_required ? '<span class="option-required">*</span>' : ''}
+                </div>
+                ${option.description ? `<div class="option-description">${option.description}</div>` : ''}
+                <div class="option-grid">
+                    ${option.values.map((value, index) => `
+                        <div class="option-item ${index === 0 && option.is_required ? 'selected' : ''}" 
+                             onclick="selectOption('${option.name}', ${value.id}, this)">
+                            <input type="radio" name="option_${option.id}" value="${value.id}" 
+                                   ${index === 0 && option.is_required ? 'checked' : ''}>
+                            <div class="option-image" style="background: ${value.color_code || 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)'};
+                                 ${value.image_url ? `background-image: url('${value.image_url}'); background-size: cover;` : ''}">
+                                <div class="option-price">${value.price_display}</div>
+                            </div>
+                            <div class="option-content">
+                                <div class="option-name">${value.name}</div>
+                                ${Object.keys(value.specifications).length > 0 ? `
+                                    <div class="option-specs">
+                                        ${Object.entries(value.specifications).map(([key, val]) => 
+                                            `<span class="spec-tag">${val}</span>`
+                                        ).join('')}
+                                    </div>
+                                ` : ''}
+                                ${value.description ? `<div class="option-desc">${value.description}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML += optionHtml;
+        
+        // Set initial selection for required options
+        if (option.is_required && option.values.length > 0) {
+            currentConfiguration.options[option.name] = option.values[0].id;
+        }
+    });
+}
+
+// Selection handlers
+function selectOption(optionName, valueId, element) {
+    // Update visual selection
+    const container = element.closest('.option-grid');
+    container.querySelectorAll('.option-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    
+    // Update configuration
+    currentConfiguration.options[optionName] = valueId;
+    updatePricing();
+}
+
+function changeQuantity(delta) {
+    const input = document.getElementById('quantity');
+    const newValue = parseInt(input.value) + delta;
+    const minValue = parseInt(input.min);
+    
+    if (newValue >= minValue) {
+        input.value = newValue;
+        currentConfiguration.quantity = newValue;
+        updatePricing();
+    }
+}
+
+// Update pricing
+function updatePricing() {
+    currentConfiguration.quantity = parseInt(document.getElementById('quantity').value);
+    currentConfiguration.rush_delivery = document.getElementById('rushDelivery').checked;
+    currentConfiguration.design_service = document.getElementById('designService').checked;
+    
+    // Update status
+    const statusElement = document.getElementById('pricingStatus');
+    statusElement.textContent = 'Calculating...';
+    statusElement.className = 'pricing-status calculating';
+    
+    // Call advanced pricing API
+    fetch('/products/api/pricing/advanced/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            product_id: currentProduct,
+            ...currentConfiguration
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayPricing(data);
+            loadPriceBreaks();
+        } else {
+            console.error('Pricing calculation failed:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error calculating pricing:', error);
+        statusElement.textContent = 'Error';
+        statusElement.className = 'pricing-status error';
+    });
+}
+
+// Display pricing information
+function displayPricing(data) {
+    const statusElement = document.getElementById('pricingStatus');
+    const breakdownElement = document.getElementById('pricingBreakdown');
+    const totalElement = document.getElementById('totalAmount');
+    const unitPriceElement = document.getElementById('unitPrice');
+    
+    // Update status
+    statusElement.textContent = 'Ready';
+    statusElement.className = 'pricing-status ready';
+    
+    // Update breakdown
+    let breakdownHtml = '';
+    if (data.pricing && data.pricing.breakdown) {
+        data.pricing.breakdown.forEach(item => {
+            breakdownHtml += `
+                <div class="breakdown-item">
+                    <div class="breakdown-label">${item.item} ${item.quantity > 1 ? `(${item.quantity})` : ''}</div>
+                    <div class="breakdown-value">₹${item.total.toFixed(2)}</div>
+                </div>
+            `;
+        });
+    }
+    
+    // Add quantity discount if applicable
+    if (data.pricing && data.pricing.quantity_discount > 0) {
+        breakdownHtml += `
+            <div class="breakdown-item">
+                <div class="breakdown-label">Quantity Discount</div>
+                <div class="breakdown-value" style="color: var(--success-color);">-₹${data.pricing.quantity_discount.toFixed(2)}</div>
+            </div>
+        `;
+    }
+    
+    breakdownElement.innerHTML = breakdownHtml;
+    
+    // Update totals
+    if (data.pricing) {
+        totalElement.textContent = `₹${data.pricing.total.toFixed(2)}`;
+        unitPriceElement.textContent = `₹${data.pricing.unit_price.toFixed(2)} per unit`;
+    }
+}
+
+// Load quantity price breaks
+function loadPriceBreaks() {
+    const params = new URLSearchParams({
+        variant_id: currentConfiguration.variant_id || '',
+        ...Object.fromEntries(
+            Object.entries(currentConfiguration.options).map(([key, value]) => [`option_${key}`, value])
+        )
+    });
+    
+    fetch(`/products/api/price-breaks/${currentProduct}/?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.price_breaks.length > 0) {
+                displayPriceBreaks(data.price_breaks);
+            }
+        })
+        .catch(error => console.error('Error loading price breaks:', error));
+}
+
+// Display price breaks
+function displayPriceBreaks(priceBreaks) {
+    const breakdownElement = document.getElementById('pricingBreakdown');
+    
+    let priceBreaksHtml = `
+        <div class="price-breaks">
+            <div class="price-breaks-title">Quantity Discounts Available</div>
+    `;
+    
+    priceBreaks.forEach(priceBreak => {
+        priceBreaksHtml += `
+            <div class="price-break-item">
+                <span>${priceBreak.min_quantity}+ units</span>
+                <span>₹${priceBreak.unit_price.toFixed(2)} each</span>
+            </div>
+        `;
+    });
+    
+    priceBreaksHtml += '</div>';
+    breakdownElement.innerHTML += priceBreaksHtml;
+}
+
+// Cart and Quote functions
+function addToCart() {
+    // Validate configuration
+    if (!validateConfiguration()) {
+        return;
+    }
+    
+    const cartData = {
+        product_id: currentProduct,
+        ...currentConfiguration
+    };
+    
+    fetch('/cart/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(cartData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Product added to cart!', 'success');
+            updateCartCount(data.cart_count);
+        } else {
+            showNotification(data.error || 'Failed to add to cart', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+        showNotification('Failed to add to cart', 'error');
+    });
+}
+
+function requestQuote() {
+    // Validate configuration
+    if (!validateConfiguration()) {
+        return;
+    }
+    
+    const quoteData = {
+        product_id: currentProduct,
+        ...currentConfiguration
+    };
+    
+    fetch('/quotes/request/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(quoteData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Quote request submitted!', 'success');
+            // Redirect to quote page
+            window.location.href = `/quotes/${data.quote_id}/`;
+        } else {
+            showNotification(data.error || 'Failed to request quote', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error requesting quote:', error);
+        showNotification('Failed to request quote', 'error');
+    });
+}
+
+function validateConfiguration() {
+    // Check if all required options are selected
+    const requiredOptions = document.querySelectorAll('input[type="radio"][required]');
+    for (let option of requiredOptions) {
+        const name = option.name;
+        const checked = document.querySelector(`input[name="${name}"]:checked`);
+        if (!checked) {
+            showNotification('Please select all required options', 'error');
+            return false;
+        }
+    }
+    
+    // Check minimum quantity
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const minQuantity = parseInt(document.getElementById('quantity').min);
+    if (quantity < minQuantity) {
+        showNotification(`Minimum quantity is ${minQuantity}`, 'error');
+        return false;
+    }
+    
+    return true;
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+function updateCartCount(count) {
+    const cartCountElement = document.querySelector('.cart-count');
+    if (cartCountElement) {
+        cartCountElement.textContent = count;
+    }
+}
+
+// Utility functions
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

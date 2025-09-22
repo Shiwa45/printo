@@ -1,13 +1,71 @@
 # apps/services/views.py
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
+from django.urls import reverse
 from apps.products.models import Product, ProductCategory
 
 class ServicesDirectoryView(TemplateView):
     template_name = 'services/services_directory.html'
 
 class ServiceDetailView(TemplateView):
-    template_name = 'services/service_detail.html'
+    """
+    Redirect service detail views to the enhanced product catalog
+    This consolidates services and products into a unified experience
+    """
+    
+    def get(self, request, *args, **kwargs):
+        service_slug = kwargs.get('service_slug')
+        
+        # Map service slugs to product search terms or categories
+        service_to_product_mapping = {
+            # Book printing services
+            'childrens-book-printing': 'children books',
+            'comic-book-printing': 'comic books',
+            'coffee-table-book-printing': 'coffee table books',
+            'coloring-book-printing': 'coloring books',
+            'art-book-printing': 'art books',
+            'annual-reports-printing': 'annual reports',
+            'year-book-printing': 'year books',
+            'on-demand-books-printing': 'books',
+            
+            # Business stationery
+            'business-cards': 'business cards',
+            'letter-head': 'letterhead',
+            'envelopes': 'envelopes',
+            'id-cards': 'id cards',
+            'bill-book': 'bill books',
+            
+            # Marketing materials
+            'brochures': 'brochures',
+            'flyers': 'flyers',
+            'catalogue': 'catalogues',
+            'poster': 'posters',
+            'dangler': 'danglers',
+            'standees': 'standees',
+            
+            # Packaging
+            'medical-paper-boxes': 'medical boxes',
+            'cosmetic-paper-boxes': 'cosmetic boxes',
+            'retail-paper-boxes': 'retail boxes',
+            'folding-carton-boxes': 'carton boxes',
+            'corrugated-boxes': 'corrugated boxes',
+            'kraft-boxes': 'kraft boxes',
+            
+            # Other services
+            'sticker': 'stickers',
+            'document-printing': 'document printing',
+            'invitations': 'invitations',
+            'calendars': 'calendars',
+            'notebooks': 'notebooks',
+            'folders': 'folders',
+            'pen-drives': 'pen drives',
+        }
+        
+        search_term = service_to_product_mapping.get(service_slug, service_slug.replace('-', ' '))
+        
+        # Redirect to product catalog with search term
+        product_url = reverse('products:list')
+        return redirect(f"{product_url}?search={search_term}")
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,0 +1,615 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Comparison - Drishthi Printing{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Product Comparison Styles */
+:root {
+    --primary-blue: #0ea5e9;
+    --primary-dark: #0284c7;
+    --text-dark: #1f2937;
+    --text-medium: #4b5563;
+    --text-light: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+    --bg-section: #ffffff;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+}
+
+.comparison-header {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 2rem 0;
+}
+
+.comparison-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.comparison-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.comparison-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-medium);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Product Selection */
+.product-selection {
+    background: white;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.product-selector {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.product-selector:hover {
+    border-color: var(--primary-blue);
+    background: rgba(14, 165, 233, 0.02);
+}
+
+.product-selector.selected {
+    border-color: var(--primary-blue);
+    border-style: solid;
+    background: rgba(14, 165, 233, 0.05);
+}
+
+.selector-icon {
+    font-size: 3rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.selector-text {
+    color: var(--text-medium);
+    font-weight: 500;
+}
+
+.selected-product {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.selected-product img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.selected-product-name {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.remove-product {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Comparison Table */
+.comparison-section {
+    padding: 3rem 0;
+}
+
+.comparison-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+
+.table-header {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 200px repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.row-label {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.row-value {
+    color: var(--text-medium);
+    text-align: center;
+}
+
+.feature-available {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.feature-unavailable {
+    color: var(--text-light);
+}
+
+.price-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+/* Product Search Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-medium);
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.search-results {
+    display: grid;
+    gap: 1rem;
+}
+
+.search-result {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-result:hover {
+    border-color: var(--primary-blue);
+    background: rgba(14, 165, 233, 0.02);
+}
+
+.search-result img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.search-result-category {
+    color: var(--text-medium);
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .comparison-title {
+        font-size: 2rem;
+    }
+    
+    .table-row {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .row-label {
+        background: var(--bg-light);
+        padding: 0.5rem;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="comparison-header">
+    <div class="comparison-container">
+        <h1 class="comparison-title">Product Comparison</h1>
+        <p class="comparison-subtitle">Compare features, pricing, and specifications side by side</p>
+    </div>
+</div>
+
+<div class="product-selection">
+    <div class="comparison-container">
+        <div class="selection-grid" id="productSelectors">
+            <!-- Product selectors will be generated here -->
+        </div>
+    </div>
+</div>
+
+<div class="comparison-section">
+    <div class="comparison-container">
+        <div id="comparisonTable" class="comparison-table" style="display: none;">
+            <!-- Comparison table will be generated here -->
+        </div>
+        
+        <div id="emptyState" class="text-center" style="padding: 4rem 0;">
+            <div style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;">📊</div>
+            <h3 style="color: var(--text-medium); margin-bottom: 0.5rem;">Select products to compare</h3>
+            <p style="color: var(--text-light);">Choose 2-4 products to see a detailed comparison</p>
+        </div>
+    </div>
+</div>
+
+<!-- Product Search Modal -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Select Product</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <input type="text" id="productSearch" class="search-input" placeholder="Search products..." onkeyup="searchProducts()">
+        <div id="searchResults" class="search-results">
+            <!-- Search results will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let selectedProducts = [];
+let currentSelectorIndex = 0;
+let allProducts = [];
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSelectors();
+    loadAllProducts();
+    
+    // Check for URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const productIds = urlParams.get('products');
+    if (productIds) {
+        const ids = productIds.split(',').map(id => parseInt(id));
+        loadProductsFromIds(ids);
+    }
+});
+
+// Initialize product selectors
+function initializeSelectors() {
+    const container = document.getElementById('productSelectors');
+    
+    for (let i = 0; i < 4; i++) {
+        const selector = document.createElement('div');
+        selector.className = 'product-selector';
+        selector.onclick = () => openProductModal(i);
+        selector.innerHTML = `
+            <div class="selector-icon">+</div>
+            <div class="selector-text">Select Product ${i + 1}</div>
+        `;
+        container.appendChild(selector);
+    }
+}
+
+// Load all products for search
+function loadAllProducts() {
+    fetch('/products/api/catalog/?per_page=100')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                allProducts = data.products;
+            }
+        })
+        .catch(error => console.error('Error loading products:', error));
+}
+
+// Open product selection modal
+function openProductModal(index) {
+    currentSelectorIndex = index;
+    document.getElementById('productModal').classList.add('active');
+    document.getElementById('productSearch').value = '';
+    displaySearchResults(allProducts);
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('productModal').classList.remove('active');
+}
+
+// Search products
+function searchProducts() {
+    const query = document.getElementById('productSearch').value.toLowerCase();
+    const filtered = allProducts.filter(product => 
+        product.name.toLowerCase().includes(query) ||
+        product.category.name.toLowerCase().includes(query)
+    );
+    displaySearchResults(filtered);
+}
+
+// Display search results
+function displaySearchResults(products) {
+    const container = document.getElementById('searchResults');
+    
+    container.innerHTML = products.map(product => `
+        <div class="search-result" onclick="selectProduct(${product.id})">
+            ${product.images.length > 0 ? 
+                `<img src="${product.images[0].url}" alt="${product.name}">` :
+                '<div style="width: 60px; height: 60px; background: #f3f4f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #9ca3af;">No Image</div>'
+            }
+            <div class="search-result-info">
+                <div class="search-result-name">${product.name}</div>
+                <div class="search-result-category">${product.category.name}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Select product
+function selectProduct(productId) {
+    const product = allProducts.find(p => p.id === productId);
+    if (!product) return;
+    
+    // Check if already selected
+    if (selectedProducts.find(p => p.id === productId)) {
+        alert('This product is already selected for comparison');
+        return;
+    }
+    
+    selectedProducts[currentSelectorIndex] = product;
+    updateSelector(currentSelectorIndex, product);
+    closeModal();
+    updateComparison();
+}
+
+// Update selector display
+function updateSelector(index, product) {
+    const selector = document.getElementById('productSelectors').children[index];
+    selector.classList.add('selected');
+    selector.innerHTML = `
+        <button class="remove-product" onclick="removeProduct(${index})">&times;</button>
+        <div class="selected-product">
+            ${product.images.length > 0 ? 
+                `<img src="${product.images[0].url}" alt="${product.name}">` :
+                '<div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af;">No Image</div>'
+            }
+            <div class="selected-product-name">${product.name}</div>
+        </div>
+    `;
+}
+
+// Remove product
+function removeProduct(index) {
+    selectedProducts[index] = null;
+    const selector = document.getElementById('productSelectors').children[index];
+    selector.classList.remove('selected');
+    selector.innerHTML = `
+        <div class="selector-icon">+</div>
+        <div class="selector-text">Select Product ${index + 1}</div>
+    `;
+    selector.onclick = () => openProductModal(index);
+    updateComparison();
+}
+
+// Update comparison table
+function updateComparison() {
+    const validProducts = selectedProducts.filter(p => p !== null && p !== undefined);
+    
+    if (validProducts.length < 2) {
+        document.getElementById('comparisonTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+    }
+    
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('comparisonTable').style.display = 'block';
+    
+    generateComparisonTable(validProducts);
+}
+
+// Generate comparison table
+function generateComparisonTable(products) {
+    const table = document.getElementById('comparisonTable');
+    
+    let tableHtml = `
+        <div class="table-header">
+            <div class="table-row">
+                <div class="row-label">Product</div>
+                ${products.map(product => `
+                    <div class="row-value">
+                        <strong>${product.name}</strong><br>
+                        <small>${product.category.name}</small>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div class="table-row">
+            <div class="row-label">Image</div>
+            ${products.map(product => `
+                <div class="row-value">
+                    ${product.images.length > 0 ? 
+                        `<img src="${product.images[0].url}" alt="${product.name}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">` :
+                        '<div style="width: 100px; height: 100px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af;">No Image</div>'
+                    }
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="table-row">
+            <div class="row-label">Price Range</div>
+            ${products.map(product => `
+                <div class="row-value price-value">
+                    ${product.price_range.min === product.price_range.max ? 
+                        `₹${product.price_range.min.toFixed(0)}` :
+                        `₹${product.price_range.min.toFixed(0)} - ₹${product.price_range.max.toFixed(0)}`
+                    }
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="table-row">
+            <div class="row-label">Minimum Quantity</div>
+            ${products.map(product => `
+                <div class="row-value">${product.minimum_quantity} units</div>
+            `).join('')}
+        </div>
+        
+        <div class="table-row">
+            <div class="row-label">Production Time</div>
+            ${products.map(product => `
+                <div class="row-value">${product.production_time_days} days</div>
+            `).join('')}
+        </div>
+        
+        <div class="table-row">
+            <div class="row-label">Rush Available</div>
+            ${products.map(product => `
+                <div class="row-value ${product.rush_available ? 'feature-available' : 'feature-unavailable'}">
+                    ${product.rush_available ? '✓ Yes' : '✗ No'}
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="table-row">
+            <div class="row-label">Design Tool</div>
+            ${products.map(product => `
+                <div class="row-value ${product.has_design_tool ? 'feature-available' : 'feature-unavailable'}">
+                    ${product.has_design_tool ? '✓ Available' : '✗ Not Available'}
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="table-row">
+            <div class="row-label">Actions</div>
+            ${products.map(product => `
+                <div class="row-value">
+                    <a href="/products/${product.slug}/" class="btn btn-primary" style="display: inline-block; padding: 0.5rem 1rem; margin-bottom: 0.5rem; text-decoration: none; border-radius: 6px;">View Details</a>
+                    ${product.has_design_tool ? 
+                        `<a href="/design-tool/?product=${product.id}" class="btn btn-secondary" style="display: inline-block; padding: 0.5rem 1rem; text-decoration: none; border-radius: 6px;">Design Now</a>` : ''
+                    }
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    table.innerHTML = tableHtml;
+}
+
+// Load products from IDs (for URL sharing)
+function loadProductsFromIds(ids) {
+    ids.forEach((id, index) => {
+        if (index < 4) {
+            const product = allProducts.find(p => p.id === id);
+            if (product) {
+                selectedProducts[index] = product;
+                updateSelector(index, product);
+            }
+        }
+    });
+    updateComparison();
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('productModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+</script>
+{% endblock %}

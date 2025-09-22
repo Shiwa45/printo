@@ -1,510 +1,476 @@
 # apps/products/views.py
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods
-from django.core.cache import cache
-from django.contrib.auth.decorators import login_required
-from django.db import models
-from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
+from django.db.models import Q
 import json
-import logging
-
-from .models import Product, ProductCategory, ProductImage, PricingCalculator, DesignOption
-from apps.orders.models import Cart, CartItem
-
-logger = logging.getLogger(__name__)
-
-class ProductCategoryView(ListView):
-    model = Product
-    template_name = 'products/category.html'
-    context_object_name = 'products'
-    paginate_by = 12
-    
-    def get_queryset(self):
-        category_slug = self.kwargs.get('category_slug')
-        if category_slug:
-            self.category = get_object_or_404(
-                ProductCategory, 
-                slug=category_slug
-            )
-            queryset = Product.objects.filter(
-                category=self.category,
-                status='active'
-            )
-        else:
-            self.category = None
-            queryset = Product.objects.filter(
-                status='active'
-            )
-        
-        queryset = queryset.select_related('category').prefetch_related('images').order_by('-featured', 'name')
-        
-        # Filter by search query if provided
-        search_query = self.request.GET.get('q')
-        if search_query:
-            queryset = queryset.filter(
-                models.Q(name__icontains=search_query) |
-                models.Q(description__icontains=search_query) |
-                models.Q(tags__icontains=search_query)
-            )
-        
-        # Filter by price range
-        min_price = self.request.GET.get('min_price')
-        max_price = self.request.GET.get('max_price')
-        if min_price:
-            queryset = queryset.filter(base_price__gte=min_price)
-        if max_price:
-            queryset = queryset.filter(base_price__lte=max_price)
-            
-        return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['category'] = self.category
-        if self.category:
-            context['subcategories'] = ProductCategory.objects.filter(
-                parent=self.category,
-                is_active=True
-            ).order_by('sort_order')
-        else:
-            context['subcategories'] = []
-        
-        # Add filter options
-        context['price_ranges'] = [
-            {'min': 0, 'max': 500, 'label': 'Under ₹500'},
-            {'min': 500, 'max': 1000, 'label': '₹500 - ₹1000'},
-            {'min': 1000, 'max': 2500, 'label': '₹1000 - ₹2500'},
-            {'min': 2500, 'max': None, 'label': 'Above ₹2500'}
-        ]
-        
-        return context
-
-class ProductDetailView(DetailView):
-    """Redirect product detail pages to service URLs"""
-    model = Product
-    slug_field = 'slug'
-    slug_url_kwarg = 'product_slug'
-    
-    def get_queryset(self):
-        return Product.objects.filter(
-            status='active'
-        ).select_related('category')
-    
-    def get(self, request, *args, **kwargs):
-        """Redirect to the corresponding service URL"""
-        product = self.get_object()
-        
-        # Map product categories to service sections or specific services
-        category_slug = product.category.slug.lower() if product.category else ''
-        product_slug = product.slug.lower()
-        
-        # Direct service mappings for specific products
-        direct_service_mapping = {
-            'business-cards': 'business_cards',
-            'letterhead': 'letter_head',
-            'letterheads': 'letter_head',
-            'letter-head': 'letter_head',
-            'brochures': 'brochures',
-            'brochure': 'brochures',
-            'flyers': 'flyers',
-            'flyer': 'flyers',
-            'posters': 'poster',
-            'poster': 'poster',
-            'stickers': 'sticker',
-            'sticker': 'sticker',
-            'envelopes': 'envelopes',
-            'envelope': 'envelopes',
-            'notebooks': 'notebooks',
-            'folders': 'folders',
-            'calendars': 'calendars',
-            'invitations': 'invitations',
-            'id-cards': 'id_cards',
-            'bill-books': 'bill_book',
-            'document-printing': 'document_printing'
-        }
-        
-        # Check for direct service mapping first
-        service_name = direct_service_mapping.get(product_slug) or direct_service_mapping.get(category_slug)
-        
-        if service_name:
-            try:
-                return redirect('services:' + service_name)
-            except:
-                pass
-        
-        # For book printing products, redirect to services directory with book section
-        if 'book' in category_slug or 'book' in product_slug:
-            return redirect('services:services_directory')
-        
-        # Fallback to services directory
-        return redirect('services:services_directory')
-    
-    def get_context_data(self, **kwargs):
-        # This won't be used since we're redirecting
-        return super().get_context_data(**kwargs)
-
-class EnhancedProductDetailView(DetailView):
-    """Redirect enhanced product detail pages to service URLs"""
-    model = Product
-    slug_field = 'slug'
-    slug_url_kwarg = 'product_slug'
-    
-    def get_queryset(self):
-        return Product.objects.filter(
-            status='active'
-        ).select_related('category')
-    
-    def get(self, request, *args, **kwargs):
-        """Redirect to the corresponding service URL"""
-        product = self.get_object()
-        
-        # Map product categories to service sections or specific services
-        category_slug = product.category.slug.lower() if product.category else ''
-        product_slug = product.slug.lower()
-        
-        # Direct service mappings for specific products
-        direct_service_mapping = {
-            'business-cards': 'business_cards',
-            'letterhead': 'letter_head',
-            'letterheads': 'letter_head',
-            'letter-head': 'letter_head',
-            'brochures': 'brochures',
-            'brochure': 'brochures',
-            'flyers': 'flyers',
-            'flyer': 'flyers',
-            'posters': 'poster',
-            'poster': 'poster',
-            'stickers': 'sticker',
-            'sticker': 'sticker',
-            'envelopes': 'envelopes',
-            'envelope': 'envelopes',
-            'notebooks': 'notebooks',
-            'folders': 'folders',
-            'calendars': 'calendars',
-            'invitations': 'invitations',
-            'id-cards': 'id_cards',
-            'bill-books': 'bill_book',
-            'document-printing': 'document_printing'
-        }
-        
-        # Check for direct service mapping first
-        service_name = direct_service_mapping.get(product_slug) or direct_service_mapping.get(category_slug)
-        
-        if service_name:
-            try:
-                return redirect('services:' + service_name)
-            except:
-                pass
-        
-        # For book printing products, redirect to services directory with book section
-        if 'book' in category_slug or 'book' in product_slug:
-            return redirect('services:services_directory')
-        
-        # Fallback to services directory
-        return redirect('services:services_directory')
-    
-    def get_context_data(self, **kwargs):
-        # This won't be used since we're redirecting
-        return super().get_context_data(**kwargs)
-
-class ProductsHomeView(ListView):
-    model = Product
-    template_name = 'products/products_home.html'
-    context_object_name = 'products'
-    paginate_by = 12
-    
-    def get_queryset(self):
-        queryset = Product.objects.filter(
-            status='active'
-        ).select_related('category').prefetch_related('images').order_by('-featured', '-bestseller', 'name')
-        
-        # Filter by search query if provided
-        search_query = self.request.GET.get('q')
-        if search_query:
-            queryset = queryset.filter(
-                models.Q(name__icontains=search_query) |
-                models.Q(description__icontains=search_query) |
-                models.Q(tags__icontains=search_query)
-            )
-        
-        # Filter by category
-        category_filter = self.request.GET.get('category')
-        if category_filter:
-            categories = category_filter.split(',')
-            queryset = queryset.filter(category__slug__in=categories)
-        
-        # Filter by price range
-        price_filter = self.request.GET.get('price')
-        if price_filter:
-            price_ranges = price_filter.split(',')
-            for price_range in price_ranges:
-                if price_range == '0-500':
-                    queryset = queryset.filter(base_price__lte=500)
-                elif price_range == '500-1000':
-                    queryset = queryset.filter(base_price__gte=500, base_price__lte=1000)
-                elif price_range == '1000-2500':
-                    queryset = queryset.filter(base_price__gte=1000, base_price__lte=2500)
-                elif price_range == '2500-':
-                    queryset = queryset.filter(base_price__gte=2500)
-        
-        # Filter by features
-        features_filter = self.request.GET.get('features')
-        if features_filter:
-            features = features_filter.split(',')
-            for feature in features:
-                if feature == 'design_tool':
-                    queryset = queryset.filter(design_tool_enabled=True)
-                elif feature == 'front_back':
-                    queryset = queryset.filter(front_back_design_enabled=True)
-                elif feature == 'rush_delivery':
-                    queryset = queryset.filter(rush_available=True)
-        
-        # Sort products
-        sort_by = self.request.GET.get('sort', 'name')
-        if sort_by == 'price_low':
-            queryset = queryset.order_by('base_price')
-        elif sort_by == 'price_high':
-            queryset = queryset.order_by('-base_price')
-        elif sort_by == 'featured':
-            queryset = queryset.order_by('-featured', '-bestseller', 'name')
-        elif sort_by == 'newest':
-            queryset = queryset.order_by('-created_at')
-        else:
-            queryset = queryset.order_by('name')
-        
-        return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        # Get all categories
-        context['categories'] = ProductCategory.objects.filter(
-            is_active=True
-        ).annotate(
-            product_count=models.Count('product', filter=models.Q(product__status='active'))
-        ).order_by('sort_order', 'name')
-        
-        # Get featured products
-        context['featured_products'] = Product.objects.filter(
-            status='active',
-            featured=True
-        ).select_related('category').prefetch_related('images')[:8]
-        
-        return context
+from .models import Product, ProductVariant, ProductCategory, EnhancedPricingCalculator
+from .services import PricingService
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def calculate_price(request):
-    try:
-        data = json.loads(request.body)
-        product_type = data.get('product_type', 'book')
-        
-        if product_type == 'book':
-            result = PricingCalculator.calculate_book_price(
-                size=data.get('size', 'A4'),
-                paper_type=data.get('paper_type', '75gsm'),
-                print_type=data.get('print_type', 'bw_standard'),
-                pages=int(data.get('pages', 100)),
-                quantity=int(data.get('quantity', 50)),
-                binding_type=data.get('binding_type', 'paperback_perfect'),
-                include_cover_design=data.get('include_cover_design', False),
-                include_isbn=data.get('include_isbn', False),
-                include_design_support=data.get('include_design_support', False)
-            )
-        elif product_type == 'standard':
-            # Handle standard products (business cards, etc.)
-            product_id = data.get('product_id')
-            subcategory_id = data.get('subcategory_id')
-            quantity = int(data.get('quantity', 1))
-            customizations = data.get('customizations', {})
-            
-            product = get_object_or_404(Product, id=product_id)
-            
-            # Use subcategory price if specified, otherwise use product base price
-            if subcategory_id:
-                from .models import ProductSubcategory
-                subcategory = get_object_or_404(ProductSubcategory, id=subcategory_id, parent_product=product)
-                base_price = subcategory.base_price
-                item_name = f'{product.name} - {subcategory.name}'
-            else:
-                base_price = product.base_price
-                item_name = product.name
-            
-            base_cost = base_price * quantity
-            total_cost = base_cost
-            
-            breakdown = [{
-                'item': f'{item_name} ({quantity} units × ₹{base_price})',
-                'cost': base_cost
-            }]
-            
-            # Add customization costs
-            if customizations.get('rush_delivery'):
-                rush_cost = base_cost * 0.2
-                breakdown.append({
-                    'item': 'Rush Delivery (24hrs)',
-                    'cost': rush_cost
-                })
-                total_cost += rush_cost
-                
-            if customizations.get('premium_paper'):
-                premium_cost = base_cost * 0.15
-                breakdown.append({
-                    'item': 'Premium Paper',
-                    'cost': premium_cost
-                })
-                total_cost += premium_cost
-            
-            # Apply quantity discounts
-            discount_info = PricingCalculator.get_quantity_discount(quantity)
-            discount_amount = 0
-            if discount_info['percentage'] > 0:
-                discount_amount = total_cost * discount_info['percentage']
-                breakdown.append({
-                    'item': f'Quantity Discount ({quantity} units - {discount_info["label"]})',
-                    'cost': -discount_amount
-                })
-                total_cost -= discount_amount
-            
-            result = {
-                'breakdown': breakdown,
-                'subtotal': base_cost,
-                'discount': discount_amount,
-                'total': total_cost,
-                'per_unit': total_cost / quantity,
-                'errors': []
-            }
-        else:
-            result = {'errors': ['Product type not supported']}
-        
-        # Convert Decimal to string for JSON serialization
-        if 'breakdown' in result:
-            for item in result['breakdown']:
-                item['cost'] = str(item['cost'])
-        for key in ['subtotal', 'discount', 'total', 'per_unit', 'per_book']:
-            if key in result:
-                result[key] = str(result[key])
-        
-        return JsonResponse(result)
-    
-    except Exception as e:
-        logger.error(f"Price calculation error: {e}")
-        return JsonResponse({'errors': [str(e)]}, status=400)
-
-@login_required
-@require_http_methods(["POST"])
-def add_to_cart(request):
+def calculate_product_price(request):
+    """
+    API endpoint to calculate product pricing
+    """
     try:
         data = json.loads(request.body)
         product_id = data.get('product_id')
+        variant_id = data.get('variant_id')
+        options = data.get('options', {})
         quantity = int(data.get('quantity', 1))
-        product_options = data.get('options', {})
-        design_id = data.get('design_id')
         
+        # Get product
         product = get_object_or_404(Product, id=product_id, status='active')
-        cart, created = Cart.objects.get_or_create(user=request.user)
         
-        # Check if item already exists in cart
-        cart_item, item_created = CartItem.objects.get_or_create(
-            cart=cart,
-            product=product,
-            product_options=product_options,
-            defaults={
-                'quantity': quantity,
-                'unit_price': product.base_price,
-            }
+        # Get variant if specified
+        variant = None
+        if variant_id:
+            variant = get_object_or_404(ProductVariant, id=variant_id, product=product, is_active=True)
+        
+        # Calculate pricing
+        calculator = EnhancedPricingCalculator(product)
+        pricing_result = calculator.calculate_price(
+            variant=variant,
+            options=options,
+            quantity=quantity,
+            user=request.user if request.user.is_authenticated else None
         )
         
-        if not item_created:
-            # Update existing item
-            cart_item.quantity += quantity
-            cart_item.save()
-        
-        # Get cart total for response
-        cart_total = sum(item.total_price for item in cart.items.all())
-        cart_count = sum(item.quantity for item in cart.items.all())
-        
-        return JsonResponse({
+        # Format response
+        response_data = {
             'success': True,
-            'message': f'{product.name} added to cart',
-            'cart_total': str(cart_total),
-            'cart_count': cart_count
-        })
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'base_price': float(product.base_price)
+            },
+            'variant': {
+                'id': variant.id,
+                'name': variant.name,
+                'dimensions': variant.get_dimensions_display()
+            } if variant else None,
+            'quantity': quantity,
+            'pricing': {
+                'base_price': float(pricing_result['base_price']),
+                'variant_modifier': float(pricing_result['variant_modifier']),
+                'option_modifiers': float(pricing_result['option_modifiers']),
+                'quantity_discount': float(pricing_result['quantity_discount']),
+                'setup_fees': float(pricing_result['setup_fees']),
+                'rush_fee': float(pricing_result['rush_fee']),
+                'subtotal': float(pricing_result['subtotal']),
+                'tax': float(pricing_result['tax']),
+                'shipping': float(pricing_result['shipping']),
+                'total': float(pricing_result['total']),
+                'unit_price': float(pricing_result['unit_price']),
+                'breakdown': [
+                    {
+                        'item': item['item'],
+                        'quantity': item['quantity'],
+                        'unit_price': float(item['unit_price']),
+                        'total': float(item['total']),
+                        'type': item['type']
+                    }
+                    for item in pricing_result['breakdown']
+                ]
+            },
+            'errors': pricing_result['errors'],
+            'warnings': pricing_result['warnings']
+        }
         
+        return JsonResponse(response_data)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON data'}, status=400)
     except Exception as e:
-        logger.error(f"Add to cart error: {e}")
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @require_http_methods(["GET"])
-def get_product_design_options(request, product_id):
-    """Get design options for a specific product"""
+def get_product_details(request, product_id):
+    """
+    Get detailed product information including variants and options
+    """
     try:
         product = get_object_or_404(Product, id=product_id, status='active')
         
-        # Get or create design options
-        design_option, created = DesignOption.objects.get_or_create(
-            product=product,
-            defaults={
-                'supports_front_back': product.front_back_design_enabled,
-                'accepted_formats': ['pdf', 'png', 'jpg', 'ai', 'psd'],
-                'max_file_size_mb': 50,
-                'min_resolution_dpi': 300
-            }
+        # Get variants
+        variants = []
+        for variant in product.get_active_variants():
+            variants.append({
+                'id': variant.id,
+                'name': variant.name,
+                'sku': variant.sku,
+                'dimensions': variant.get_dimensions_display(),
+                'price_modifier': float(variant.price_modifier),
+                'price_modifier_type': variant.price_modifier_type
+            })
+        
+        # Get options
+        options = []
+        for option in product.get_active_options():
+            option_values = []
+            for value in option.values.filter(is_active=True).order_by('sort_order', 'name'):
+                option_values.append({
+                    'id': value.id,
+                    'name': value.name,
+                    'description': value.description,
+                    'price_display': value.get_price_display(),
+                    'price_modifier': float(value.price_modifier),
+                    'price_modifier_type': value.price_modifier_type,
+                    'is_default': value.is_default,
+                    'specifications': value.specifications,
+                    'image_url': value.image.url if value.image else None,
+                    'color_code': value.color_code
+                })
+            
+            options.append({
+                'id': option.id,
+                'name': option.name,
+                'option_type': option.option_type,
+                'description': option.description,
+                'is_required': option.is_required,
+                'display_as_grid': option.display_as_grid,
+                'show_images': option.show_images,
+                'values': option_values
+            })
+        
+        # Get design tool configuration
+        design_config = product.get_design_tool_config()
+        
+        response_data = {
+            'success': True,
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'slug': product.slug,
+                'description': product.description,
+                'short_description': product.short_description,
+                'base_price': float(product.base_price),
+                'minimum_quantity': product.minimum_quantity,
+                'price_range': {
+                    'min': float(product.get_price_range()['min']),
+                    'max': float(product.get_price_range()['max'])
+                },
+                'design_tool_config': design_config,
+                'production_time_days': product.production_time_days,
+                'rush_available': product.rush_available,
+                'rush_time_days': product.rush_time_days,
+                'rush_fee_percent': float(product.rush_fee_percent)
+            },
+            'variants': variants,
+            'options': options
+        }
+        
+        return JsonResponse(response_data)
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+@csrf_exempt
+@require_http_methods(["POST"])
+def calculate_advanced_pricing(request):
+    """
+    Advanced pricing calculation API using the PricingService
+    """
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        
+        # Get product
+        product = get_object_or_404(Product, id=product_id, status='active')
+        
+        # Prepare configuration
+        configuration = {
+            'variant_id': data.get('variant_id'),
+            'options': data.get('options', {}),
+            'quantity': int(data.get('quantity', 1)),
+            'user_id': request.user.id if request.user.is_authenticated else None,
+            'country_code': data.get('country_code', 'IN'),
+            'rush_delivery': data.get('rush_delivery', False),
+            'design_service': data.get('design_service', False),
+            'existing_design_id': data.get('existing_design_id')
+        }
+        
+        # Calculate pricing using the service
+        pricing_service = PricingService()
+        result = pricing_service.calculate_comprehensive_price(product, configuration)
+        
+        # Convert Decimal values to float for JSON serialization
+        def convert_decimals(obj):
+            if isinstance(obj, dict):
+                return {k: convert_decimals(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_decimals(item) for item in obj]
+            elif hasattr(obj, '__dict__'):
+                return convert_decimals(obj.__dict__)
+            elif str(type(obj)) == "<class 'decimal.Decimal'>":
+                return float(obj)
+            else:
+                return obj
+        
+        result = convert_decimals(result)
+        result['success'] = True
+        
+        return JsonResponse(result)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def get_price_breaks(request, product_id):
+    """
+    Get quantity price breaks for a product
+    """
+    try:
+        product = get_object_or_404(Product, id=product_id, status='active')
+        
+        variant_id = request.GET.get('variant_id')
+        options = {}
+        
+        # Parse options from query parameters
+        for key, value in request.GET.items():
+            if key.startswith('option_'):
+                option_name = key.replace('option_', '')
+                try:
+                    options[option_name] = int(value)
+                except ValueError:
+                    continue
+        
+        pricing_service = PricingService()
+        price_breaks = pricing_service.get_quantity_price_breaks(
+            product, 
+            variant_id=int(variant_id) if variant_id else None,
+            options=options
         )
         
         return JsonResponse({
+            'success': True,
             'product_id': product.id,
             'product_name': product.name,
-            'design_tool_enabled': product.design_tool_enabled,
-            'front_back_design_enabled': product.front_back_design_enabled,
-            'supports_upload': product.supports_upload,
-            'supports_front_back': design_option.supports_front_back,
-            'accepted_formats': design_option.accepted_formats,
-            'max_file_size_mb': design_option.max_file_size_mb,
-            'min_resolution_dpi': design_option.min_resolution_dpi,
-            'has_templates': product.has_front_template() or product.has_back_template()
+            'price_breaks': price_breaks
         })
         
     except Exception as e:
-        logger.error(f"Error getting design options: {e}")
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-def search_products(request):
-    query = request.GET.get('q', '')
-    category_slug = request.GET.get('category')
-    
-    if len(query) < 3:
-        return JsonResponse({'results': []})
-    
-    # Cache search results for 5 minutes
-    cache_key = f"search_{query}_{category_slug}"
-    cached_results = cache.get(cache_key)
-    
-    if cached_results:
-        return JsonResponse({'results': cached_results})
-    
-    queryset = Product.objects.filter(
-        status='active',
-        name__icontains=query
-    ).select_related('category')[:10]
-    
-    if category_slug:
-        category = get_object_or_404(ProductCategory, slug=category_slug)
-        queryset = queryset.filter(category=category)
-    
-    results = []
-    for product in queryset:
-        results.append({
-            'id': product.id,
-            'name': product.name,
-            'slug': product.slug,
-            'category': product.category.name,
-            'price': str(product.base_price),
-            'image': product.images.first().image.url if product.images.first() else None,
-            'url': f'/products/category/{product.category.slug}/{product.slug}/'
+@csrf_exempt
+@require_http_methods(["POST"])
+def validate_product_configuration(request):
+    """
+    Validate a product configuration
+    """
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        
+        product = get_object_or_404(Product, id=product_id, status='active')
+        
+        configuration = {
+            'variant_id': data.get('variant_id'),
+            'options': data.get('options', {}),
+            'quantity': int(data.get('quantity', 1)),
+        }
+        
+        pricing_service = PricingService()
+        validation_result = pricing_service.validate_configuration(product, configuration)
+        
+        return JsonResponse({
+            'success': True,
+            'valid': len(validation_result['errors']) == 0,
+            'errors': validation_result['errors'],
+            'warnings': validation_result['warnings']
         })
-    
-    cache.set(cache_key, results, 300)  # Cache for 5 minutes
-    return JsonResponse({'results': results})
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def get_product_catalog(request):
+    """
+    Get paginated product catalog with filtering
+    """
+    try:
+        # Get query parameters
+        category_id = request.GET.get('category')
+        product_type = request.GET.get('type')
+        search = request.GET.get('search')
+        featured = request.GET.get('featured')
+        page = int(request.GET.get('page', 1))
+        per_page = min(int(request.GET.get('per_page', 12)), 50)  # Max 50 per page
+        
+        # Build query
+        queryset = Product.objects.filter(status='active').select_related('category')
+        
+        if category_id:
+            try:
+                category = ProductCategory.objects.get(id=category_id)
+                # Include products from subcategories
+                category_ids = [category.id]
+                for child in category.get_active_children():
+                    category_ids.append(child.id)
+                queryset = queryset.filter(category_id__in=category_ids)
+            except ProductCategory.DoesNotExist:
+                pass
+        
+        if product_type:
+            queryset = queryset.filter(product_type=product_type)
+        
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(short_description__icontains=search)
+            )
+        
+        if featured == 'true':
+            queryset = queryset.filter(featured=True)
+        
+        # Order by featured, bestseller, then name
+        queryset = queryset.order_by('-featured', '-bestseller', 'name')
+        
+        # Paginate
+        paginator = Paginator(queryset, per_page)
+        page_obj = paginator.get_page(page)
+        
+        # Serialize products
+        products = []
+        for product in page_obj:
+            price_range = product.get_price_range()
+            
+            products.append({
+                'id': product.id,
+                'name': product.name,
+                'slug': product.slug,
+                'short_description': product.short_description,
+                'category': {
+                    'id': product.category.id,
+                    'name': product.category.name,
+                    'slug': product.category.slug
+                },
+                'product_type': product.product_type,
+                'price_range': {
+                    'min': float(price_range['min']),
+                    'max': float(price_range['max'])
+                },
+                'minimum_quantity': product.minimum_quantity,
+                'featured': product.featured,
+                'bestseller': product.bestseller,
+                'new_product': product.new_product,
+                'on_sale': product.on_sale,
+                'has_design_tool': product.has_design_tool,
+                'production_time_days': product.production_time_days,
+                'rush_available': product.rush_available,
+                'images': [
+                    {
+                        'url': img.image.url,
+                        'alt_text': img.alt_text,
+                        'is_primary': img.is_primary
+                    }
+                    for img in product.images.all()[:3]  # Limit to 3 images
+                ]
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'products': products,
+            'pagination': {
+                'current_page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'total_products': paginator.count,
+                'has_next': page_obj.has_next(),
+                'has_previous': page_obj.has_previous(),
+                'per_page': per_page
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def get_categories(request):
+    """
+    Get product categories with hierarchy
+    """
+    try:
+        categories = []
+        
+        # Get top-level categories
+        top_categories = ProductCategory.objects.filter(
+            parent__isnull=True, 
+            is_active=True
+        ).order_by('sort_order', 'name')
+        
+        for category in top_categories:
+            category_data = {
+                'id': category.id,
+                'name': category.name,
+                'slug': category.slug,
+                'description': category.description,
+                'icon': category.icon,
+                'image_url': category.image.url if category.image else None,
+                'featured': category.featured,
+                'product_count': category.products.filter(status='active').count(),
+                'children': []
+            }
+            
+            # Get child categories
+            for child in category.get_active_children():
+                category_data['children'].append({
+                    'id': child.id,
+                    'name': child.name,
+                    'slug': child.slug,
+                    'description': child.description,
+                    'product_count': child.products.filter(status='active').count()
+                })
+            
+            categories.append(category_data)
+        
+        return JsonResponse({
+            'success': True,
+            'categories': categories
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def enhanced_product_detail(request, product_slug):
+    """
+    Enhanced product detail page with visual configuration
+    """
+    try:
+        product = get_object_or_404(
+            Product.objects.select_related('category').prefetch_related(
+                'images', 'variants', 'options__values'
+            ), 
+            slug=product_slug, 
+            status='active'
+        )
+        
+        context = {
+            'product': product,
+        }
+        
+        return render(request, 'products/enhanced_product_detail.html', context)
+        
+    except Exception as e:
+        return render(request, '404.html', status=404)
+
+@require_http_methods(["GET"])
+def product_catalog_page(request):
+    """
+    Product catalog page with enhanced filtering and search
+    """
+    return render(request, 'products/catalog.html')
+
+@require_http_methods(["GET"])
+def product_comparison_page(request):
+    """
+    Product comparison page
+    """
+    return render(request, 'products/comparison.html')

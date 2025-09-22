@@ -1,7 +1,10 @@
 # apps/products/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import ProductCategory, Product, ProductImage, ProductSubcategory
+from .models import (
+    ProductCategory, Product, ProductImage, ProductSubcategory,
+    ProductOption, OptionValue, ProductVariant, PricingRule, PricingTier
+)
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
@@ -26,13 +29,39 @@ class ProductSubcategoryInline(admin.TabularInline):
     fields = ['name', 'slug', 'base_price', 'is_active', 'sort_order']
     prepopulated_fields = {'slug': ('name',)}
 
+# Inline admin classes for the new models
+class OptionValueInline(admin.TabularInline):
+    model = OptionValue
+    extra = 1
+    fields = ['name', 'description', 'price_modifier', 'price_modifier_type', 'is_default', 'is_active', 'sort_order']
+
+class ProductOptionInline(admin.TabularInline):
+    model = ProductOption
+    extra = 0
+    fields = ['name', 'option_type', 'is_required', 'display_as_grid', 'show_images', 'sort_order']
+
+class ProductVariantInline(admin.TabularInline):
+    model = ProductVariant
+    extra = 0
+    fields = ['name', 'sku', 'width', 'height', 'price_modifier', 'price_modifier_type', 'is_active', 'sort_order']
+
+class PricingTierInline(admin.TabularInline):
+    model = PricingTier
+    extra = 1
+    fields = ['min_quantity', 'max_quantity', 'price_modifier', 'price_modifier_type', 'setup_fee']
+
+class PricingRuleInline(admin.TabularInline):
+    model = PricingRule
+    extra = 0
+    fields = ['name', 'rule_type', 'min_quantity', 'max_quantity', 'is_active', 'priority']
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'category', 'product_type', 'base_price', 'status', 'featured', 'bestseller', 'design_tool_enabled', 'front_back_design_enabled', 'has_subcategories']
     list_filter = ['status', 'product_type', 'featured', 'bestseller', 'design_tool_enabled', 'front_back_design_enabled', 'has_subcategories', 'category']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductImageInline, ProductSubcategoryInline]
+    inlines = [ProductImageInline, ProductSubcategoryInline, ProductVariantInline, ProductOptionInline, PricingRuleInline]
     
     fieldsets = (
         ('Basic Information', {
@@ -121,4 +150,55 @@ class ProductSubcategoryAdmin(admin.ModelAdmin):
             'fields': ('is_active', 'sort_order')
         })
     )
+
+# Enhanced admin classes
+@admin.register(ProductOption)
+class ProductOptionAdmin(admin.ModelAdmin):
+    list_display = ['name', 'product', 'option_type', 'is_required', 'display_as_grid', 'sort_order']
+    list_filter = ['option_type', 'is_required', 'display_as_grid', 'show_images']
+    search_fields = ['name', 'product__name']
+    inlines = [OptionValueInline]
+    ordering = ['product', 'sort_order', 'name']
+
+@admin.register(OptionValue)
+class OptionValueAdmin(admin.ModelAdmin):
+    list_display = ['name', 'option', 'price_modifier_display', 'is_default', 'is_active', 'sort_order']
+    list_filter = ['option__option_type', 'is_default', 'is_active', 'price_modifier_type']
+    search_fields = ['name', 'option__name', 'option__product__name']
+    ordering = ['option', 'sort_order', 'name']
+    
+    def price_modifier_display(self, obj):
+        return obj.get_price_display()
+    price_modifier_display.short_description = 'Price Modifier'
+
+@admin.register(ProductVariant)
+class ProductVariantAdmin(admin.ModelAdmin):
+    list_display = ['name', 'product', 'sku', 'dimensions_display', 'price_modifier', 'is_active']
+    list_filter = ['is_active', 'unit', 'price_modifier_type']
+    search_fields = ['name', 'sku', 'product__name']
+    ordering = ['product', 'sort_order', 'name']
+    
+    def dimensions_display(self, obj):
+        return obj.get_dimensions_display()
+    dimensions_display.short_description = 'Dimensions'
+
+@admin.register(PricingRule)
+class PricingRuleAdmin(admin.ModelAdmin):
+    list_display = ['name', 'product', 'rule_type', 'min_quantity', 'max_quantity', 'is_active', 'priority']
+    list_filter = ['rule_type', 'is_active']
+    search_fields = ['name', 'product__name']
+    inlines = [PricingTierInline]
+    ordering = ['product', '-priority', 'name']
+
+@admin.register(PricingTier)
+class PricingTierAdmin(admin.ModelAdmin):
+    list_display = ['pricing_rule', 'quantity_range', 'price_modifier', 'price_modifier_type', 'setup_fee']
+    list_filter = ['price_modifier_type']
+    search_fields = ['pricing_rule__name', 'pricing_rule__product__name']
+    ordering = ['pricing_rule', 'min_quantity']
+    
+    def quantity_range(self, obj):
+        max_qty = obj.max_quantity if obj.max_quantity else "∞"
+        return f"{obj.min_quantity}-{max_qty}"
+    quantity_range.short_description = 'Quantity Range'
 

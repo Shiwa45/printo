@@ -69,7 +69,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     """Order line items"""
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    # product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     
     # Product details at time of order
     product_name = models.CharField(max_length=255)
@@ -79,7 +79,8 @@ class OrderItem(models.Model):
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     
-    # Design files
+    # Design files and reference
+    design = models.ForeignKey('design_tool.UserDesign', on_delete=models.SET_NULL, null=True, blank=True)
     design_files = models.JSONField(default=list, help_text="URLs to uploaded design files")
     design_notes = models.TextField(blank=True)
     
@@ -125,7 +126,7 @@ class CartItem(models.Model):
     
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
     product_options = models.JSONField(default=dict, help_text="Selected size, paper, etc.")
-    # design = models.ForeignKey(UserDesign, on_delete=models.SET_NULL, null=True, blank=True)
+    design = models.ForeignKey('design_tool.UserDesign', on_delete=models.SET_NULL, null=True, blank=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     design_files = models.JSONField(default=list, help_text="Uploaded design file URLs")
     

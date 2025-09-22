@@ -122,35 +122,74 @@ class PricingCalculatorAPIView(APIView):
 
 class ImageSearchAPIView(APIView):
     """
-    API endpoint for searching images from free APIs (Pixabay, Unsplash, etc.)
+    Enhanced API endpoint for searching images from multiple free APIs
     """
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
         query = request.GET.get('query', '')
         page = int(request.GET.get('page', 1))
-        per_page = int(request.GET.get('per_page', 20))
-        source = request.GET.get('source', 'pixabay')  # pixabay, unsplash, pexels
-        
-        if not query:
+        per_page = min(int(request.GET.get('per_page', 20)), 100)  # Limit max results
+        source = request.GET.get('source', 'all')  # all, pixabay, unsplash, pexels
+
+        if not query and not request.GET.get('trending'):
             return Response({
                 'error': 'Query parameter is required'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
-            if source == 'pixabay':
-                results = self._search_pixabay(query, page, per_page)
-            elif source == 'unsplash':
-                results = self._search_unsplash(query, page, per_page)
+            # Import the enhanced image search service
+            from apps.design_tool.services.free_apis import image_search_service
+
+            if request.GET.get('trending'):
+                # Get trending images
+                results = image_search_service.get_trending_images(source, per_page)
+                return Response({
+                    'images': results,
+                    'total': len(results),
+                    'page': page,
+                    'per_page': per_page,
+                    'query': 'trending',
+                    'source': source
+                })
+
+            elif source == 'all':
+                # Search all sources
+                results = image_search_service.search_all_sources(query, page, per_page)
+                return Response({
+                    'images': results,
+                    'total': len(results),
+                    'page': page,
+                    'per_page': per_page,
+                    'query': query,
+                    'source': source
+                })
             else:
-                results = {'images': [], 'total': 0}
-            
-            return Response(results)
-            
+                # Search specific source
+                results = image_search_service.search_single_source(source, query, page, per_page)
+                return Response({
+                    'images': results,
+                    'total': len(results),
+                    'page': page,
+                    'per_page': per_page,
+                    'query': query,
+                    'source': source
+                })
+
         except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'Image search failed: {str(e)}', exc_info=True)
+
             return Response({
-                'error': f'Image search failed: {str(e)}'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                'images': [],
+                'total': 0,
+                'page': page,
+                'per_page': per_page,
+                'query': query,
+                'source': source,
+                'error': f'Image search temporarily unavailable: {str(e)}'
+            }, status=status.HTTP_200_OK)  # Return 200 with empty results instead of 500
     
     def _search_pixabay(self, query, page, per_page):
         """Search Pixabay API"""
@@ -302,3 +341,93 @@ class UserAssetsAPIView(APIView):
             'assets': assets_data,
             'count': len(assets_data)
         })
+
+
+class ImageProxyAPIView(APIView):
+    """
+    API endpoint to proxy external images and avoid CORS issues
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        image_url = request.GET.get('url')
+
+        if not image_url:
+            return Response({
+                'error': 'URL parameter is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Validate URL to prevent SSRF
+            if not self._is_safe_url(image_url):
+                return Response({
+                    'error': 'Invalid or unsafe URL'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Fetch the image
+            response = requests.get(image_url, timeout=10, stream=True)
+            response.raise_for_status()
+
+            # Validate content type
+            content_type = response.headers.get('content-type', '')
+            if not content_type.startswith('image/'):
+                return Response({
+                    'error': 'URL does not point to an image'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Return the image data
+            from django.http import HttpResponse
+            django_response = HttpResponse(
+                response.content,
+                content_type=content_type
+            )
+
+            # Add CORS headers
+            django_response['Access-Control-Allow-Origin'] = '*'
+            django_response['Access-Control-Allow-Methods'] = 'GET'
+            django_response['Access-Control-Allow-Headers'] = 'Content-Type'
+
+            return django_response
+
+        except requests.exceptions.RequestException as e:
+            return Response({
+                'error': f'Failed to fetch image: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                'error': f'Image proxy error: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def _is_safe_url(self, url):
+        """Validate URL to prevent SSRF attacks"""
+        try:
+            from urllib.parse import urlparse
+            parsed = urlparse(url)
+
+            # Only allow https URLs
+            if parsed.scheme not in ['https']:
+                return False
+
+            # Allow known image hosting domains
+            safe_domains = [
+                'pixabay.com',
+                'images.unsplash.com',
+                'images.pexels.com',
+                'cdn.pixabay.com',
+                'unsplash.com',
+                'pexels.com'
+            ]
+
+            # Check if domain is in safe list or is a subdomain of safe domains
+            hostname = parsed.hostname
+            if not hostname:
+                return False
+
+            for safe_domain in safe_domains:
+                if hostname == safe_domain or hostname.endswith('.' + safe_domain):
+                    return True
+
+            return False
+
+        except Exception:
+            return False

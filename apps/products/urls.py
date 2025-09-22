@@ -1,24 +1,27 @@
-
 # apps/products/urls.py
 from django.urls import path
-from .views import (
-    ProductCategoryView, ProductDetailView, EnhancedProductDetailView, 
-    ProductsHomeView, calculate_price, add_to_cart, search_products,
-    get_product_design_options
-)
+from . import views
 
 app_name = 'products'
 
 urlpatterns = [
-    path('', ProductsHomeView.as_view(), name='home'),  # Enhanced products home page
-    path('list/', ProductCategoryView.as_view(), name='list'),  # Original product list page
-    path('business-cards/', ProductCategoryView.as_view(), name='business_cards'),  # Business cards page
-    path('category/<slug:category_slug>/', ProductCategoryView.as_view(), name='category'),
-    path('category/<slug:category_slug>/<slug:product_slug>/', EnhancedProductDetailView.as_view(), name='detail'),
-    path('ajax/calculate-price/', calculate_price, name='calculate_price'),
-    path('api/calculate-price/', calculate_price, name='api_calculate_price'),
-    path('ajax/add-to-cart/', add_to_cart, name='add_to_cart'),
-    path('ajax/search/', search_products, name='search'),
-    path('api/<int:product_id>/design-options/', get_product_design_options, name='design_options'),
-    path('api/products/<int:product_id>/design-options/', get_product_design_options, name='api_design_options'),
+    # Legacy pricing endpoint
+    path('api/calculate-price/', views.calculate_product_price, name='calculate_price'),
+    
+    # Enhanced pricing endpoints
+    path('api/pricing/calculate/', views.calculate_advanced_pricing, name='calculate_advanced_pricing'),
+    path('api/pricing/advanced/', views.calculate_advanced_pricing, name='calculate_advanced_pricing_alt'),
+    path('api/price-breaks/<int:product_id>/', views.get_price_breaks, name='get_price_breaks'),
+    path('api/pricing/validate/', views.validate_product_configuration, name='validate_configuration'),
+    
+    # Product catalog endpoints
+    path('api/product/<int:product_id>/', views.get_product_details, name='product_details'),
+    path('api/catalog/', views.get_product_catalog, name='product_catalog'),
+    path('api/categories/', views.get_categories, name='categories'),
+    
+    # Enhanced product pages
+    path('', views.product_catalog_page, name='list'),  # Default products list
+    path('catalog/', views.product_catalog_page, name='catalog'),
+    path('compare/', views.product_comparison_page, name='comparison'),
+    path('<slug:product_slug>/', views.enhanced_product_detail, name='enhanced_product_detail'),
 ]
